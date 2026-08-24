@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worker Dashboard - Appointments</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e23744;
+            --primary-hover: #c92f3b;
+            --text-main: #1c1c1c;
+            --text-muted: #696969;
+            --bg-light: #f8f9fa;
+            --success-color: #28a745;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .worker-container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .worker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            background-color: #e6f4ea;
+            color: var(--success-color);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .task-list {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .task-card {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 16px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .task-address {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .accept-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .reject-btn {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .back-link {
+            padding: 12px 20px 20px 20px;
+            text-align: center;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        .back-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="worker-container">
+        <div class="worker-header">
+            <span>Worker Dashboard</span>
+            <span class="status-badge">● Online</span>
+        </div>
+
+        <div class="task-list">
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: var(--text-muted);">Assigned Appointments</p>
+            
+            <div class="task-card">
+                <div class="task-title">
+                    <span>Appointment #1024</span>
+                    <span style="font-size: 13px; color: var(--primary-color);">11 mins away</span>
+                </div>
+                <div class="task-address">
+                    <strong>Flat 402, Sunshine Apartments</strong><br>
+                    Ambegaon Pathar, Ambegaon Budruk, Pune
+                </div>
+                <div class="task-actions">
+                    <button class="action-btn accept-btn" onclick="alert('Task Accepted!')">Accept Task</button>
+                    <button class="action-btn reject-btn" onclick="alert('Task Declined.')">Decline</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← Back to Home Portal</a>
+        </div>
+    </div>
+</body>
+</html>
 

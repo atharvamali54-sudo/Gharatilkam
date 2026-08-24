@@ -1,1 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking System - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e23744;
+            --primary-hover: #c92f3b;
+            --text-main: #1c1c1c;
+            --text-muted: #696969;
+            --bg-light: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .nav-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            transition: background-color 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .nav-btn.secondary {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .nav-btn.secondary:hover {
+            background-color: #fff5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Appointment System</h1>
+        <p>Select your portal to continue</p>
+        <a href="customer.html" class="nav-btn">Customer Portal (Book Appointment)</a>
+        <a href="worker.html" class="nav-btn secondary">Worker Portal (Manage Tasks)</a>
+    </div>
+</body>
+</html>
 

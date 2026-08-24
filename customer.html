@@ -21,7 +21,29 @@
 
     <!-- Main Content -->
     <main class="flex-grow max-w-lg w-full mx-auto p-6 my-6">
-        <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
+        
+        <!-- Active Order Tracking Section (Initially Hidden) -->
+        <div id="activeOrderSection" class="hidden bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Live Order Status 🚀</h2>
+                <span id="orderStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">Pending</span>
+            </div>
+            
+            <div class="space-y-3 text-sm bg-gray-50 p-4 rounded-xl border mb-4">
+                <p><strong>Service:</strong> <span id="trackService">-</span></p>
+                <p><strong>Area:</strong> <span id="trackArea">-</span></p>
+                <p><strong>Budget:</strong> ₹<span id="trackBudget">-</span></p>
+                <p><strong>Scheduled:</strong> <span id="trackDate">-</span> at <span id="trackTime">-</span></p>
+                <p><strong>Address:</strong> <span id="trackAddress">-</span></p>
+            </div>
+
+            <button onclick="cancelOrder()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow transition duration-300">
+                Cancel Order
+            </button>
+        </div>
+
+        <!-- Book a Service Form Container -->
+        <div id="bookingFormContainer" class="bg-white p-6 rounded-2xl shadow-md border border-gray-200">
             <h2 class="text-xl font-bold text-gray-800 mb-4">Book a Home Service 🛠️</h2>
             
             <form id="orderForm" onsubmit="submitOrder(event)" class="space-y-4">
@@ -117,17 +139,48 @@
                 return;
             }
 
-            let activeOrder = localStorage.getItem('gharkamActiveOrder');
-            let submitBtn = document.getElementById('submitBtn');
+            checkActiveOrder();
+            
+            // Poll localStorage every 2 seconds to catch live status updates from workers
+            setInterval(checkActiveOrder, 2000);
+        }
 
-            if (activeOrder) {
-                submitBtn.innerText = "Book Appointment (Request Pending)";
-                submitBtn.disabled = true;
-                submitBtn.className = "w-full bg-gray-400 text-white font-bold py-3.5 rounded-xl shadow-inner cursor-not-allowed";
+        function checkActiveOrder() {
+            let activeOrderJson = localStorage.getItem('gharkamActiveOrder');
+            let bookingFormContainer = document.getElementById('bookingFormContainer');
+            let activeOrderSection = document.getElementById('activeOrderSection');
+
+            if (activeOrderJson) {
+                let order = JSON.parse(activeOrderJson);
+                
+                // Hide booking form, show tracker
+                bookingFormContainer.classList.add('hidden');
+                activeOrderSection.classList.remove('hidden');
+
+                // Populate tracking details
+                document.getElementById('trackService').innerText = order.service;
+                document.getElementById('trackArea').innerText = order.area;
+                document.getElementById('trackBudget').innerText = order.budget;
+                document.getElementById('trackDate').innerText = order.date;
+                document.getElementById('trackTime').innerText = order.time;
+                document.getElementById('trackAddress').innerText = order.address;
+
+                // Status Badge styling
+                let statusBadge = document.getElementById('orderStatusBadge');
+                let status = order.status || 'Pending';
+                statusBadge.innerText = status;
+
+                if (status === 'Pending') {
+                    statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800";
+                } else if (status === 'Accepted') {
+                    statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800";
+                } else if (status === 'Completed') {
+                    statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800";
+                }
             } else {
-                submitBtn.innerText = "Book Appointment";
-                submitBtn.disabled = false;
-                submitBtn.className = "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition duration-300";
+                // Show booking form, hide tracker
+                bookingFormContainer.classList.remove('hidden');
+                activeOrderSection.classList.add('hidden');
             }
         }
 
@@ -146,16 +199,25 @@
                         date: document.getElementById('orderDate').value,
                         time: document.getElementById('orderTime').value,
                         address: document.getElementById('address').value,
-                        photo: e.target.result // Photo Base64 format madhe save hoil
+                        photo: e.target.result,
+                        status: 'Pending' // Initial status
                     };
 
                     localStorage.setItem('gharkamActiveOrder', JSON.stringify(orderData));
                     alert("Order Successfully Book Zali!");
-                    location.reload();
+                    checkActiveOrder();
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
                 alert("Krupaya kamacha photo upload kara!");
+            }
+        }
+
+        function cancelOrder() {
+            if (confirm("Are you sure you want to cancel this order?")) {
+                localStorage.removeItem('gharkamActiveOrder');
+                alert("Order Cancelled.");
+                checkActiveOrder();
             }
         }
 
@@ -166,4 +228,3 @@
     </script>
 </body>
 </html>
-

@@ -14,6 +14,7 @@
 <body class="text-gray-800 min-h-screen flex flex-col justify-between pb-16" onload="initCustomerPage()">
 
     <div>
+        <!-- Header Banner -->
         <div class="header-bg text-white px-5 pt-6 pb-8 relative shadow-md">
             <div class="flex justify-between items-start">
                 <div>
@@ -26,8 +27,10 @@
             </div>
         </div>
 
+        <!-- Main Content -->
         <main class="max-w-3xl w-full mx-auto p-4 space-y-5 mt-2">
 
+            <!-- LIVE ORDER TRACKING SECTION (Amazon/Flipkart Style) -->
             <div id="trackingSection" class="hidden bg-white p-5 rounded-2xl shadow-md border border-blue-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-3">
                     <h3 class="font-bold text-sm text-gray-800 flex items-center gap-2">
@@ -38,15 +41,19 @@
                     </span>
                 </div>
 
+                <!-- Active Order Info -->
                 <div class="text-xs text-gray-700 bg-blue-50/60 p-3 rounded-xl border border-blue-100 space-y-1">
                     <p><strong>Service:</strong> <span id="trackService">--</span></p>
                     <p><strong>Budget:</strong> ₹<span id="trackBudget">0</span></p>
+                    <p><strong>Scheduled Date & Time:</strong> <span id="trackDateTime" class="font-semibold text-blue-800">--</span></p>
                     <p><strong>Assigned Worker ID/Mobile:</strong> <span id="trackWorker" class="font-bold text-blue-700">Finding Worker...</span></p>
                     <p><strong>Address:</strong> <span id="trackAddress">--</span></p>
                 </div>
 
+                <!-- Progress Tracker Visual Steps -->
                 <div class="relative pl-6 space-y-6 pt-2 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-gray-200">
                     
+                    <!-- Step 1 -->
                     <div id="step1" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">1</span>
                         <div>
@@ -55,6 +62,7 @@
                         </div>
                     </div>
 
+                    <!-- Step 2 -->
                     <div id="step2" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">2</span>
                         <div>
@@ -63,6 +71,7 @@
                         </div>
                     </div>
 
+                    <!-- Step 3 -->
                     <div id="step3" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">3</span>
                         <div>
@@ -71,6 +80,7 @@
                         </div>
                     </div>
 
+                    <!-- Step 4 -->
                     <div id="step4" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">4</span>
                         <div>
@@ -82,6 +92,7 @@
                 </div>
             </div>
 
+            <!-- BOOKING FORM SECTION -->
             <div id="bookingFormCard" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
                 <h2 class="text-sm font-bold text-gray-800 border-b pb-2">🛠️ Book a Household Service</h2>
                 
@@ -114,7 +125,20 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Offer Budget (₹):</label>
-                            <input type="number" id="bookingBudget" min="50" placeholder="e.g. 300" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+                            <input type="number" id="bookingBudget" min="50" placeholder="e.g. 500" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+                        </div>
+                    </div>
+
+                    <!-- Date & Time Options Added Below -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Preferred Date:</label>
+                            <input type="date" id="bookingDate" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1">Preferred Time:</label>
+                            <input type="time" id="bookingTime" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
                         </div>
                     </div>
 
@@ -137,10 +161,12 @@
         </main>
     </div>
 
+    <!-- Footer -->
     <footer class="text-center py-4 text-gray-500 text-xs bg-white border-t mt-auto">
         © 2026 Gharkam.com | Customer Portal
     </footer>
 
+    <!-- Logic Script -->
     <script>
         let customerSession = null;
         let trackingInterval = null;
@@ -165,7 +191,10 @@
                 return;
             }
 
-            // रिअल-टाईम ट्रॅकिंग सुरू करा (दर २ सेकंदांनी तपासणी)
+            // आजची तारीख डिफॉल्ट सेट करा
+            let today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').value = today;
+
             updateLiveTrackingUI();
             trackingInterval = setInterval(updateLiveTrackingUI, 2000);
         }
@@ -176,6 +205,8 @@
             const service = document.getElementById('serviceType').value;
             const area = document.getElementById('bookingArea').value;
             const budget = document.getElementById('bookingBudget').value;
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
             const address = document.getElementById('bookingAddress').value;
             const photoInput = document.getElementById('bookingPhoto');
 
@@ -186,8 +217,10 @@
                 service: service,
                 area: area,
                 budget: budget,
+                bookingDate: date,
+                bookingTime: time,
                 address: address,
-                status: 'Pending', // सुरुवातीची अवस्था
+                status: 'Pending',
                 workerMobile: null,
                 photo: null
             };
@@ -225,10 +258,11 @@
             let order = JSON.parse(savedOrder);
 
             if (trackingSection) trackingSection.classList.remove('hidden');
-            if (bookingFormCard) bookingFormCard.classList.add('hidden'); // Active order असताना फॉर्म लपवणे
+            if (bookingFormCard) bookingFormCard.classList.add('hidden');
 
             document.getElementById('trackService').innerText = order.service;
             document.getElementById('trackBudget').innerText = order.budget;
+            document.getElementById('trackDateTime').innerText = (order.bookingDate || '--') + " at " + (order.bookingTime || '--');
             document.getElementById('trackWorker').innerText = order.workerMobile ? order.workerMobile : "Finding Worker...";
             document.getElementById('trackAddress').innerText = order.address;
 
@@ -262,7 +296,6 @@
                 statusBadge.innerText = "🎉 Work Completed";
                 statusBadge.className = "text-[10px] bg-green-100 text-green-800 font-bold px-2.5 py-1 rounded-full";
                 
-                // ५ सेकंदांनंतर ट्रॅकिंग लपवून नवीन बुकिंग पर्याय उघडणे
                 setTimeout(() => {
                     localStorage.removeItem('gharkamActiveOrder');
                     updateLiveTrackingUI();

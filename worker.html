@@ -74,7 +74,7 @@
                 <span>⚠️</span>
                 <span>Wallet Balance Low (Below ₹50)</span>
             </p>
-            <p class="text-[11px]">Duty ON karnyasathi kinva navin order ghenyasaathi wallet madhe minimum ₹50 asne garjeche aahe.</p>
+            <p class="text-[11px]">Tumche wallet balance ₹50 peksa kami aahe. Navin order milvanyasathi wallet recharge kara.</p>
         </div>
 
         <!-- Area Selection & Duty Toggle Button -->
@@ -231,7 +231,6 @@
 
         function checkExistingActiveOrder() {
             let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
-            // Accepted किवा OnTheWay ऑर्डर्स सक्रिय मानल्या जातील (Completed वगळून)
             let myActiveOrder = allOrders.find(o => o.workerMobile === workerSession.mobile && (o.status === 'Accepted' || o.status === 'OnTheWay'));
             
             if (myActiveOrder) {
@@ -251,9 +250,14 @@
         function updateWalletUI() {
             document.getElementById('walletBalance').innerText = workerSession.balance;
             const warningEl = document.getElementById('lowBalanceWarning');
+            
             if (workerSession.balance < 50) {
                 warningEl.classList.remove('hidden');
-                if (isDutyOn && !hasActiveOrder) toggleDuty();
+                // जर बॅलन्स ₹50 च्या खाली असेल तर नवीन ऑर्डर्स सर्च करणे थांबवा आणि Duty OFF करा
+                if (isDutyOn && !hasActiveOrder) {
+                    isDutyOn = false;
+                    updateDutyUI(false);
+                }
             } else {
                 warningEl.classList.add('hidden');
             }
@@ -265,7 +269,7 @@
                 return;
             }
             if (workerSession.balance < 50) {
-                alert("⚠️ Minimum ₹50 wallet balance required for Duty.");
+                alert("⚠️ Minimum ₹50 wallet balance required for Duty and getting orders.");
                 return;
             }
             const area = document.getElementById('workerArea').value;
@@ -310,6 +314,10 @@
 
         function onAreaChange() {
             if (isDutyOn && !hasActiveOrder) {
+                if (workerSession.balance < 50) {
+                    alert("⚠️ Minimum ₹50 wallet balance required.");
+                    return;
+                }
                 document.getElementById('orderCard').classList.add('hidden');
                 document.getElementById('searchingState').classList.remove('hidden');
                 checkForOrders();
@@ -317,7 +325,15 @@
         }
 
         function checkForOrders() {
-            if (!isDutyOn || hasActiveOrder) return;
+            // बॅलन्स ₹50 पेक्षा कमी असल्यास ऑर्डर्स शोधणे बंद करा
+            if (!isDutyOn || hasActiveOrder || workerSession.balance < 50) {
+                document.getElementById('orderCard').classList.add('hidden');
+                document.getElementById('searchingState').classList.add('hidden');
+                if (workerSession.balance < 50) {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                }
+                return;
+            }
 
             const selectedArea = document.getElementById('workerArea').value;
             let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
@@ -326,7 +342,6 @@
             const orderCard = document.getElementById('orderCard');
             const photoContainer = document.getElementById('photoContainer');
 
-            // Pending आणि Claim न केलेल्या नवीन ऑर्डर्स शोधणे
             let availableOrder = allOrders.find(order => {
                 let areaMatch = order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase());
                 let isPending = order.status === 'Pending';
@@ -355,7 +370,6 @@
 
                 orderCard.classList.remove('hidden');
             } else {
-                // कोणतीही नवीन ऑर्डर नसेल तर 'Finding New Order...' स्टेट दाखवा
                 orderCard.classList.add('hidden');
                 searchingState.classList.remove('hidden');
             }
@@ -363,7 +377,7 @@
 
         function acceptOrder() {
             if (workerSession.balance < 50) {
-                alert("Wallet balance less than ₹50.");
+                alert("⚠️ Wallet balance less than ₹50. Recharge to accept orders.");
                 return;
             }
 
@@ -423,8 +437,8 @@
 
         function completeOrder() {
             if (workerSession.balance >= 10) {
+                // ₹10 कट करणे
                 workerSession.balance -= 10;
-                updateWalletUI();
                 localStorage.setItem('current_user_session', JSON.stringify(workerSession));
 
                 if (currentOrderData) {
@@ -438,24 +452,29 @@
                     }
                 }
 
-                // सर्व ऑर्डर डेटा पूर्णपणे रीसेट करा
                 hasActiveOrder = false;
                 currentOrderData = null;
 
-                // Active ongoing कार्ड लपवा आणि "Finding New Order..." चालू करा
                 document.getElementById('ongoingOrder').classList.add('hidden');
                 document.getElementById('orderCard').classList.add('hidden');
-                document.getElementById('searchingState').classList.remove('hidden');
-                
-                alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
 
-                // नवीन ऑर्डर्सचा लूप पूर्ववत सुरू करा
-                if(isDutyOn) {
-                    checkForOrders();
-                    if(!checkInterval) {
-                        checkInterval = setInterval(checkForOrders, 1500);
+                // Wallet अपडेट करणे (जर ₹50 पेक्षा कमी झाले, तर आपोआप Warning दिसेल आणि Searching बंद होईल)
+                updateWalletUI();
+
+                if (workerSession.balance >= 50) {
+                    document.getElementById('searchingState').classList.remove('hidden');
+                    alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
+                    if(isDutyOn) {
+                        checkForOrders();
+                        if(!checkInterval) {
+                            checkInterval = setInterval(checkForOrders, 1500);
+                        }
                     }
+                } else {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                    alert("Kam complete zale! Tumche balance ₹50 peksa kami zale aahe. Navin order sathi recharge kara.");
                 }
+
             } else {
                 alert("Wallet balance insufficient!");
             }

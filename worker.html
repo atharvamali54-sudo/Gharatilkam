@@ -32,7 +32,7 @@
 
     <div class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
         
-        <!-- Top Header Navigation (Customer Page Style Header) -->
+        <!-- Top Header Navigation -->
         <header class="bg-blue-600 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-md select-none">
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2 text-2xl font-black tracking-tight text-white">
@@ -45,39 +45,72 @@
             </div>
             
             <div class="flex items-center gap-3">
-                <span class="text-xs font-bold bg-white text-blue-700 border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 📍 Active Worker
+                <span id="headerDutyStatus" class="text-xs font-bold bg-white text-blue-700 border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <span id="dutyDot" class="w-2 h-2 rounded-full bg-red-500"></span> <span id="dutyText">Duty OFF</span>
                 </span>
             </div>
         </header>
 
-        <!-- Main Content Grid -->
+        <!-- Main Content Area Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
             
-            <!-- Left Side: Available Customer Requests -->
-            <div class="lg:col-span-7 p-6 md:p-8 bg-white">
-                <div class="flex items-center justify-between mb-6">
+            <!-- Left Side: Control Panel + Jobs Container -->
+            <div class="lg:col-span-7 p-6 md:p-8 bg-white border-b lg:border-b-0 border-slate-200">
+                
+                <!-- 1. Top Wallet Header Card -->
+                <div class="bg-blue-50 border border-blue-200 p-5 rounded-2xl flex justify-between items-center mb-6 shadow-sm">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-briefcase text-blue-600"></i> Available Jobs
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-1">नवीन कामाच्या विनंत्या स्वीकारा आणि काम सुरू करा.</p>
+                        <h2 class="font-bold text-slate-800 text-base">Gharkam - Worker Panel</h2>
+                        <p class="text-xs text-slate-500 font-medium mt-0.5">Worker: <span class="text-blue-600 font-bold">Verified Partner</span></p>
+                        <p class="text-[11px] text-slate-400">ID: GK-8821 | Service: All</p>
                     </div>
+
+                    <div class="bg-white p-3.5 rounded-xl border border-blue-100 shadow-sm text-center min-w-[130px]">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">WALLET BALANCE</span>
+                        <span class="text-xl font-black text-emerald-600 block my-0.5">₹<span id="walletAmount">50</span></span>
+                        <button onclick="addMoney()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] py-1 px-3 rounded-lg shadow-sm transition">
+                            + Add Money
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Select Working Area -->
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Select Working Area:</label>
+                    <select id="workingAreaSelect" onchange="filterAreaJobs()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
+                        <option value="Swargate">Swargate</option>
+                        <option value="Kothrud">Kothrud</option>
+                        <option value="Katraj">Katraj</option>
+                        <option value="Shivajinagar">Shivajinagar</option>
+                    </select>
+                </div>
+
+                <!-- 3. Duty ON / OFF Toggle Button -->
+                <button id="dutyToggleBtn" onclick="toggleDuty()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6">
+                    🔴 Duty OFF (Click ON)
+                </button>
+
+                <hr class="border-slate-100 mb-6">
+
+                <!-- 4. Available Jobs Stream -->
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-briefcase text-blue-600"></i> Available Jobs
+                    </h3>
                     <span id="jobCount" class="bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">
                         0 New Jobs
                     </span>
                 </div>
 
-                <!-- Job List Stream -->
-                <div id="availableJobsContainer" class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
-                    <p class="text-slate-400 text-xs text-center py-10">सध्या एकही नवीन काम उपलब्ध नाही...</p>
+                <div id="availableJobsContainer" class="space-y-4 max-h-[400px] overflow-y-auto pr-1">
+                    <!-- Dynamic Jobs or Duty OFF View -->
                 </div>
             </div>
 
-            <!-- Right Side: My Accepted Jobs & Support Panel -->
+            <!-- Right Side: Active Tasks & Support -->
             <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
                 
-                <!-- Accepted Tasks Section -->
+                <!-- Active Accepted Task -->
                 <div>
                     <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-circle-check text-emerald-600"></i> My Active Task
@@ -88,7 +121,7 @@
                     </div>
                 </div>
 
-                <!-- Worker Help Desk -->
+                <!-- Worker Support Panel -->
                 <div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
                         <i class="fa-solid fa-headset text-blue-600"></i> Worker Support Helpline
@@ -112,32 +145,92 @@
     </div>
 
     <script>
-        // Realtime Listener for Available Orders & Active Tasks
+        let isDutyOn = false;
+        let currentBalance = 50;
+        let allOrdersData = null;
+
+        // Toggle Duty ON / OFF Logic
+        function toggleDuty() {
+            isDutyOn = !isDutyOn;
+            const btn = document.getElementById('dutyToggleBtn');
+            const headerDot = document.getElementById('dutyDot');
+            const headerText = document.getElementById('dutyText');
+
+            if (isDutyOn) {
+                btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6";
+                btn.innerHTML = "🟢 Duty ON (Click OFF)";
+                
+                headerDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                headerText.innerText = "Duty ON";
+            } else {
+                btn.className = "w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6";
+                btn.innerHTML = "🔴 Duty OFF (Click ON)";
+                
+                headerDot.className = "w-2 h-2 rounded-full bg-red-500";
+                headerText.innerText = "Duty OFF";
+            }
+
+            renderJobs();
+        }
+
+        // Add Money Quick Demo Function
+        function addMoney() {
+            const amount = prompt("वॉलेटमध्ये जमा करायची रक्कम टाका (₹):", "100");
+            if (amount && !isNaN(amount)) {
+                currentBalance += parseInt(amount);
+                document.getElementById('walletAmount').innerText = currentBalance;
+                alert(`₹${amount} यशस्वीरीत्या वॉलेटमध्ये जमा झाले!`);
+            }
+        }
+
+        function filterAreaJobs() {
+            renderJobs();
+        }
+
+        // Realtime Firebase Listener
         database.ref("orders").on("value", (snapshot) => {
+            allOrdersData = snapshot.val();
+            renderJobs();
+        });
+
+        // Main Rendering Logic based on Duty & Area Selection
+        function renderJobs() {
             const jobsContainer = document.getElementById('availableJobsContainer');
             const acceptedContainer = document.getElementById('acceptedJobsContainer');
             const jobCountBadge = document.getElementById('jobCount');
-            
-            jobsContainer.innerHTML = "";
+            const selectedArea = document.getElementById('workingAreaSelect').value;
+
             acceptedContainer.innerHTML = "";
-            
-            const data = snapshot.val();
-            if (!data) {
-                jobsContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-10">सध्या एकही नवीन काम उपलब्ध नाही...</p>';
-                acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>';
+
+            // Check if Duty is OFF
+            if (!isDutyOn) {
+                jobsContainer.innerHTML = `
+                    <div class="text-center py-10">
+                        <span class="text-5xl block mb-3">😴</span>
+                        <p class="font-bold text-slate-700 text-sm">तुम्ही सध्या Duty OFF वर आहात</p>
+                        <p class="text-xs text-slate-400 mt-1">नवीन कामे पाहण्यासाठी व स्वीकारण्यासाठी वरील "Duty OFF" बटण दाबा.</p>
+                    </div>
+                `;
                 jobCountBadge.innerText = "0 New Jobs";
                 return;
             }
 
-            const keys = Object.keys(data).reverse();
+            if (!allOrdersData) {
+                jobsContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-10">सध्या एकही काम उपलब्ध नाही...</p>';
+                jobCountBadge.innerText = "0 New Jobs";
+                return;
+            }
+
+            jobsContainer.innerHTML = "";
+            const keys = Object.keys(allOrdersData).reverse();
             let pendingCount = 0;
             let activeTaskFound = false;
 
             keys.forEach(key => {
-                const item = data[key];
+                const item = allOrdersData[key];
 
-                // 1. Pending Jobs List for Worker to Accept
-                if (item.status === 'Pending') {
+                // Render Pending Available Jobs matching Selected Area
+                if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {
                     pendingCount++;
                     const jobCard = document.createElement('div');
                     jobCard.className = "bg-slate-50 border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition shadow-sm space-y-3";
@@ -153,7 +246,7 @@
                         </div>
 
                         <div class="text-xs text-slate-600 space-y-1">
-                            <p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area})</p>
+                            <p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area || selectedArea})</p>
                             <p><i class="fa-solid fa-clock text-blue-500 mr-1.5"></i><strong>वेळ:</strong> ${item.date || ''} | ${item.time || ''}</p>
                             <p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> ${item.customerMobile}</p>
                         </div>
@@ -165,7 +258,7 @@
                     jobsContainer.appendChild(jobCard);
                 }
 
-                // 2. Active Accepted Jobs Tracker for Worker
+                // Render Accepted Active Jobs Status
                 if ((item.status === 'Accepted' || item.status === 'On The Way') && !activeTaskFound) {
                     activeTaskFound = true;
                     const activeCard = document.createElement('div');
@@ -200,26 +293,26 @@
 
             jobCountBadge.innerText = `${pendingCount} New Jobs`;
             if (pendingCount === 0) {
-                jobsContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-10">सध्या एकही नवीन काम उपलब्ध नाही...</p>';
+                jobsContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-10">${selectedArea} एरियामध्ये सध्या एकही नवीन काम उपलब्ध नाही...</p>`;
             }
             if (!activeTaskFound) {
                 acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>';
             }
-        });
+        }
 
-        // Function to Accept Job
+        // Accept Order Function
         function acceptOrder(orderId) {
             database.ref("orders/" + orderId).update({
                 status: "Accepted",
                 workerMobile: "Verified Worker Assigned"
             }).then(() => {
-                alert("तुम्ही हे काम स्वीकारले आहे!");
+                alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
             }).catch((err) => {
                 alert("त्रुटी: " + err.message);
             });
         }
 
-        // Function to Update Order Status (On The Way / Completed)
+        // Update Order Status Function
         function updateStatus(orderId, newStatus) {
             database.ref("orders/" + orderId).update({
                 status: newStatus

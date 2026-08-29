@@ -11,8 +11,8 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
-    <!-- Firebase Initialization -->
     <script>
       const firebaseConfig = {
         apiKey: "AIzaSyD7Y-2un6pfAY8rafRsAzMre-OvNBAkosU",
@@ -26,69 +26,62 @@
 
       firebase.initializeApp(firebaseConfig);
       const database = firebase.database();
+      const storage = firebase.storage();
     </script>
 </head>
 <body class="bg-gradient-to-br from-blue-600 via-indigo-700 to-blue-900 min-h-screen p-4 md:p-8 flex items-center justify-center font-sans">
 
-    <div class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+    <div class="w-full max-w-6xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
         
-        <!-- Top Header Navigation (Blue Box Style & Non-Clickable) -->
-        <header class="bg-blue-600 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-md select-none">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 text-2xl font-black tracking-tight text-white">
-                    <span class="bg-white text-blue-600 p-2 rounded-xl text-lg flex items-center justify-center shadow-sm">🏠 GK</span>
-                    <span>GHARKAM<span class="text-blue-200">.com</span></span>
-                </div>
-                <span class="hidden md:inline-block text-xs font-semibold bg-blue-700 text-blue-100 px-3 py-1 rounded-full border border-blue-500">
-                    Pune City Services
-                </span>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <span class="text-xs font-bold bg-white text-blue-700 border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 📍 Pune Verified
-                </span>
+        <!-- Header -->
+        <header class="bg-blue-600 px-6 py-4 flex items-center justify-between shadow-md">
+            <div class="flex items-center gap-2 text-2xl font-black text-white">
+                <span class="bg-white text-blue-600 p-2 rounded-xl text-lg flex items-center justify-center shadow-sm">🏠 GK</span>
+                <span>GHARKAM<span class="text-blue-200">.com</span></span>
             </div>
         </header>
 
-        <!-- Main Content Area: Split Grid -->
+        <!-- Content Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
             
-            <!-- Left Side: Form Container -->
-            <div class="lg:col-span-7 p-6 md:p-8 bg-white">
+            <!-- Left Side: Booking Form -->
+            <div class="lg:col-span-7 p-6 md:p-8 bg-white border-b lg:border-b-0 border-slate-200">
                 <div class="mb-6">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-calendar-check text-blue-600"></i> Book Your Appointment
                     </h2>
-                    <p class="text-xs text-slate-500 mt-1">पुण्यातील विश्वासू कामगारांची सेवा मिळवण्यासाठी फॉर्म भरा.</p>
+                    <p class="text-xs text-slate-500 mt-1">Fill out the form to get the services of trusted workers in Pune.</p>
                 </div>
 
                 <form id="bookingForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
                     
+                    <!-- Select Service -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Service</label>
-                        <select id="serviceName" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                            <option value="Electrician">⚡ Electrician (इलेक्ट्रिशियन)</option>
-                            <option value="Plumber">🚰 Plumber (प्लंबर)</option>
-                            <option value="Carpenter">🪚 Carpenter (सुतार)</option>
-                            <option value="Cleaner">🧹 Home Cleaner (सफाई)</option>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">SELECT SERVICE</label>
+                        <select id="serviceSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="Electrician">⚡ Electrician</option>
+                            <option value="Plumber">🪠 Plumber</option>
+                            <option value="Cleaner">🧹 Cleaning Service</option>
+                            <option value="Home Repair">🛠️ Home Repair</option>
                         </select>
                     </div>
 
+                    <!-- Full Name & Mobile Number -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
-                            <input type="text" id="customerName" placeholder="तुमचे पूर्ण नाव" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">FULL NAME</label>
+                            <input type="text" id="customerName" placeholder="Your full name" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile Number</label>
-                            <input type="tel" id="customerMobile" placeholder="मोबाईल नंबर" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">MOBILE NUMBER</label>
+                            <input type="tel" id="customerMobile" pattern="[0-9]{10}" placeholder="mobile number" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
                         </div>
                     </div>
 
+                    <!-- Select Area -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Area</label>
-                        <select id="areaName" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">SELECT AREA</label>
+                        <select id="areaSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
                             <option value="Swargate">Swargate</option>
                             <option value="Kothrud">Kothrud</option>
                             <option value="Katraj">Katraj</option>
@@ -96,180 +89,210 @@
                         </select>
                     </div>
 
+                    <!-- Full Address -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Address</label>
-                        <textarea id="fullAddress" rows="2" placeholder="घर क्रमांक, सोसायटी, गल्ली किंवा लँडमार्क..." required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></textarea>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">FULL ADDRESS</label>
+                        <textarea id="customerAddress" rows="3" placeholder="House number, society, street or landmark..." required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"></textarea>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                    <!-- 💰 BUDGET OPTION (ADDED HERE) -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">YOUR ESTIMATED BUDGET</label>
+                        <select id="budgetSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="₹500">₹500 (Standard Charge)</option>
+                            <option value="₹500 - ₹1,000">₹500 - ₹1,000</option>
+                            <option value="₹1,000 - ₹3,000">₹1,000 - ₹3,000</option>
+                            <option value="₹3,000 - ₹5,000">₹3,000 - ₹5,000</option>
+                            <option value="₹5,000+">₹5,000+</option>
+                        </select>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Date</label>
-                            <input type="date" id="bookingDate" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">DATE</label>
+                            <input type="date" id="bookingDate" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Time</label>
-                            <input type="time" id="bookingTime" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">TIME</label>
+                            <input type="time" id="bookingTime" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
                         </div>
                     </div>
 
+                    <!-- Photo (Optional) -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Photo (Optional)</label>
-                        <input type="file" id="photoFile" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition">
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">PHOTO (OPTIONAL)</label>
+                        <input type="file" id="jobPhoto" accept="image/*" class="w-full text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-xl p-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
                     </div>
 
                     <!-- Submit Button -->
-                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-blue-500/30 transition text-base mt-4 flex items-center justify-center gap-2">
-                        🚀 Book Appointment
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mt-4">
+                        <i class="fa-solid fa-paper-plane"></i> Book Appointment Now
                     </button>
                 </form>
             </div>
 
-            <!-- Right Side: Live Status Tracker & Support -->
+            <!-- Right Side: Live Booking Status -->
             <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
-                
-                <!-- Live Booking Status Tracker -->
                 <div>
-                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Live Booking Status
-                    </h3>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-rotate text-blue-600"></i> Live Booking Status
+                        </h3>
+                    </div>
 
-                    <div id="customerStatusList">
-                        <p class="text-slate-400 text-xs text-center py-8">कोणतीही बुकिंग उपलब्ध नाही.</p>
+                    <!-- Status Display Box -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b pb-3 border-slate-100">
+                            <span class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                                📦 Live Booking Status
+                            </span>
+                            <span id="statusBadge" class="bg-amber-100 text-amber-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                ⏳ <span id="statusBadgeText">Finding Worker</span>
+                            </span>
+                        </div>
+
+                        <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <p><strong>Service:</strong> <span id="statusService">Plumber</span></p>
+                            <p><strong>Budget:</strong> <span id="statusBudget" class="text-emerald-600 font-bold">₹500</span></p>
+                            <p><strong>Assigned Worker ID/Mobile:</strong> <span id="statusWorker" class="text-blue-600 font-medium">Finding Worker...</span></p>
+                            <p><strong>Address:</strong> <span id="statusAddress">Karegaon</span></p>
+                        </div>
+
+                        <!-- 4 Step Tracker -->
+                        <div class="space-y-4 pt-2">
+                            <div class="flex items-start gap-3">
+                                <div id="step1Dot" class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-800">Order Requested</h5>
+                                    <p class="text-[11px] text-slate-400">Kamachi request successfully pathvali aahe.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div id="step2Dot" class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-400">Worker Accepted</h5>
+                                    <p class="text-[11px] text-slate-400">The worker will accept the order.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div id="step3Dot" class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-400">Worker On The Way</h5>
+                                    <p class="text-[11px] text-slate-400">Worker's location is still unknown.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start gap-3">
+                                <div id="step4Dot" class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">4</div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-400">Work Completed</h5>
+                                    <p class="text-[11px] text-slate-400">Kam yashasvirita purana zale aahe.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Customer Care Support -->
-                <div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
+                <div class="mt-8 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
-                        <i class="fa-solid fa-headset text-emerald-600"></i> Customer Care Support
+                        <i class="fa-solid fa-headset text-blue-600"></i> Customer Care Support
                     </h4>
-                    <p class="text-xs text-slate-500 mb-4">काही मदत हवी असल्यास थेट आमच्या सपोर्ट टीमशी संपर्क साधा.</p>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <a href="tel:7875160724" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition">
-                            <i class="fa-solid fa-phone text-blue-600"></i> Call Support
-                        </a>
-                        <a href="https://wa.me/917875160724?text=Hello%20Gharkam%20Support," target="_blank" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-sm transition">
-                            <i class="fa-brands fa-whatsapp text-white text-sm"></i> WhatsApp
-                        </a>
-                    </div>
+                    <p class="text-xs text-slate-500 mb-3">If you need any assistance, please contact our support team directly.</p>
+                    <a href="tel:7875160724" class="inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-4 rounded-xl transition">
+                        <i class="fa-solid fa-phone text-blue-600"></i> Call Support
+                    </a>
                 </div>
-
             </div>
 
         </div>
-
     </div>
 
     <script>
+        // Set Default Date to Today
         document.getElementById('bookingDate').valueAsDate = new Date();
 
-        function handleFormSubmit(event) {
-            event.preventDefault();
-
+        async function handleFormSubmit(e) {
+            e.preventDefault();
             const submitBtn = document.getElementById('submitBtn');
-            submitBtn.innerText = "कृपया थांबा...";
             submitBtn.disabled = true;
+            submitBtn.innerText = "Booking in progress...";
 
-            const service = document.getElementById('serviceName').value;
+            const service = document.getElementById('serviceSelect').value;
             const name = document.getElementById('customerName').value;
             const mobile = document.getElementById('customerMobile').value;
-            const area = document.getElementById('areaName').value;
-            const address = document.getElementById('fullAddress').value;
+            const area = document.getElementById('areaSelect').value;
+            const address = document.getElementById('customerAddress').value;
+            const budget = document.getElementById('budgetSelect').value;
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
+            const photoFile = document.getElementById('jobPhoto').files[0];
 
-            const newOrderRef = database.ref("orders").push();
-            newOrderRef.set({
-                service: service,
-                customerName: name,
-                customerMobile: mobile,
-                area: area,
-                address: address,
-                date: date,
-                time: time,
-                status: "Pending",
-                timestamp: Date.now()
-            }).then(() => {
-                alert("ऑर्डर यशस्वीरीत्या बुक झाली आहे!");
-                document.getElementById('bookingForm').reset();
-                document.getElementById('bookingDate').valueAsDate = new Date();
-                submitBtn.innerHTML = "🚀 Book Appointment";
+            let photoUrl = "";
+
+            try {
+                if (photoFile) {
+                    const storageRef = storage.ref('order_photos/' + Date.now() + '_' + photoFile.name);
+                    const snapshot = await storageRef.put(photoFile);
+                    photoUrl = await snapshot.ref.getDownloadURL();
+                }
+
+                // Push to Firebase Realtime DB
+                const newOrderRef = database.ref("orders").push();
+                await newOrderRef.set({
+                    service: service,
+                    customerName: name,
+                    customerMobile: mobile,
+                    area: area,
+                    address: address,
+                    budget: budget,
+                    date: date,
+                    time: time,
+                    photoUrl: photoUrl,
+                    status: "Pending",
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // Update Live Card Side
+                document.getElementById('statusService').innerText = service;
+                document.getElementById('statusBudget').innerText = budget;
+                document.getElementById('statusAddress').innerText = address;
+                document.getElementById('statusWorker').innerText = "Finding Worker...";
+
+                alert("तुमची अपॉइंटमेंट यशस्वीरीत्या बुक झाली आहे!");
+                
+                // Track Status Live
+                trackLiveStatus(newOrderRef.key);
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
                 submitBtn.disabled = false;
-            }).catch((err) => {
-                alert("त्रुटी आली: " + err.message);
-                submitBtn.innerHTML = "🚀 Book Appointment";
-                submitBtn.disabled = false;
-            });
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Book Appointment Now';
+            }
         }
 
-        database.ref("orders").on("value", (snapshot) => {
-            const container = document.getElementById('customerStatusList');
-            container.innerHTML = "";
-            const data = snapshot.val();
+        function trackLiveStatus(orderId) {
+            database.ref("orders/" + orderId).on("value", (snapshot) => {
+                const data = snapshot.val();
+                if(!data) return;
 
-            if (!data) {
-                container.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">कोणतीही बुकिंग उपलब्ध नाही.</p>';
-                return;
-            }
-
-            const keys = Object.keys(data).reverse();
-            keys.slice(0, 1).forEach(key => {
-                const item = data[key];
-                
-                const isAccepted = item.status === 'Accepted';
-                const isOnTheWay = item.status === 'On The Way';
-                const isCompleted = item.status === 'Completed';
-
-                const statusCard = document.createElement('div');
-                statusCard.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
-                
-                statusCard.innerHTML = `
-                    <div class="flex justify-between items-center border-b pb-3 border-slate-100">
-                        <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
-                            📦 Live Booking Status
-                        </span>
-                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${isAccepted ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${isAccepted ? '✓ Worker Assigned' : '⏳ Finding Worker'}
-                        </span>
-                    </div>
-
-                    <div class="bg-blue-50/60 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
-                        <p><strong>Service:</strong> ${item.service}</p>
-                        <p><strong>Budget:</strong> ₹500</p>
-                        <p><strong>Assigned Worker ID/Mobile:</strong> <span class="${isAccepted ? 'text-emerald-700 font-bold' : 'text-blue-600'}">${isAccepted ? (item.workerMobile || 'Accepted by Worker') : 'Finding Worker...'}</span></p>
-                        <p><strong>Address:</strong> ${item.address || item.area}</p>
-                    </div>
-
-                    <div class="relative pl-6 space-y-4 border-l-2 border-slate-200 my-2 text-xs">
-                        <div class="relative">
-                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">1</span>
-                            <h5 class="font-bold text-slate-800">Order Requested</h5>
-                            <p class="text-[11px] text-slate-500">Kamachi request successfully pathvali aahe.</p>
-                        </div>
-
-                        <div class="relative">
-                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isAccepted || isOnTheWay || isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">2</span>
-                            <h5 class="font-bold ${isAccepted || isOnTheWay || isCompleted ? 'text-slate-800' : 'text-slate-400'}">Worker Accepted</h5>
-                            <p class="text-[11px] text-slate-400">Worker ne tumchi order accept keli aahe.</p>
-                        </div>
-
-                        <div class="relative">
-                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isOnTheWay || isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">3</span>
-                            <h5 class="font-bold ${isOnTheWay || isCompleted ? 'text-slate-800' : 'text-slate-400'}">Worker On The Way</h5>
-                            <p class="text-[11px] text-slate-400">Worker tumchya location var yet aahe.</p>
-                        </div>
-
-                        <div class="relative">
-                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">4</span>
-                            <h5 class="font-bold ${isCompleted ? 'text-slate-800' : 'text-slate-400'}">Work Completed</h5>
-                            <p class="text-[11px] text-slate-400">Kam yashasvirita puran zale aahe.</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(statusCard);
+                if (data.status === 'Accepted') {
+                    document.getElementById('statusBadgeText').innerText = "Worker Accepted";
+                    document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
+                    document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                } else if (data.status === 'On The Way') {
+                    document.getElementById('statusBadgeText').innerText = "Worker On The Way";
+                    document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                } else if (data.status === 'Completed') {
+                    document.getElementById('statusBadgeText').innerText = "Work Completed";
+                    document.getElementById('step4Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                }
             });
-        });
+        }
     </script>
 </body>
 </html>

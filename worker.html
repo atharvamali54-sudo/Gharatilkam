@@ -7,172 +7,189 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
-        .profile-header { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .blink-text { animation: blink 1.5s infinite; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e0f2fe 0%, #f3f4f6 50%, #e0e7ff 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 3D Floating Tool Icons */
+        .bg-icon {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.18;
+            filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.2));
+            animation: float3d 12s infinite ease-in-out alternate;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        @keyframes float3d {
+            0% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-25px) rotate(15deg) scale(1.1); }
+            100% { transform: translateY(20px) rotate(-15deg) scale(0.95); }
+        }
+
+        .icon-1 { top: 5%; left: 8%; animation-duration: 9s; }
+        .icon-2 { top: 25%; right: 10%; animation-duration: 11s; animation-delay: 1s; }
+        .icon-3 { top: 55%; left: 5%; animation-duration: 13s; animation-delay: 2s; }
+        .icon-4 { top: 75%; right: 8%; animation-duration: 10s; animation-delay: 0.5s; }
+        .icon-5 { top: 90%; left: 15%; animation-duration: 14s; animation-delay: 1.5s; }
     </style>
 </head>
-<body class="text-gray-800 min-h-screen flex flex-col justify-between pb-16" onload="initWorkerPage()">
+<body class="p-4 max-w-lg mx-auto pb-12" onload="initWorkerPage()">
 
-    <div>
-        <!-- Profile Header -->
-        <div class="profile-header text-white px-5 pt-6 pb-8 relative shadow-md">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 id="workerNameDisplay" class="text-xl font-bold tracking-wide">WORKER</h1>
-                    <p class="text-xs text-yellow-200 mt-0.5">ID : <span id="workerIdDisplay">32258019</span> | Type: <span id="workerTypeDisplay" class="font-bold underline">--</span></p>
-                </div>
-                <div class="bg-black/25 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-2xl flex items-center space-x-1.5 shadow-inner">
-                    <span class="text-yellow-400 text-lg">⭐</span>
-                    <span class="text-xs font-bold tracking-wider">Hero</span>
-                </div>
+    <!-- Floating Background Icons -->
+    <div class="bg-icon icon-1">🔨</div>
+    <div class="bg-icon icon-2">🖌️</div>
+    <div class="bg-icon icon-3">🔧</div>
+    <div class="bg-icon icon-4">🪠</div>
+    <div class="bg-icon icon-5">⚡</div>
+
+    <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-white/60 relative z-10 space-y-4">
+        
+        <!-- Header & Profile Info -->
+        <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-100 p-4 rounded-2xl border border-blue-200/70 shadow-sm flex justify-between items-center">
+            <div>
+                <h1 class="text-base font-bold text-gray-800 tracking-tight">Gharkam - Worker Panel</h1>
+                <p class="text-xs text-gray-600 font-medium">Worker: <span id="workerNameDisplay" class="font-semibold text-blue-600">--</span></p>
+                <p class="text-[11px] text-gray-500">ID: <span id="workerIdDisplay" class="font-mono">--</span> | Service: <span id="workerTypeDisplay" class="font-semibold text-indigo-600">--</span></p>
             </div>
 
-            <div class="mt-4 flex justify-between items-center bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 text-sm">
-                <div class="flex items-center space-x-2">
-                    <span>💰 Wallet: <strong class="text-yellow-300">₹<span id="walletBalance">50</span></strong></span>
-                </div>
-                <button onclick="openAddMoneyModal()" class="bg-yellow-400 hover:bg-yellow-500 text-blue-950 font-bold px-3 py-1 rounded-lg text-xs shadow transition">
+            <!-- Wallet Box -->
+            <div class="text-right bg-white/90 p-2.5 rounded-xl border border-blue-100 shadow-sm">
+                <span class="text-[10px] text-gray-500 font-bold block">WALLET BALANCE</span>
+                <span class="text-lg font-bold text-green-600">₹<span id="walletBalance">50</span></span>
+                <button onclick="openAddMoneyModal()" class="mt-1 block text-[10px] bg-blue-600 text-white font-bold px-2 py-0.5 rounded-md hover:bg-blue-700 transition w-full text-center">
                     + Add Money
                 </button>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <main class="max-w-3xl w-full mx-auto p-4 space-y-4 mt-2">
+        <!-- Low Balance Warning -->
+        <div id="lowBalanceWarning" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-2xl text-xs font-medium space-y-1">
+            <p class="font-bold flex items-center space-x-1">
+                <span>⚠️</span>
+                <span>Wallet Balance Low (Below ₹50)</span>
+            </p>
+            <p class="text-[11px]">Duty ON karnyasathi kinva navin order ghenyasaathi wallet madhe minimum ₹50 asne garjeche aahe.</p>
+        </div>
 
-            <!-- Low Balance Warning -->
-            <div id="lowBalanceWarning" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl shadow-sm text-xs font-bold text-center blink-text">
-                ⚠️ Your balance is low! You need a minimum of ₹50 to be on duty and work.
+        <!-- Area Selection & Duty Toggle Button -->
+        <div class="space-y-3 pt-1">
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Select Working Area:</label>
+                <select id="workerArea" onchange="onAreaChange()" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
+                    <option value="">-- Select Area --</option>
+                    <option value="Swargate">Swargate</option>
+                    <option value="Katraj">Katraj</option>
+                    <option value="Shivajinagar">Shivajinagar</option>
+                    <option value="Kothrud">Kothrud</option>
+                    <option value="Hadapsar">Hadapsar</option>
+                </select>
             </div>
 
-            <!-- Duty Controls -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <h2 class="text-sm font-bold text-gray-800 mb-3">Worker Duty & Area Control</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+            <button id="dutyBtn" onclick="toggleDuty()" class="w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-red-500 text-white shadow-md">
+                🔴 Duty OFF (Click ON)
+            </button>
+        </div>
+
+        <!-- Main Display Cards Section -->
+        <div class="border-t pt-4">
+
+            <!-- 1. Off Duty / Empty State -->
+            <div id="emptyState" class="text-center py-8 space-y-2">
+                <div class="text-4xl">😴</div>
+                <h3 class="font-bold text-sm text-gray-700">Tumhi Off Duty Ahat</h3>
+                <p class="text-xs text-gray-400">Navin orders milvanyasathi Area select kara aani Duty ON करा.</p>
+            </div>
+
+            <!-- 2. Searching For Orders Animation State -->
+            <div id="searchingState" class="hidden text-center py-8 space-y-3">
+                <div class="inline-block animate-spin text-3xl">🔍</div>
+                <h3 class="font-bold text-sm text-blue-600 animate-pulse">Finding New Order...</h3>
+                <p class="text-xs text-gray-400">Nivadlelya area madhe navin customer order sodhat aahot.</p>
+            </div>
+
+            <!-- 3. New Available Order Card -->
+            <div id="orderCard" class="hidden bg-gradient-to-br from-white to-blue-50/40 p-4 rounded-2xl border border-blue-200 shadow-md space-y-3">
+                <div class="flex justify-between items-start border-b pb-2">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Select Pune Area:</label>
-                        <select id="workerArea" onchange="onAreaChange()" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none bg-gray-50">
-                            <option value="">-- Area Nivada --</option>
-                            <option value="Swargate">Swargate</option>
-                            <option value="Katraj">Katraj</option>
-                            <option value="Shivajinagar">Shivajinagar</option>
-                            <option value="Kothrud">Kothrud</option>
-                            <option value="Hadapsar">Hadapsar</option>
-                        </select>
+                        <span id="orderService" class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-1 rounded-full">⚡ Service</span>
+                        <h3 id="orderCustomerName" class="font-bold text-sm text-gray-800 mt-2">--</h3>
                     </div>
+                    <span id="orderBudget" class="text-lg font-bold text-green-600">₹0</span>
+                </div>
 
-                    <div class="flex flex-col justify-end">
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Duty Status:</label>
-                        <button id="dutyBtn" onclick="toggleDuty()" class="w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-red-500 text-white shadow-md">
-                            🔴 Duty OFF (Click ON)
-                        </button>
-                    </div>
+                <div class="text-xs space-y-1.5 text-gray-600">
+                    <p><strong>📞 Mobile:</strong> <span id="orderCustomerMobile">--</span></p>
+                    <p><strong>📍 Area:</strong> <span id="orderAreaText">--</span></p>
+                    <p><strong>📅 Date & Time:</strong> <span id="orderDateTimeText">--</span></p>
+                    <p><strong>🏠 Address:</strong> <span id="orderAddress">--</span></p>
+                </div>
+
+                <!-- Optional Photo -->
+                <div id="photoContainer" class="hidden">
+                    <p class="text-[11px] font-semibold text-gray-500 mb-1">Order Photo:</p>
+                    <img id="orderPhotoImg" src="" class="w-full h-32 object-cover rounded-xl border">
+                </div>
+
+                <!-- Accept / Reject Buttons -->
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button onclick="rejectOrder()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-xl text-xs transition">
+                        ❌ Reject
+                    </button>
+                    <button onclick="acceptOrder()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-md">
+                        ✅ Accept Order
+                    </button>
                 </div>
             </div>
 
-            <!-- Orders Container -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="text-sm font-bold text-gray-800 mb-3">Incoming Orders Matching Your Area</h3>
-
-                <div id="searchingState" class="hidden text-center py-8 text-blue-600">
-                    <p class="text-3xl mb-1 animate-bounce">🔍</p>
-                    <p class="font-bold text-sm">Searching matching orders for selected area...</p>
+            <!-- 4. Ongoing Active Order Card -->
+            <div id="ongoingOrder" class="hidden bg-indigo-50/70 border border-indigo-200 p-4 rounded-2xl space-y-3">
+                <div class="flex items-center space-x-2">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                    </span>
+                    <h3 class="font-bold text-xs text-indigo-900 uppercase tracking-wide">Ongoing Work Active</h3>
                 </div>
 
-                <div id="emptyState" class="text-center py-8 text-gray-400">
-                    <p class="text-3xl mb-1">📭</p>
-                    <p class="text-xs font-medium">Duty OFF aahe. Duty ON kelyanantar matching order disel.</p>
-                </div>
+                <p id="activeCustomerInfo" class="text-xs text-gray-700 font-medium">Customer details...</p>
 
-                <!-- Available Order Card -->
-                <div id="orderCard" class="hidden border border-blue-200 bg-blue-50 p-4 rounded-xl shadow-sm space-y-2">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span id="orderService" class="font-bold text-xs text-blue-700">⚡ Service: --</span>
-                        <span id="orderBudget" class="text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full font-semibold">Budget: ₹0</span>
-                    </div>
-                    <p class="text-xs text-gray-700"><strong>Customer Name:</strong> <span id="orderCustomerName">--</span></p>
-                    <p class="text-xs text-gray-700"><strong>Mobile:</strong> <span id="orderCustomerMobile">--</span></p>
-                    <p class="text-xs text-gray-700"><strong>Area:</strong> <span id="orderAreaText">--</span></p>
-                    <p class="text-xs text-gray-700"><strong>Date & Time:</strong> <span id="orderDateTimeText" class="font-semibold text-blue-800">--</span></p>
-                    <p class="text-xs text-gray-700"><strong>Address:</strong> <span id="orderAddress">--</span></p>
-                    
-                    <div id="photoContainer" class="hidden pt-2">
-                        <p class="text-[11px] font-bold text-gray-700 mb-1">Kamacha Photo:</p>
-                        <div class="bg-black p-2 rounded-xl border border-blue-300 flex justify-center items-center">
-                            <img id="orderPhotoImg" src="" alt="Work Photo" class="w-full h-auto object-contain rounded-lg shadow-md" style="max-height: 450px;">
-                        </div>
-                    </div>
-
-                    <div class="flex space-x-2 pt-2">
-                        <button onclick="acceptOrder()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 text-xs rounded-lg transition shadow">
-                            Accept & Open Maps 🗺️
-                        </button>
-                        <button onclick="rejectOrder()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 text-xs rounded-lg transition shadow">
-                            Reject
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Ongoing Work Controls -->
-                <div id="ongoingOrder" class="hidden border border-green-300 bg-green-50 p-4 rounded-xl shadow-sm space-y-3 mt-3">
-                    <div class="flex justify-between items-center border-b border-green-200 pb-2">
-                        <h4 class="font-bold text-xs text-green-800">✅ Active Order in Progress</h4>
-                        <span class="text-[10px] bg-yellow-400 text-gray-900 px-2 py-0.5 rounded-full font-bold">Duty Locked</span>
-                    </div>
-                    
-                    <p class="text-xs text-gray-700"><strong>Ongoing Customer:</strong> <span id="activeCustomerInfo">--</span></p>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="updateOrderStatus('OnTheWay')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 text-xs rounded-lg transition shadow">
-                            🛵 Set Status: On The Way
-                        </button>
-                        <button onclick="completeOrder()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 text-xs rounded-lg transition shadow">
-                            🎉 Complete Work (-₹10)
-                        </button>
-                    </div>
+                <!-- Status Update Options -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button onclick="updateOrderStatus('OnTheWay')" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-xl text-xs shadow-sm transition">
+                        🚗 On The Way
+                    </button>
+                    <button onclick="completeOrder()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs shadow-md transition">
+                        🎉 Work Complete (-₹10)
+                    </button>
                 </div>
             </div>
-        </main>
+
+        </div>
     </div>
 
-    <!-- Recharge Modal -->
-    <div id="qrModal" class="hidden fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-3 shadow-2xl relative">
-            <button onclick="closeAddMoneyModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-lg font-bold">✕</button>
-            <h3 class="font-bold text-base text-gray-800">Recharge Wallet</h3>
-            <p class="text-xs text-gray-600">Google Pay, PhonePe varun direct paise pathvanyasathi button dabva.</p>
+    <!-- Add Money QR Code Modal -->
+    <div id="qrModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
+            <h3 class="font-bold text-gray-800 text-base">Add Balance to Wallet</h3>
+            <p class="text-xs text-gray-500">Scan QR Code using any UPI App to Add Funds</p>
             
-            <div>
-                <a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" 
-                   class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition text-center">
-                    📱 Open GPay / PhonePe
-                </a>
+            <div class="bg-gray-50 p-3 rounded-2xl border inline-block">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=7875160724@upi%26pn=Gharkam Services" alt="UPI QR" class="mx-auto rounded-lg shadow-sm">
             </div>
 
-            <div class="border-t pt-2">
-                <p class="text-[11px] font-semibold text-gray-700 mb-1">QR Code Scan Kara:</p>
-                <div class="flex justify-center border p-2 rounded-xl bg-gray-50 inline-block">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali" alt="UPI QR Code" class="w-32 h-32 object-contain">
-                </div>
-            </div>
+            <p class="text-xs font-semibold text-gray-700">UPI ID: <span class="text-blue-600 font-mono">7875160724@upi</span></p>
 
-            <div class="bg-blue-50 p-2 rounded-xl border border-blue-200">
-                <p class="text-[10px] text-gray-500 font-semibold">UPI ID (Tap to Copy):</p>
-                <p class="text-xs font-bold text-blue-700 select-all cursor-pointer" onclick="navigator.clipboard.writeText('maliatulmali07@okicici'); alert('UPI ID Copied!');">maliatulmali07@okicici 📋</p>
-            </div>
-
-            <button onclick="closeAddMoneyModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 rounded-xl text-xs transition">
+            <button onclick="closeAddMoneyModal()" class="w-full bg-gray-800 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-black transition">
                 Close
             </button>
         </div>
     </div>
-
-    <footer class="text-center py-4 text-gray-500 text-xs bg-white border-t mt-auto">
-        © 2026 Gharkam.com | Worker Portal
-    </footer>
 
     <script>
         let workerSession = null;
@@ -214,6 +231,7 @@
 
         function checkExistingActiveOrder() {
             let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+            // Accepted किवा OnTheWay ऑर्डर्स सक्रिय मानल्या जातील (Completed वगळून)
             let myActiveOrder = allOrders.find(o => o.workerMobile === workerSession.mobile && (o.status === 'Accepted' || o.status === 'OnTheWay'));
             
             if (myActiveOrder) {
@@ -272,6 +290,7 @@
                 
                 if (!hasActiveOrder) {
                     emptyState.classList.add('hidden');
+                    orderCard.classList.add('hidden');
                     searchingState.classList.remove('hidden');
                     checkForOrders();
                     if(!checkInterval) checkInterval = setInterval(checkForOrders, 1500);
@@ -290,7 +309,11 @@
         }
 
         function onAreaChange() {
-            if (isDutyOn && !hasActiveOrder) checkForOrders();
+            if (isDutyOn && !hasActiveOrder) {
+                document.getElementById('orderCard').classList.add('hidden');
+                document.getElementById('searchingState').classList.remove('hidden');
+                checkForOrders();
+            }
         }
 
         function checkForOrders() {
@@ -303,10 +326,13 @@
             const orderCard = document.getElementById('orderCard');
             const photoContainer = document.getElementById('photoContainer');
 
-            let availableOrder = allOrders.find(order => 
-                order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase()) &&
-                order.status === 'Pending' && !order.isClaimed
-            );
+            // Pending आणि Claim न केलेल्या नवीन ऑर्डर्स शोधणे
+            let availableOrder = allOrders.find(order => {
+                let areaMatch = order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase());
+                let isPending = order.status === 'Pending';
+                let isNotClaimed = !order.isClaimed;
+                return areaMatch && isPending && isNotClaimed;
+            });
 
             if (availableOrder) {
                 currentOrderData = availableOrder;
@@ -329,6 +355,7 @@
 
                 orderCard.classList.remove('hidden');
             } else {
+                // कोणतीही नवीन ऑर्डर नसेल तर 'Finding New Order...' स्टेट दाखवा
                 orderCard.classList.add('hidden');
                 searchingState.classList.remove('hidden');
             }
@@ -387,6 +414,8 @@
         }
 
         function rejectOrder() {
+            currentOrderData = null;
+            hasActiveOrder = false;
             document.getElementById('orderCard').classList.add('hidden');
             document.getElementById('searchingState').classList.remove('hidden');
             alert("Order rejected.");
@@ -409,15 +438,23 @@
                     }
                 }
 
+                // सर्व ऑर्डर डेटा पूर्णपणे रीसेट करा
                 hasActiveOrder = false;
+                currentOrderData = null;
+
+                // Active ongoing कार्ड लपवा आणि "Finding New Order..." चालू करा
                 document.getElementById('ongoingOrder').classList.add('hidden');
+                document.getElementById('orderCard').classList.add('hidden');
                 document.getElementById('searchingState').classList.remove('hidden');
                 
                 alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
 
+                // नवीन ऑर्डर्सचा लूप पूर्ववत सुरू करा
                 if(isDutyOn) {
                     checkForOrders();
-                    checkInterval = setInterval(checkForOrders, 1500);
+                    if(!checkInterval) {
+                        checkInterval = setInterval(checkForOrders, 1500);
+                    }
                 }
             } else {
                 alert("Wallet balance insufficient!");

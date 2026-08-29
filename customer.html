@@ -27,15 +27,9 @@
         }
 
         @keyframes float3d {
-            0% {
-                transform: translateY(0px) rotate(0deg) scale(1);
-            }
-            50% {
-                transform: translateY(-25px) rotate(15deg) scale(1.1);
-            }
-            100% {
-                transform: translateY(20px) rotate(-15deg) scale(0.95);
-            }
+            0% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-25px) rotate(15deg) scale(1.1); }
+            100% { transform: translateY(20px) rotate(-15deg) scale(0.95); }
         }
 
         .icon-1 { top: 8%; left: 5%; animation-duration: 9s; }
@@ -43,6 +37,17 @@
         .icon-3 { top: 50%; left: 7%; animation-duration: 13s; animation-delay: 2s; }
         .icon-4 { top: 75%; right: 6%; animation-duration: 10s; animation-delay: 0.5s; }
         .icon-5 { top: 90%; left: 12%; animation-duration: 14s; animation-delay: 1.5s; }
+
+        /* Stepper Line CSS */
+        .step-line {
+            position: absolute;
+            left: 17px;
+            top: 24px;
+            bottom: 24px;
+            width: 2px;
+            background-color: #e5e7eb;
+            z-index: 0;
+        }
     </style>
 </head>
 <body class="p-4 max-w-lg mx-auto pb-12" onload="initCustomerPage()">
@@ -56,22 +61,20 @@
 
     <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-white/60 relative z-10 space-y-4">
         
-        <!-- Header Section with Faint Blue Box & Top Right Buttons -->
+        <!-- Header Section -->
         <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-100 p-4 rounded-2xl border border-blue-200/70 shadow-sm flex justify-between items-center">
             <div>
                 <h1 class="text-lg font-bold text-gray-800 tracking-tight">Gharkam.com - Book Service</h1>
-                <p class="text-xs text-gray-600 font-medium">Customer Account: <span id="custEmailDisplay" class="font-semibold text-blue-600">atharvamali53@gmail.com</span></p>
+                <p class="text-xs text-gray-600 font-medium">Customer Account: <span id="custEmailDisplay" class="font-semibold text-blue-600">--</span></p>
             </div>
 
             <!-- Top Right Options -->
             <div class="flex flex-col items-end space-y-2">
-                <!-- Your Order Button -->
                 <button onclick="scrollToStatusCard()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-md transition flex items-center space-x-1 active:scale-95">
                     <span>📦</span>
                     <span>Your Order</span>
                 </button>
 
-                <!-- Customer Care Support Link -->
                 <a href="tel:7875160724" class="text-[11px] font-bold text-green-700 bg-white/90 hover:bg-green-50 border border-green-300 px-2.5 py-1 rounded-xl flex items-center space-x-1 shadow-sm transition active:scale-95">
                     <span>📞</span>
                     <span>Support: 7875160724</span>
@@ -145,14 +148,66 @@
             </button>
         </form>
 
-        <!-- Order Live Status Section -->
-        <div id="statusCard" class="hidden border-t pt-4 space-y-2">
-            <h3 class="font-bold text-sm text-gray-800">Your Current Order Status</h3>
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 text-xs space-y-1">
-                <p><strong>Order ID:</strong> <span id="statusOrderId">--</span></p>
+        <!-- Dynamic Live Booking Status Timeline (As per original Screenshot) -->
+        <div id="statusCard" class="hidden border-t pt-5 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-sm text-gray-800 flex items-center space-x-1.5">
+                    <span>📦</span>
+                    <span>Live Booking Status</span>
+                </h3>
+                <span id="headerStatusBadge" class="bg-yellow-100 text-yellow-800 border border-yellow-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
+                    <span>⌛</span>
+                    <span id="headerStatusText">Finding Worker</span>
+                </span>
+            </div>
+
+            <!-- Summary Details Box -->
+            <div class="bg-blue-50/60 border border-blue-200/80 p-3.5 rounded-2xl text-xs space-y-1.5 text-gray-700">
                 <p><strong>Service:</strong> <span id="statusService">--</span></p>
-                <p><strong>Status:</strong> <span id="statusBadge" class="font-bold px-2 py-0.5 rounded text-white bg-yellow-500">Pending</span></p>
-                <p id="workerAssignedText" class="hidden text-green-700 font-semibold pt-1">🛵 Worker On The Way!</p>
+                <p><strong>Budget:</strong> ₹<span id="statusBudget">--</span></p>
+                <p><strong>Assigned Worker ID/Mobile:</strong> <span id="statusWorkerMobile" class="font-semibold text-blue-600">Finding Worker...</span></p>
+                <p><strong>Address:</strong> <span id="statusAddress">--</span></p>
+            </div>
+
+            <!-- Stepper Timeline -->
+            <div class="relative pl-10 space-y-6 pt-1">
+                <div class="step-line"></div>
+
+                <!-- Step 1 -->
+                <div class="relative flex items-start space-x-3">
+                    <div id="stepCircle1" class="absolute -left-10 w-9 h-9 rounded-full bg-yellow-400 text-white font-bold flex items-center justify-center text-xs shadow-md z-10">1</div>
+                    <div>
+                        <h4 id="stepTitle1" class="font-bold text-xs text-gray-800">Order Requested</h4>
+                        <p class="text-[11px] text-gray-500">Kamachi request successfully pathvali aahe.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative flex items-start space-x-3">
+                    <div id="stepCircle2" class="absolute -left-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 font-bold flex items-center justify-center text-xs z-10">2</div>
+                    <div>
+                        <h4 id="stepTitle2" class="font-bold text-xs text-gray-400">Worker Accepted</h4>
+                        <p class="text-[11px] text-gray-400">Worker ne tumchi order accept keli aahe.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative flex items-start space-x-3">
+                    <div id="stepCircle3" class="absolute -left-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 font-bold flex items-center justify-center text-xs z-10">3</div>
+                    <div>
+                        <h4 id="stepTitle3" class="font-bold text-xs text-gray-400">Worker On The Way</h4>
+                        <p class="text-[11px] text-gray-400">Worker tumchya location var yet aahe.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative flex items-start space-x-3">
+                    <div id="stepCircle4" class="absolute -left-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 font-bold flex items-center justify-center text-xs z-10">4</div>
+                    <div>
+                        <h4 id="stepTitle4" class="font-bold text-xs text-gray-400">Work Completed</h4>
+                        <p class="text-[11px] text-gray-400">Kam yashasvirita puran zale aahe.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -225,23 +280,64 @@
 
             if (myOrder) {
                 document.getElementById('statusCard').classList.remove('hidden');
-                document.getElementById('statusOrderId').innerText = myOrder.orderId;
-                document.getElementById('statusService').innerText = myOrder.service;
-                
-                let badge = document.getElementById('statusBadge');
-                badge.innerText = myOrder.status;
+                document.getElementById('statusService').innerText = myOrder.service || '--';
+                document.getElementById('statusBudget').innerText = myOrder.budget || '--';
+                document.getElementById('statusAddress').innerText = (myOrder.address || '') + ", " + (myOrder.area || '');
+                document.getElementById('statusWorkerMobile').innerText = myOrder.workerMobile || 'Finding Worker...';
 
-                if (myOrder.status === 'Pending') {
-                    badge.className = "font-bold px-2 py-0.5 rounded text-white bg-yellow-500";
-                    document.getElementById('workerAssignedText').classList.add('hidden');
-                } else if (myOrder.status === 'Accepted' || myOrder.status === 'OnTheWay') {
-                    badge.className = "font-bold px-2 py-0.5 rounded text-white bg-blue-600";
-                    document.getElementById('workerAssignedText').classList.remove('hidden');
-                } else if (myOrder.status === 'Completed') {
-                    badge.className = "font-bold px-2 py-0.5 rounded text-white bg-green-600";
-                    document.getElementById('workerAssignedText').classList.add('hidden');
-                }
+                updateStepperUI(myOrder.status);
             }
+        }
+
+        function updateStepperUI(status) {
+            const headerBadge = document.getElementById('headerStatusBadge');
+            const headerText = document.getElementById('headerStatusText');
+
+            const steps = [
+                { circle: 'stepCircle1', title: 'stepTitle1' },
+                { circle: 'stepCircle2', title: 'stepTitle2' },
+                { circle: 'stepCircle3', title: 'stepTitle3' },
+                { circle: 'stepCircle4', title: 'stepTitle4' }
+            ];
+
+            // Reset All Steps
+            steps.forEach(s => {
+                document.getElementById(s.circle).className = "absolute -left-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 font-bold flex items-center justify-center text-xs z-10";
+                document.getElementById(s.title).className = "font-bold text-xs text-gray-400";
+            });
+
+            if (status === 'Pending') {
+                headerBadge.className = "bg-yellow-100 text-yellow-800 border border-yellow-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1";
+                headerText.innerText = "Finding Worker";
+                
+                activateStep(1, "bg-yellow-400 text-white shadow-md");
+            } else if (status === 'Accepted') {
+                headerBadge.className = "bg-blue-100 text-blue-800 border border-blue-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1";
+                headerText.innerText = "Worker Accepted";
+
+                activateStep(1, "bg-green-500 text-white");
+                activateStep(2, "bg-blue-600 text-white shadow-md");
+            } else if (status === 'OnTheWay') {
+                headerBadge.className = "bg-purple-100 text-purple-800 border border-purple-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1";
+                headerText.innerText = "Worker On The Way";
+
+                activateStep(1, "bg-green-500 text-white");
+                activateStep(2, "bg-green-500 text-white");
+                activateStep(3, "bg-purple-600 text-white shadow-md");
+            } else if (status === 'Completed') {
+                headerBadge.className = "bg-green-100 text-green-800 border border-green-300 px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1";
+                headerText.innerText = "Work Completed";
+
+                activateStep(1, "bg-green-500 text-white");
+                activateStep(2, "bg-green-500 text-white");
+                activateStep(3, "bg-green-500 text-white");
+                activateStep(4, "bg-green-600 text-white shadow-md");
+            }
+        }
+
+        function activateStep(stepNum, activeClasses) {
+            document.getElementById('stepCircle' + stepNum).className = "absolute -left-10 w-9 h-9 rounded-full " + activeClasses + " font-bold flex items-center justify-center text-xs z-10";
+            document.getElementById('stepTitle' + stepNum).className = "font-bold text-xs text-gray-800";
         }
 
         function scrollToStatusCard() {

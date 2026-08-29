@@ -249,14 +249,19 @@
         }
 
         function saveAndPublishOrder(orderData) {
+            // १. कस्टमरची स्वतःची खाजगी ऑर्डर चावी
+            localStorage.setItem('gharkam_order_' + customerSession.mobile, JSON.stringify(orderData));
+            // २. वर्करसाठी ॲक्टिव्ह ऑर्डर चावी
             localStorage.setItem('gharkamActiveOrder', JSON.stringify(orderData));
+
             alert("Tumchi order request pathavli geli aahe!");
             document.getElementById('serviceBookingForm').reset();
             updateLiveTrackingUI();
         }
 
         function updateLiveTrackingUI() {
-            let savedOrder = localStorage.getItem('gharkamActiveOrder');
+            // फक्त लॉगिन असणाऱ्या कस्टमरची स्वतःचीच ऑर्डर लोड करणे
+            let savedOrder = localStorage.getItem('gharkam_order_' + customerSession.mobile);
             const trackingSection = document.getElementById('trackingSection');
             const bookingFormCard = document.getElementById('bookingFormCard');
 
@@ -267,13 +272,6 @@
             }
 
             let order = JSON.parse(savedOrder);
-
-            // मुख्य बदल: लॉगिन असणाऱ्या युझरच्या मोबाईल नंबरशी आर्डर जुळली तरच दाखवा
-            if (order.customerMobile !== customerSession.mobile) {
-                if (trackingSection) trackingSection.classList.add('hidden');
-                if (bookingFormCard) bookingFormCard.classList.remove('hidden');
-                return;
-            }
 
             if (trackingSection) trackingSection.classList.remove('hidden');
             if (bookingFormCard) bookingFormCard.classList.add('hidden');
@@ -317,13 +315,8 @@
         }
 
         function toggleTrackingView() {
-            let savedOrder = localStorage.getItem('gharkamActiveOrder');
+            let savedOrder = localStorage.getItem('gharkam_order_' + customerSession.mobile);
             if (!savedOrder) {
-                alert("Tumchi kontiyahi active order nahi!");
-                return;
-            }
-            let order = JSON.parse(savedOrder);
-            if (order.customerMobile !== customerSession.mobile) {
                 alert("Tumchi kontiyahi active order nahi!");
                 return;
             }
@@ -336,7 +329,8 @@
         }
 
         function openNewBookingForm() {
-            if (confirm("Naveen appointment book karnyasathi active order tracking cancel/hide honar. Kinarya continuation karayche?")) {
+            if (confirm("Naveen appointment book karnyasathi juni order tracking cancel honar. Aage badhna chahte ho?")) {
+                localStorage.removeItem('gharkam_order_' + customerSession.mobile);
                 localStorage.removeItem('gharkamActiveOrder');
                 document.getElementById('trackingSection').classList.add('hidden');
                 document.getElementById('bookingFormCard').classList.remove('hidden');

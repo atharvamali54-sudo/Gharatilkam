@@ -3,356 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Dashboard - Gharkam.com</title>
+    <title>Customer Booking - Gharkam.com</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
-        .header-bg { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); }
     </style>
 </head>
-<body class="text-gray-800 min-h-screen flex flex-col justify-between pb-16" onload="initCustomerPage()">
+<body class="p-4 max-w-lg mx-auto pb-12" onload="initCustomerPage()">
 
-    <div>
-        <!-- Header Banner -->
-        <div class="header-bg text-white px-5 pt-6 pb-8 relative shadow-md">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 id="customerNameDisplay" class="text-xl font-bold tracking-wide">WELCOME</h1>
-                    <p class="text-xs text-blue-200 mt-0.5">Need help at home? Book a service below.</p>
-                </div>
-                <!-- Right Side Header Controls -->
-                <div class="flex items-center space-x-2">
-                    <button onclick="toggleTrackingView()" class="bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-xs font-bold px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1">
-                        📦 Your Order Status
-                    </button>
-                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow transition">
-                        Logout
-                    </button>
-                </div>
-            </div>
+    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 space-y-4">
+        <div class="border-b pb-3">
+            <h1 class="text-xl font-bold text-gray-800">Gharkam.com - Book Service</h1>
+            <p class="text-xs text-gray-500">Customer Account: <span id="custEmailDisplay" class="font-bold text-blue-600">--</span></p>
         </div>
 
-        <!-- Main Content -->
-        <main class="max-w-3xl w-full mx-auto p-4 space-y-5 mt-2">
+        <form id="bookingForm" onsubmit="handleBooking(event)" class="space-y-3">
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Full Name:</label>
+                <input type="text" id="custName" required placeholder="Tumche Naav" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
 
-            <!-- LIVE ORDER TRACKING SECTION -->
-            <div id="trackingSection" class="hidden bg-white p-5 rounded-2xl shadow-md border border-blue-200 space-y-4">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h3 class="font-bold text-sm text-gray-800 flex items-center gap-2">
-                        📦 Live Booking Status
-                    </h3>
-                    <span id="liveStatusBadge" class="text-[10px] bg-yellow-100 text-yellow-800 font-bold px-2.5 py-1 rounded-full">
-                        Pending
-                    </span>
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Mobile Number:</label>
+                <input type="tel" id="custMobile" required placeholder="Mobile Number" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Select Service:</label>
+                <select id="custService" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Service Nivada --</option>
+                    <option value="Cleaning">Cleaning</option>
+                    <option value="Cooking">Cooking</option>
+                    <option value="Electrician">Electrician</option>
+                    <option value="Plumber">Plumber</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Budget (₹):</label>
+                <input type="number" id="custBudget" required placeholder="Budget Amount" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Select Area:</label>
+                <select id="custArea" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Area Nivada --</option>
+                    <option value="Swargate">Swargate</option>
+                    <option value="Katraj">Katraj</option>
+                    <option value="Shivajinagar">Shivajinagar</option>
+                    <option value="Kothrud">Kothrud</option>
+                    <option value="Hadapsar">Hadapsar</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Full Address:</label>
+                <textarea id="custAddress" required rows="2" placeholder="Sampurna Pata" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Date:</label>
+                    <input type="date" id="custDate" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
-                <!-- Active Order Info -->
-                <div class="text-xs text-gray-700 bg-blue-50/60 p-3 rounded-xl border border-blue-100 space-y-1">
-                    <p><strong>Service:</strong> <span id="trackService">--</span></p>
-                    <p><strong>Area:</strong> <span id="trackArea" class="font-bold text-blue-700">--</span></p>
-                    <p><strong>Budget:</strong> ₹<span id="trackBudget">0</span></p>
-                    <p><strong>Scheduled Date & Time:</strong> <span id="trackDateTime" class="font-semibold text-blue-800">--</span></p>
-                    <p><strong>Assigned Worker ID/Mobile:</strong> <span id="trackWorker" class="font-bold text-blue-700">Finding Worker...</span></p>
-                    <p><strong>Address:</strong> <span id="trackAddress">--</span></p>
-                </div>
-
-                <!-- Progress Tracker Visual Steps -->
-                <div class="relative pl-6 space-y-6 pt-2 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-gray-200">
-                    <div id="step1" class="relative flex items-center space-x-3 text-gray-400">
-                        <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">1</span>
-                        <div>
-                            <p class="text-xs font-bold text-gray-800">Order Requested</p>
-                            <p class="text-[10px] text-gray-500">Kamachi request successfully pathvali aahe.</p>
-                        </div>
-                    </div>
-
-                    <div id="step2" class="relative flex items-center space-x-3 text-gray-400">
-                        <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">2</span>
-                        <div>
-                            <p class="text-xs font-bold text-gray-800">Worker Accepted</p>
-                            <p class="text-[10px] text-gray-500">Worker ne tumchi order accept keli aahe.</p>
-                        </div>
-                    </div>
-
-                    <div id="step3" class="relative flex items-center space-x-3 text-gray-400">
-                        <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">3</span>
-                        <div>
-                            <p class="text-xs font-bold text-gray-800">Worker On The Way</p>
-                            <p class="text-[10px] text-gray-500">Worker tumchya location var yet aahe.</p>
-                        </div>
-                    </div>
-
-                    <div id="step4" class="relative flex items-center space-x-3 text-gray-400">
-                        <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">4</span>
-                        <div>
-                            <p class="text-xs font-bold text-gray-800">Work Completed</p>
-                            <p class="text-[10px] text-gray-500">Kam yashasvirita puran zale aahe.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Option for New Appointment Booking -->
-                <div class="border-t pt-3 text-center">
-                    <button onclick="openNewBookingForm()" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-2.5 px-4 rounded-xl text-xs border border-blue-200 transition">
-                        ➕ Click here for new work appointment booking
-                    </button>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Time:</label>
+                    <input type="time" id="custTime" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
 
-            <!-- BOOKING FORM SECTION -->
-            <div id="bookingFormCard" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
-                <h2 class="text-sm font-bold text-gray-800 border-b pb-2">🛠️ Book a Household Service</h2>
-                
-                <form id="serviceBookingForm" onsubmit="handleOrderSubmit(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Select Service Type:</label>
-                        <select id="serviceType" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
-                            <option value="">-- Choose Service --</option>
-                            <option value="Electrician">Electrician</option>
-                            <option value="Plumber">Plumber</option>
-                            <option value="Cleaning">Cleaning</option>
-                            <option value="Gardener">Gardener</option>
-                            <option value="Painter">Painter</option>
-                            <option value="General">General Housework</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Select Pune Area:</label>
-                            <select id="bookingArea" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
-                                <option value="">-- Choose Area --</option>
-                                <option value="Swargate">Swargate</option>
-                                <option value="Katraj">Katraj</option>
-                                <option value="Shivajinagar">Shivajinagar</option>
-                                <option value="Kothrud">Kothrud</option>
-                                <option value="Hadapsar">Hadapsar</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Offer Budget (₹):</label>
-                            <input type="number" id="bookingBudget" min="50" placeholder="e.g. 500" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Preferred Date:</label>
-                            <input type="date" id="bookingDate" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-600 mb-1">Preferred Time:</label>
-                            <input type="time" id="bookingTime" required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Full Address & Details:</label>
-                        <textarea id="bookingAddress" rows="2" placeholder="Enter complete home address & landmark..." required class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1">Attach Photo (Optional):</label>
-                        <input type="file" id="bookingPhoto" accept="image/*" class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                    </div>
-
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 text-sm rounded-xl transition shadow-md mt-2">
-                        🚀 Confirm & Request Worker
-                    </button>
-                </form>
+            <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Photo (Optional):</label>
+                <input type="file" id="custPhoto" accept="image/*" class="w-full text-xs text-gray-500 border rounded-xl p-2">
             </div>
 
-        </main>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">
+                🚀 Book Appointment
+            </button>
+        </form>
+
+        <!-- Order Live Status Section -->
+        <div id="statusCard" class="hidden border-t pt-4 space-y-2">
+            <h3 class="font-bold text-sm text-gray-800">Your Current Order Status</h3>
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 text-xs space-y-1">
+                <p><strong>Order ID:</strong> <span id="statusOrderId">--</span></p>
+                <p><strong>Service:</strong> <span id="statusService">--</span></p>
+                <p><strong>Status:</strong> <span id="statusBadge" class="font-bold px-2 py-0.5 rounded text-white bg-yellow-500">Pending</span></p>
+                <p id="workerAssignedText" class="hidden text-green-700 font-semibold pt-1">🛵 Worker On The Way!</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="text-center py-4 text-gray-500 text-xs bg-white border-t mt-auto">
-        © 2026 Gharkam.com | Customer Portal
-    </footer>
-
-    <!-- Logic Script -->
     <script>
         let customerSession = null;
-        let trackingInterval = null;
+        let base64Photo = "";
 
         function initCustomerPage() {
             let sessionJson = localStorage.getItem('current_user_session');
             if (sessionJson) {
                 customerSession = JSON.parse(sessionJson);
-                if (customerSession.role !== 'customer') {
-                    alert("Unauthorized access!");
-                    window.location.href = "index.html";
-                    return;
+                document.getElementById('custEmailDisplay').innerText = customerSession.email || 'Customer';
+                if(customerSession.mobile) {
+                    document.getElementById('custMobile').value = customerSession.mobile;
                 }
-                
-                if (customerSession.email) {
-                    let extractedName = customerSession.email.split('@')[0].toUpperCase();
-                    document.getElementById('customerNameDisplay').innerText = "WELCOME, " + extractedName;
-                }
-            } else {
-                alert("Krupaya pahile Login kara!");
-                window.location.href = "index.html";
-                return;
             }
 
-            let today = new Date().toISOString().split('T')[0];
-            document.getElementById('bookingDate').value = today;
-
-            updateLiveTrackingUI();
-            trackingInterval = setInterval(updateLiveTrackingUI, 1000);
-        }
-
-        function handleOrderSubmit(e) {
-            e.preventDefault();
-
-            const service = document.getElementById('serviceType').value;
-            const area = String(document.getElementById('bookingArea').value).trim();
-            const budget = document.getElementById('bookingBudget').value;
-            const date = document.getElementById('bookingDate').value;
-            const time = document.getElementById('bookingTime').value;
-            const address = document.getElementById('bookingAddress').value;
-            const photoInput = document.getElementById('bookingPhoto');
-
-            let orderData = {
-                id: 'ORD' + Date.now(),
-                customerMobile: String(customerSession.mobile).trim(),
-                customerName: customerSession.email ? customerSession.email.split('@')[0] : "Customer",
-                service: service,
-                area: area,
-                budget: budget,
-                bookingDate: date,
-                bookingTime: time,
-                address: address,
-                status: 'Pending',
-                workerMobile: null,
-                photo: null
-            };
-
-            if (photoInput.files && photoInput.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    orderData.photo = e.target.result;
-                    saveAndPublishOrder(orderData);
-                };
-                reader.readAsDataURL(photoInput.files[0]);
-            } else {
-                saveAndPublishOrder(orderData);
-            }
-        }
-
-        function saveAndPublishOrder(orderData) {
-            localStorage.setItem('gharkam_order_' + customerSession.mobile, JSON.stringify(orderData));
-            localStorage.setItem('gharkamActiveOrder', JSON.stringify(orderData));
-
-            alert("Tumchi order request pathavli geli aahe!");
-            document.getElementById('serviceBookingForm').reset();
-            updateLiveTrackingUI();
-        }
-
-        function updateLiveTrackingUI() {
-            let savedOrder = localStorage.getItem('gharkam_order_' + customerSession.mobile);
-            const trackingSection = document.getElementById('trackingSection');
-            const bookingFormCard = document.getElementById('bookingFormCard');
-
-            if (!savedOrder) {
-                if (trackingSection) trackingSection.classList.add('hidden');
-                if (bookingFormCard) bookingFormCard.classList.remove('hidden');
-                return;
-            }
-
-            let order = JSON.parse(savedOrder);
-
-            if (trackingSection) trackingSection.classList.remove('hidden');
-            if (bookingFormCard) bookingFormCard.classList.add('hidden');
-
-            document.getElementById('trackService').innerText = order.service;
-            if(document.getElementById('trackArea')) document.getElementById('trackArea').innerText = order.area || '--';
-            document.getElementById('trackBudget').innerText = order.budget;
-            document.getElementById('trackDateTime').innerText = (order.bookingDate || '--') + " at " + (order.bookingTime || '--');
-            document.getElementById('trackWorker').innerText = order.workerMobile ? order.workerMobile : "Finding Worker...";
-            document.getElementById('trackAddress').innerText = order.address;
-
-            const statusBadge = document.getElementById('liveStatusBadge');
-            
-            resetSteps();
-
-            if (order.status === 'Pending') {
-                highlightStep('step1', 'bg-yellow-500');
-                statusBadge.innerText = "⏳ Finding Worker";
-                statusBadge.className = "text-[10px] bg-yellow-100 text-yellow-800 font-bold px-2.5 py-1 rounded-full";
-            } 
-            else if (order.status === 'Accepted') {
-                highlightStep('step1', 'bg-green-600');
-                highlightStep('step2', 'bg-blue-600');
-                statusBadge.innerText = "✅ Worker Accepted";
-                statusBadge.className = "text-[10px] bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full";
-            } 
-            else if (order.status === 'OnTheWay') {
-                highlightStep('step1', 'bg-green-600');
-                highlightStep('step2', 'bg-green-600');
-                highlightStep('step3', 'bg-purple-600');
-                statusBadge.innerText = "🛵 Worker On The Way";
-                statusBadge.className = "text-[10px] bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-full";
-            } 
-            else if (order.status === 'Completed') {
-                highlightStep('step1', 'bg-green-600');
-                highlightStep('step2', 'bg-green-600');
-                highlightStep('step3', 'bg-green-600');
-                highlightStep('step4', 'bg-green-600');
-                statusBadge.innerText = "🎉 Work Completed";
-                statusBadge.className = "text-[10px] bg-green-100 text-green-800 font-bold px-2.5 py-1 rounded-full";
-            }
-        }
-
-        function toggleTrackingView() {
-            let savedOrder = localStorage.getItem('gharkam_order_' + customerSession.mobile);
-            if (!savedOrder) {
-                alert("Tumchi kontiyahi active order nahi!");
-                return;
-            }
-
-            const trackingSection = document.getElementById('trackingSection');
-            const bookingFormCard = document.getElementById('bookingFormCard');
-            
-            trackingSection.classList.toggle('hidden');
-            bookingFormCard.classList.toggle('hidden');
-        }
-
-        function openNewBookingForm() {
-            if (confirm("Naveen appointment book karnyasathi juni order tracking cancel honar. Aage badhna chahte ho?")) {
-                localStorage.removeItem('gharkam_order_' + customerSession.mobile);
-                localStorage.removeItem('gharkamActiveOrder');
-                document.getElementById('trackingSection').classList.add('hidden');
-                document.getElementById('bookingFormCard').classList.remove('hidden');
-            }
-        }
-
-        function highlightStep(stepId, colorClass) {
-            let el = document.getElementById(stepId);
-            if (el) {
-                let icon = el.querySelector('.step-icon');
-                icon.className = `step-icon absolute -left-[23px] ${colorClass} text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-md`;
-                el.className = "relative flex items-center space-x-3 text-gray-900 font-bold";
-            }
-        }
-
-        function resetSteps() {
-            ['step1', 'step2', 'step3', 'step4'].forEach(id => {
-                let el = document.getElementById(id);
-                if (el) {
-                    let icon = el.querySelector('.step-icon');
-                    icon.className = "step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold";
-                    el.className = "relative flex items-center space-x-3 text-gray-400";
+            document.getElementById('custPhoto').addEventListener('change', function(e) {
+                let file = e.target.files[0];
+                if (file) {
+                    let reader = new FileReader();
+                    reader.onload = function(evt) { base64Photo = evt.target.result; };
+                    reader.readAsDataURL(file);
                 }
             });
+
+            checkLiveStatus();
+            setInterval(checkLiveStatus, 2000);
         }
 
-        function logout() {
-            localStorage.removeItem('current_user_session');
-            window.location.href = "index.html";
+        function handleBooking(e) {
+            e.preventDefault();
+
+            let mobile = document.getElementById('custMobile').value.trim();
+            let newOrder = {
+                orderId: 'ORD_' + Date.now(),
+                customerName: document.getElementById('custName').value.trim(),
+                customerMobile: mobile,
+                service: document.getElementById('custService').value,
+                budget: document.getElementById('custBudget').value,
+                area: document.getElementById('custArea').value,
+                address: document.getElementById('custAddress').value.trim(),
+                bookingDate: document.getElementById('custDate').value,
+                bookingTime: document.getElementById('custTime').value,
+                photo: base64Photo,
+                status: 'Pending',
+                isClaimed: false,
+                workerMobile: null
+            };
+
+            // Global Array मध्ये नवीन ऑर्डर जोडणे
+            let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+            allOrders.push(newOrder);
+            localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
+
+            // Customer Specific Tracking
+            localStorage.setItem('gharkam_order_' + mobile, JSON.stringify(newOrder));
+
+            alert("Order Booked Successfully!");
+            checkLiveStatus();
+        }
+
+        function checkLiveStatus() {
+            let mobile = document.getElementById('custMobile').value.trim();
+            if (!mobile) return;
+
+            let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+            let myOrder = allOrders.reverse().find(o => o.customerMobile === mobile);
+
+            if (myOrder) {
+                document.getElementById('statusCard').classList.remove('hidden');
+                document.getElementById('statusOrderId').innerText = myOrder.orderId;
+                document.getElementById('statusService').innerText = myOrder.service;
+                
+                let badge = document.getElementById('statusBadge');
+                badge.innerText = myOrder.status;
+
+                if (myOrder.status === 'Pending') {
+                    badge.className = "font-bold px-2 py-0.5 rounded text-white bg-yellow-500";
+                    document.getElementById('workerAssignedText').classList.add('hidden');
+                } else if (myOrder.status === 'Accepted' || myOrder.status === 'OnTheWay') {
+                    badge.className = "font-bold px-2 py-0.5 rounded text-white bg-blue-600";
+                    document.getElementById('workerAssignedText').classList.remove('hidden');
+                } else if (myOrder.status === 'Completed') {
+                    badge.className = "font-bold px-2 py-0.5 rounded text-white bg-green-600";
+                    document.getElementById('workerAssignedText').classList.add('hidden');
+                }
+            }
         }
     </script>
 </body>

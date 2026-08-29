@@ -28,97 +28,147 @@
       const database = firebase.database();
     </script>
 </head>
-<body class="bg-blue-50/40 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-blue-600 via-indigo-700 to-blue-900 min-h-screen p-4 md:p-8 flex items-center justify-center font-sans">
 
-    <div class="w-full max-w-lg bg-white rounded-3xl shadow-xl p-6 md:p-8 border border-slate-100">
+    <div class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
         
-        <!-- Header -->
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-black text-slate-800">Gharkam</h1>
-            <a href="index.html" class="text-xs font-bold text-blue-600 hover:underline"><i class="fa-solid fa-house"></i> Home</a>
-        </div>
-
-        <!-- Booking Form -->
-        <form id="bookingForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <!-- Top Header Navigation -->
+        <header class="bg-white px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="flex items-center gap-2 text-2xl font-black tracking-tight text-slate-800 hover:opacity-80 transition">
+                    <span class="bg-blue-600 text-white p-2 rounded-xl text-lg flex items-center justify-center shadow-md">🏠 GK</span>
+                    <span class="text-blue-600">GHARKAM<span class="text-slate-700">.com</span></span>
+                </a>
+                <span class="hidden md:inline-block text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
+                    Pune City Services
+                </span>
+            </div>
             
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-1">Select Service:</label>
-                <select id="serviceName" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="Electrician">Electrician</option>
-                    <option value="Plumber">Plumber</option>
-                    <option value="Carpenter">Carpenter</option>
-                    <option value="Cleaner">Cleaner</option>
-                </select>
+            <div class="flex items-center gap-3">
+                <span class="text-xs font-bold bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 📍 Pune Verified
+                </span>
             </div>
+        </header>
 
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-1">Full Name:</label>
-                <input type="text" id="customerName" placeholder="तुमचे नाव टाका" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-1">Mobile Number:</label>
-                <input type="tel" id="customerMobile" placeholder="मोबाईल नंबर टाका" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-1">Select Area:</label>
-                <select id="areaName" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="Swargate">Swargate</option>
-                    <option value="Kothrud">Kothrud</option>
-                    <option value="Katraj">Katraj</option>
-                    <option value="Shivajinagar">Shivajinagar</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-bold text-slate-700 mb-1">Full Address:</label>
-                <textarea id="fullAddress" rows="2" placeholder="संपूर्ण पत्ता टाका" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Date:</label>
-                    <input type="date" id="bookingDate" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-medium py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <!-- Main Content Area: Split Grid (Left: Form | Right: Past Orders & Support) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+            
+            <!-- Left Side: Stylish Form Container -->
+            <div class="lg:col-span-7 p-6 md:p-8 bg-white">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-check text-blue-600"></i> Book Your Appointment
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">पुण्यातील विश्वासू कामगारांची सेवा मिळवण्यासाठी फॉर्म भरा.</p>
                 </div>
+
+                <form id="bookingForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Service</label>
+                        <select id="serviceName" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="Electrician">⚡ Electrician (इलेक्ट्रिशियन)</option>
+                            <option value="Plumber">🚰 Plumber (प्लंबर)</option>
+                            <option value="Carpenter">🪚 Carpenter (सुतार)</option>
+                            <option value="Cleaner">🧹 Home Cleaner (सफाई)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+                            <input type="text" id="customerName" placeholder="तुमचे पूर्ण नाव" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile Number</label>
+                            <input type="tel" id="customerMobile" placeholder="मोबाईल नंबर" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Area</label>
+                        <select id="areaName" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                            <option value="Swargate">Swargate</option>
+                            <option value="Kothrud">Kothrud</option>
+                            <option value="Katraj">Katraj</option>
+                            <option value="Shivajinagar">Shivajinagar</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Address</label>
+                        <textarea id="fullAddress" rows="2" placeholder="घर क्रमांक, सोसायटी, गल्ली किंवा लँडमार्क..." required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Date</label>
+                            <input type="date" id="bookingDate" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Time</label>
+                            <input type="time" id="bookingTime" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-semibold py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Photo (Optional)</label>
+                        <input type="file" id="photoFile" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-blue-500/30 transition text-base mt-4 flex items-center justify-center gap-2">
+                        🚀 Book Appointment
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Side: Past Orders & Customer Care Contact -->
+            <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
+                
+                <!-- Section 1: Your Past Orders -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Time:</label>
-                    <input type="time" id="bookingTime" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-medium py-2.5 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Your Past Orders
+                        </h3>
+                        <span class="text-[10px] bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded-full">Live Status</span>
+                    </div>
+
+                    <div id="customerStatusList" class="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                        <p class="text-slate-400 text-xs text-center py-6">कोणतीही जुनी ऑर्डर उपलब्ध नाही.</p>
+                    </div>
                 </div>
+
+                <!-- Section 2: Customer Care Contact Panel -->
+                <div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
+                        <i class="fa-solid fa-headset text-emerald-600"></i> Customer Care Support
+                    </h4>
+                    <p class="text-xs text-slate-500 mb-4">काही मदत हवी असल्यास थेट आमच्या सपोर्ट टीमशी संपर्क साधा.</p>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="tel:7875160724" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition">
+                            <i class="fa-solid fa-phone text-blue-600"></i> Call Support
+                        </a>
+                        <a href="https://wa.me/917875160724?text=Hello%20Gharkam%20Support," target="_blank" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-sm transition">
+                            <i class="fa-brands fa-whatsapp text-white text-sm"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Photo (Optional):</label>
-                <input type="file" id="photoFile" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200">
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-blue-500/30 transition text-base mt-2 flex items-center justify-center gap-2">
-                🚀 Book Appointment
-            </button>
-        </form>
-
-        <hr class="border-slate-100 my-6">
-
-        <!-- Live Booking Status Stream -->
-        <div>
-            <h3 class="font-bold text-slate-700 text-sm mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Live Booking Status
-            </h3>
-            <div id="customerStatusList" class="space-y-3">
-                <p class="text-slate-400 text-xs text-center py-2">कोणतीही बुकिंग उपलब्ध नाही.</p>
-            </div>
         </div>
 
     </div>
 
     <script>
-        // Default today's date set करणे
         document.getElementById('bookingDate').valueAsDate = new Date();
 
-        // Form Submit Handler (Fix for Button Click)
         function handleFormSubmit(event) {
-            event.preventDefault(); // Page refresh रोखण्यासाठी
+            event.preventDefault();
 
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.innerText = "कृपया थांबा...";
@@ -132,7 +182,6 @@
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
 
-            // Push data to Firebase Realtime Database
             const newOrderRef = database.ref("orders").push();
             newOrderRef.set({
                 service: service,
@@ -157,35 +206,35 @@
             });
         }
 
-        // Live Realtime Listener for Customer Status Card
+        // Live Realtime Listener for Customer Past Orders
         database.ref("orders").on("value", (snapshot) => {
             const container = document.getElementById('customerStatusList');
             container.innerHTML = "";
             const data = snapshot.val();
 
             if (!data) {
-                container.innerHTML = '<p class="text-slate-400 text-xs text-center py-2">कोणतीही बुकिंग उपलब्ध नाही.</p>';
+                container.innerHTML = '<p class="text-slate-400 text-xs text-center py-6">कोणतीही जुनी ऑर्डर उपलब्ध नाही.</p>';
                 return;
             }
 
             const keys = Object.keys(data).reverse();
-            keys.slice(0, 3).forEach(key => { // सर्वात नवीन ३ ऑर्डर्स दाखवा
+            keys.forEach(key => {
                 const item = data[key];
                 const isAccepted = item.status === 'Accepted';
 
                 const statusCard = document.createElement('div');
-                statusCard.className = `p-3.5 rounded-xl border ${isAccepted ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'} transition flex justify-between items-center`;
+                statusCard.className = `p-3.5 rounded-xl border ${isAccepted ? 'bg-emerald-50/60 border-emerald-200' : 'bg-white border-slate-200 shadow-sm'} transition flex justify-between items-center`;
                 statusCard.innerHTML = `
                     <div>
-                        <div class="flex items-center gap-2 mb-1">
+                        <div class="flex items-center gap-2 mb-0.5">
                             <span class="font-bold text-slate-800 text-xs">${item.service}</span>
                             <span class="text-[10px] text-slate-400">(${item.area})</span>
                         </div>
-                        <p class="text-[11px] text-slate-500">${item.date || ''} ${item.time || ''}</p>
+                        <p class="text-[11px] text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${item.date || ''} ${item.time || ''}</p>
                     </div>
                     <div>
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-full ${isAccepted ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${isAccepted ? '✓ Work Accepted' : '⏳ Pending'}
+                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${isAccepted ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                            ${isAccepted ? '✓ Accepted' : '⏳ Pending'}
                         </span>
                     </div>
                 `;

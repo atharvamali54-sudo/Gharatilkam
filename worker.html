@@ -79,11 +79,11 @@
 
             <!-- Orders Container -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <h3 class="text-sm font-bold text-gray-800 mb-3">Incoming Orders Matching Your Type</h3>
+                <h3 class="text-sm font-bold text-gray-800 mb-3">Incoming Orders Matching Your Area</h3>
 
                 <div id="searchingState" class="hidden text-center py-8 text-blue-600">
                     <p class="text-3xl mb-1 animate-bounce">🔍</p>
-                    <p class="font-bold text-sm">Searching matching orders for your service type...</p>
+                    <p class="font-bold text-sm">Searching matching orders for selected area...</p>
                 </div>
 
                 <div id="emptyState" class="text-center py-8 text-gray-400">
@@ -208,7 +208,7 @@
                 if(workerSession.workType) {
                     document.getElementById('workerTypeDisplay').innerText = workerSession.workType;
                 } else {
-                    document.getElementById('workerTypeDisplay').innerText = "General";
+                    document.getElementById('workerTypeDisplay').innerText = "All Services";
                 }
             } else {
                 alert("Krupaya pahile Login kara!");
@@ -253,7 +253,7 @@
                 searchingState.classList.remove('hidden');
                 
                 checkForOrders();
-                checkInterval = setInterval(checkForOrders, 2000);
+                checkInterval = setInterval(checkForOrders, 1500);
             } else {
                 btn.innerText = "🔴 Duty OFF (Click ON)";
                 btn.className = "w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-red-500 text-white shadow-md";
@@ -281,10 +281,10 @@
             if (savedOrder) {
                 let order = JSON.parse(savedOrder);
                 
-                let isAreaMatch = (order.area === selectedArea);
-                let isWorkTypeMatch = (!workerSession.workType || order.service === workerSession.workType);
+                // सुधारित लॉजिक: एरिया मॅच (Case Insensitive) आणि स्टेटस Pending असल्यास ऑर्डर दाखवणे
+                let isAreaMatch = order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase());
 
-                if (isAreaMatch && isWorkTypeMatch && order.status === 'Pending') {
+                if (isAreaMatch && order.status === 'Pending') {
                     currentOrderData = order;
                     searchingState.classList.add('hidden');
                     
@@ -324,10 +324,8 @@
                 currentOrderData.status = 'Accepted';
                 currentOrderData.workerMobile = workerSession.mobile;
 
-                // १. वर्करसाठी अपडेट
                 localStorage.setItem('gharkamActiveOrder', JSON.stringify(currentOrderData));
 
-                // २. संबंधित कस्टमरच्या खात्यात सिंक करणे
                 if (currentOrderData.customerMobile) {
                     localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
                 }
@@ -380,7 +378,7 @@
                 
                 alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
                 if(isDutyOn) {
-                    checkInterval = setInterval(checkForOrders, 2000);
+                    checkInterval = setInterval(checkForOrders, 1500);
                 }
             } else {
                 alert("Wallet balance insufficient!");

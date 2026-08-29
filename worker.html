@@ -20,12 +20,12 @@
 <body class="text-gray-800 min-h-screen flex flex-col justify-between pb-16" onload="initWorkerPage()">
 
     <div>
-        <!-- Profile Banner Header -->
+        <!-- Profile Header -->
         <div class="profile-header text-white px-5 pt-6 pb-8 relative shadow-md">
             <div class="flex justify-between items-start">
                 <div>
                     <h1 id="workerNameDisplay" class="text-xl font-bold tracking-wide">WORKER</h1>
-                    <p class="text-xs text-yellow-200 mt-0.5">DE ID : <span id="workerIdDisplay">32258019</span> | Type: <span id="workerTypeDisplay" class="font-bold underline">--</span></p>
+                    <p class="text-xs text-yellow-200 mt-0.5">ID : <span id="workerIdDisplay">32258019</span> | Type: <span id="workerTypeDisplay" class="font-bold underline">--</span></p>
                 </div>
                 <div class="bg-black/25 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-2xl flex items-center space-x-1.5 shadow-inner">
                     <span class="text-yellow-400 text-lg">⭐</span>
@@ -43,22 +43,22 @@
             </div>
         </div>
 
-        <!-- Main Content Section -->
+        <!-- Main Content -->
         <main class="max-w-3xl w-full mx-auto p-4 space-y-4 mt-2">
 
-            <!-- Low Balance Warning Blink Banner -->
+            <!-- Low Balance Warning -->
             <div id="lowBalanceWarning" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-xl shadow-sm text-xs font-bold text-center blink-text">
                 ⚠️ Your balance is low! You need a minimum of ₹50 to be on duty and work.
             </div>
 
-            <!-- Control Panel / Duty Switch -->
+            <!-- Duty Controls -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
                 <h2 class="text-sm font-bold text-gray-800 mb-3">Worker Duty & Area Control</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Select Pune Area:</label>
-                        <select id="workerArea" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none bg-gray-50">
+                        <select id="workerArea" onchange="onAreaChange()" class="w-full p-2.5 text-sm border rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none bg-gray-50">
                             <option value="">-- Area Nivada --</option>
                             <option value="Swargate">Swargate</option>
                             <option value="Katraj">Katraj</option>
@@ -77,7 +77,7 @@
                 </div>
             </div>
 
-            <!-- Live Orders Section -->
+            <!-- Orders Container -->
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
                 <h3 class="text-sm font-bold text-gray-800 mb-3">Incoming Orders Matching Your Type</h3>
 
@@ -91,18 +91,21 @@
                     <p class="text-xs font-medium">Duty OFF aahe. Duty ON kelyanantar matching order disel.</p>
                 </div>
 
-                <!-- Real Matched Order Card -->
+                <!-- Available Order Card -->
                 <div id="orderCard" class="hidden border border-blue-200 bg-blue-50 p-4 rounded-xl shadow-sm space-y-2">
                     <div class="flex justify-between items-center border-b pb-2">
                         <span id="orderService" class="font-bold text-xs text-blue-700">⚡ Service: --</span>
                         <span id="orderBudget" class="text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full font-semibold">Budget: ₹0</span>
                     </div>
+                    <p class="text-xs text-gray-700"><strong>Customer Name:</strong> <span id="orderCustomerName">--</span></p>
+                    <p class="text-xs text-gray-700"><strong>Mobile:</strong> <span id="orderCustomerMobile">--</span></p>
                     <p class="text-xs text-gray-700"><strong>Area:</strong> <span id="orderAreaText">--</span></p>
+                    <p class="text-xs text-gray-700"><strong>Date & Time:</strong> <span id="orderDateTimeText" class="font-semibold text-blue-800">--</span></p>
                     <p class="text-xs text-gray-700"><strong>Address:</strong> <span id="orderAddress">--</span></p>
                     
-                    <!-- Customer Photo Display Section -->
+                    <!-- Customer Photo -->
                     <div id="photoContainer" class="hidden pt-2">
-                        <p class="text-[11px] font-bold text-gray-700 mb-1">Kamacha Photo (Full View):</p>
+                        <p class="text-[11px] font-bold text-gray-700 mb-1">Kamacha Photo:</p>
                         <div class="bg-black p-2 rounded-xl border border-blue-300 flex justify-center items-center">
                             <img id="orderPhotoImg" src="" alt="Work Photo" class="w-full h-auto object-contain rounded-lg shadow-md" style="max-height: 450px;">
                         </div>
@@ -110,7 +113,7 @@
 
                     <div class="flex space-x-2 pt-2">
                         <button onclick="acceptOrder()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 text-xs rounded-lg transition shadow">
-                            Accept & Open Maps
+                            Accept & Open Maps 🗺️
                         </button>
                         <button onclick="rejectOrder()" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 text-xs rounded-lg transition shadow">
                             Reject
@@ -118,58 +121,58 @@
                     </div>
                 </div>
 
-                <!-- Ongoing Order Section -->
-                <div id="ongoingOrder" class="hidden border border-green-300 bg-green-50 p-4 rounded-xl shadow-sm space-y-2 mt-3">
+                <!-- Ongoing Work Controls -->
+                <div id="ongoingOrder" class="hidden border border-green-300 bg-green-50 p-4 rounded-xl shadow-sm space-y-3 mt-3">
                     <h4 class="font-bold text-xs text-green-800">✅ Active Order in Progress</h4>
-                    <p class="text-[11px] text-gray-600">Kam puran zalyanantar khaliil button dabva (-₹10 wallet deduction).</p>
-                    <button onclick="completeOrder()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 text-xs rounded-xl transition shadow">
-                        Complete Work (-₹10 Wallet Deduction)
-                    </button>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="updateOrderStatus('OnTheWay')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 text-xs rounded-lg transition shadow">
+                            🛵 Set Status: On The Way
+                        </button>
+                        <button onclick="completeOrder()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 text-xs rounded-lg transition shadow">
+                            🎉 Complete Work (-₹10)
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Add Money UPI & QR Modal -->
+    <!-- Recharge Modal -->
     <div id="qrModal" class="hidden fixed inset-0 bg-black/60 z-50 flex justify-center items-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-3 shadow-2xl relative">
             <button onclick="closeAddMoneyModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-lg font-bold">✕</button>
             <h3 class="font-bold text-base text-gray-800">Recharge Wallet</h3>
-            <p class="text-xs text-gray-600">Google Pay, PhonePe varun direct paise pathvanyasathi khaliil button dabva kinva QR scan kara.</p>
+            <p class="text-xs text-gray-600">Google Pay, PhonePe varun direct paise pathvanyasathi button dabva.</p>
             
-            <!-- Direct App Intent Button -->
             <div>
-                <a href="intent://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR#Intent;scheme=upi;end;" 
+                <a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" 
                    class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition text-center">
-                   📱 Open Google Pay / PhonePe App
+                    📱 Open GPay / PhonePe
                 </a>
             </div>
 
             <div class="border-t pt-2">
-                <p class="text-[11px] font-semibold text-gray-700 mb-1">Kinva QR Code Scan Kara:</p>
-                <!-- QR Image using your UPI ID -->
+                <p class="text-[11px] font-semibold text-gray-700 mb-1">QR Code Scan Kara:</p>
                 <div class="flex justify-center border p-2 rounded-xl bg-gray-50 inline-block">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali" alt="UPI QR Code" class="w-32 h-32 object-contain">
                 </div>
             </div>
 
-            <!-- UPI ID Box with Click to Copy -->
             <div class="bg-blue-50 p-2 rounded-xl border border-blue-200">
                 <p class="text-[10px] text-gray-500 font-semibold">UPI ID (Tap to Copy):</p>
                 <p class="text-xs font-bold text-blue-700 select-all cursor-pointer" onclick="navigator.clipboard.writeText('maliatulmali07@okicici'); alert('UPI ID Copied!');">maliatulmali07@okicici 📋</p>
             </div>
 
-            <div class="pt-1">
-                <button onclick="closeAddMoneyModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl text-xs transition">
-                    Close
-                </button>
-            </div>
+            <button onclick="closeAddMoneyModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 rounded-xl text-xs transition">
+                Close
+            </button>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="text-center py-4 text-gray-500 text-xs bg-white border-t mt-auto">
-        &copy; 2026 Gharkam.com | Worker Portal
+        © 2026 Gharkam.com | Worker Portal
     </footer>
 
     <!-- Logic Script -->
@@ -177,6 +180,7 @@
         let workerSession = null;
         let isDutyOn = false;
         let currentOrderData = null;
+        let checkInterval = null;
 
         function initWorkerPage() {
             let sessionJson = localStorage.getItem('current_user_session');
@@ -218,15 +222,7 @@
             
             if (workerSession.balance < 50) {
                 warningEl.classList.remove('hidden');
-                if (isDutyOn) {
-                    isDutyOn = false;
-                    const btn = document.getElementById('dutyBtn');
-                    btn.innerText = "🔴 Duty OFF (Click ON)";
-                    btn.className = "w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-red-500 text-white shadow-md";
-                    document.getElementById('searchingState').classList.add('hidden');
-                    document.getElementById('orderCard').classList.add('hidden');
-                    document.getElementById('emptyState').classList.remove('hidden');
-                }
+                if (isDutyOn) toggleDuty();
             } else {
                 warningEl.classList.add('hidden');
             }
@@ -234,13 +230,13 @@
 
         function toggleDuty() {
             if (workerSession.balance < 50) {
-                alert("⚠️ Your balance is low! You need a minimum of ₹50 to be on duty and work.");
+                alert("⚠️ Minimum ₹50 wallet balance required for Duty.");
                 return;
             }
 
             const area = document.getElementById('workerArea').value;
             if (!area && !isDutyOn) {
-                alert("Krupaya Duty ON karnyapurvi aapla area select kara!");
+                alert("Krupaya Area select kara!");
                 return;
             }
 
@@ -254,46 +250,54 @@
                 btn.innerText = "🟢 Duty ON (Active)";
                 btn.className = "w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-green-600 text-white shadow-md";
                 emptyState.classList.add('hidden');
-                checkForOrders(area);
+                searchingState.classList.remove('hidden');
+                
+                checkForOrders();
+                checkInterval = setInterval(checkForOrders, 2000);
             } else {
                 btn.innerText = "🔴 Duty OFF (Click ON)";
                 btn.className = "w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-red-500 text-white shadow-md";
                 searchingState.classList.add('hidden');
                 orderCard.classList.add('hidden');
                 emptyState.classList.remove('hidden');
+                if(checkInterval) clearInterval(checkInterval);
             }
         }
 
-        function checkForOrders(workerArea) {
-            if (workerSession.balance < 50) {
-                isDutyOn = false;
-                document.getElementById('dutyBtn').innerText = "🔴 Duty OFF (Click ON)";
-                document.getElementById('dutyBtn').className = "w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-red-500 text-white shadow-md";
-                document.getElementById('searchingState').classList.add('hidden');
-                document.getElementById('emptyState').classList.remove('hidden');
-                return;
-            }
+        function onAreaChange() {
+            if (isDutyOn) checkForOrders();
+        }
 
+        function checkForOrders() {
+            if (!isDutyOn) return;
+
+            const selectedArea = document.getElementById('workerArea').value;
             let savedOrder = localStorage.getItem('gharkamActiveOrder');
+
             const searchingState = document.getElementById('searchingState');
             const orderCard = document.getElementById('orderCard');
             const photoContainer = document.getElementById('photoContainer');
 
             if (savedOrder) {
-                currentOrderData = JSON.parse(savedOrder);
+                let order = JSON.parse(savedOrder);
                 
-                let isAreaMatch = (currentOrderData.area === workerArea);
-                let isWorkTypeMatch = (!workerSession.workType || currentOrderData.service === workerSession.workType);
+                let isAreaMatch = (order.area === selectedArea);
+                let isWorkTypeMatch = (!workerSession.workType || order.service === workerSession.workType);
 
-                if (isAreaMatch && isWorkTypeMatch) {
+                if (isAreaMatch && isWorkTypeMatch && order.status === 'Pending') {
+                    currentOrderData = order;
                     searchingState.classList.add('hidden');
-                    document.getElementById('orderService').innerText = "⚡ Service: " + currentOrderData.service;
-                    document.getElementById('orderBudget').innerText = "Budget: ₹" + currentOrderData.budget;
-                    document.getElementById('orderAreaText').innerText = currentOrderData.area;
-                    document.getElementById('orderAddress').innerText = currentOrderData.address;
                     
-                    if (currentOrderData.photo) {
-                        document.getElementById('orderPhotoImg').src = currentOrderData.photo;
+                    document.getElementById('orderService').innerText = "⚡ Service: " + order.service;
+                    document.getElementById('orderBudget').innerText = "Budget: ₹" + order.budget;
+                    document.getElementById('orderCustomerName').innerText = order.customerName || "Customer";
+                    document.getElementById('orderCustomerMobile').innerText = order.customerMobile || "--";
+                    document.getElementById('orderAreaText').innerText = order.area;
+                    document.getElementById('orderDateTimeText').innerText = (order.bookingDate || '--') + " @ " + (order.bookingTime || '--');
+                    document.getElementById('orderAddress').innerText = order.address;
+                    
+                    if (order.photo) {
+                        document.getElementById('orderPhotoImg').src = order.photo;
                         photoContainer.classList.remove('hidden');
                     } else {
                         photoContainer.classList.add('hidden');
@@ -301,55 +305,83 @@
 
                     orderCard.classList.remove('hidden');
                 } else {
-                    searchingState.classList.add('hidden');
                     orderCard.classList.add('hidden');
-                    if(isDutyOn) {
-                        setTimeout(() => checkForOrders(workerArea), 3000);
-                    }
+                    searchingState.classList.remove('hidden');
                 }
             } else {
-                searchingState.classList.add('hidden');
                 orderCard.classList.add('hidden');
-                if(isDutyOn) {
-                    setTimeout(() => checkForOrders(workerArea), 3000);
-                }
+                searchingState.classList.remove('hidden');
             }
         }
 
         function acceptOrder() {
             if (workerSession.balance < 50) {
-                alert("Wallet balance less than ₹50. Cannot accept order.");
+                alert("Wallet balance less than ₹50.");
                 return;
             }
 
-            let customerAddress = currentOrderData ? currentOrderData.address : "Pune"; 
+            if(currentOrderData) {
+                currentOrderData.status = 'Accepted';
+                currentOrderData.workerMobile = workerSession.mobile;
+
+                // १. वर्करसाठी अपडेट
+                localStorage.setItem('gharkamActiveOrder', JSON.stringify(currentOrderData));
+
+                // २. संबंधित कस्टमरच्या खात्यात सिंक करणे
+                if (currentOrderData.customerMobile) {
+                    localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
+                }
+            }
+
+            let customerAddress = currentOrderData ? currentOrderData.address + ", " + currentOrderData.area + ", Pune" : "Pune"; 
             let mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(customerAddress);
             window.open(mapUrl, '_blank');
             
             document.getElementById('orderCard').classList.add('hidden');
             document.getElementById('ongoingOrder').classList.remove('hidden');
+            if(checkInterval) clearInterval(checkInterval);
+        }
+
+        function updateOrderStatus(newStatus) {
+            if (currentOrderData) {
+                currentOrderData.status = newStatus;
+                localStorage.setItem('gharkamActiveOrder', JSON.stringify(currentOrderData));
+
+                if (currentOrderData.customerMobile) {
+                    localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
+                }
+                alert("Status updated to: " + newStatus);
+            }
         }
 
         function rejectOrder() {
             document.getElementById('orderCard').classList.add('hidden');
             document.getElementById('searchingState').classList.remove('hidden');
-            alert("Order reject keli.");
+            alert("Order rejected.");
         }
 
         function completeOrder() {
             if (workerSession.balance >= 10) {
                 workerSession.balance -= 10;
-                
                 updateWalletUI();
                 
                 localStorage.setItem('current_user_session', JSON.stringify(workerSession));
-                localStorage.setItem('gharkam_user_' + workerSession.mobile, JSON.stringify(workerSession));
+
+                if (currentOrderData) {
+                    currentOrderData.status = 'Completed';
+                    if (currentOrderData.customerMobile) {
+                        localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
+                    }
+                }
 
                 document.getElementById('ongoingOrder').classList.add('hidden');
                 document.getElementById('searchingState').classList.remove('hidden');
                 localStorage.removeItem('gharkamActiveOrder');
                 
-                alert("Kam successful complete zale! Wallet madhun ₹10 cut zale aahet. Navin balance: ₹" + workerSession.balance);
+                alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
+                if(isDutyOn) {
+                    checkInterval = setInterval(checkForOrders, 2000);
+                }
             } else {
                 alert("Wallet balance insufficient!");
             }
@@ -365,7 +397,3 @@
     </script>
 </body>
 </html>
-
-
-
-

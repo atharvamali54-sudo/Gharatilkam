@@ -32,20 +32,20 @@
 
     <div class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
         
-        <!-- Top Header Navigation -->
-        <header class="bg-white px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <!-- Top Header Navigation (Blue Box Style & Non-Clickable) -->
+        <header class="bg-blue-600 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-md select-none">
             <div class="flex items-center gap-3">
-                <a href="index.html" class="flex items-center gap-2 text-2xl font-black tracking-tight text-slate-800 hover:opacity-80 transition">
-                    <span class="bg-blue-600 text-white p-2 rounded-xl text-lg flex items-center justify-center shadow-md">🏠 GK</span>
-                    <span class="text-blue-600">GHARKAM<span class="text-slate-700">.com</span></span>
-                </a>
-                <span class="hidden md:inline-block text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full border border-slate-200">
+                <div class="flex items-center gap-2 text-2xl font-black tracking-tight text-white">
+                    <span class="bg-white text-blue-600 p-2 rounded-xl text-lg flex items-center justify-center shadow-sm">🏠 GK</span>
+                    <span>GHARKAM<span class="text-blue-200">.com</span></span>
+                </div>
+                <span class="hidden md:inline-block text-xs font-semibold bg-blue-700 text-blue-100 px-3 py-1 rounded-full border border-blue-500">
                     Pune City Services
                 </span>
             </div>
             
             <div class="flex items-center gap-3">
-                <span class="text-xs font-bold bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                <span class="text-xs font-bold bg-white text-blue-700 border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 📍 Pune Verified
                 </span>
             </div>
@@ -127,7 +127,7 @@
             <!-- Right Side: Live Status Tracker & Support -->
             <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
                 
-                <!-- Section 1: Detailed Live Booking Status -->
+                <!-- Live Booking Status Tracker -->
                 <div>
                     <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Live Booking Status
@@ -138,7 +138,7 @@
                     </div>
                 </div>
 
-                <!-- Section 2: Customer Care Support -->
+                <!-- Customer Care Support -->
                 <div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
                         <i class="fa-solid fa-headset text-emerald-600"></i> Customer Care Support
@@ -164,7 +164,6 @@
     <script>
         document.getElementById('bookingDate').valueAsDate = new Date();
 
-        // Form Submission Logic
         function handleFormSubmit(event) {
             event.preventDefault();
 
@@ -204,7 +203,6 @@
             });
         }
 
-        // Live Realtime Listener for Customer Status UI Timeline
         database.ref("orders").on("value", (snapshot) => {
             const container = document.getElementById('customerStatusList');
             container.innerHTML = "";
@@ -216,7 +214,6 @@
             }
 
             const keys = Object.keys(data).reverse();
-            // Display latest active order status card
             keys.slice(0, 1).forEach(key => {
                 const item = data[key];
                 
@@ -228,7 +225,6 @@
                 statusCard.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
                 
                 statusCard.innerHTML = `
-                    <!-- Top Header Status -->
                     <div class="flex justify-between items-center border-b pb-3 border-slate-100">
                         <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
                             📦 Live Booking Status
@@ -238,7 +234,6 @@
                         </span>
                     </div>
 
-                    <!-- Detail Box -->
                     <div class="bg-blue-50/60 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
                         <p><strong>Service:</strong> ${item.service}</p>
                         <p><strong>Budget:</strong> ₹500</p>
@@ -246,37 +241,30 @@
                         <p><strong>Address:</strong> ${item.address || item.area}</p>
                     </div>
 
-                    <!-- 4-Step Timeline Tracker -->
                     <div class="relative pl-6 space-y-4 border-l-2 border-slate-200 my-2 text-xs">
-                        
-                        <!-- Step 1 -->
                         <div class="relative">
                             <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">1</span>
                             <h5 class="font-bold text-slate-800">Order Requested</h5>
                             <p class="text-[11px] text-slate-500">Kamachi request successfully pathvali aahe.</p>
                         </div>
 
-                        <!-- Step 2 -->
                         <div class="relative">
                             <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isAccepted || isOnTheWay || isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">2</span>
                             <h5 class="font-bold ${isAccepted || isOnTheWay || isCompleted ? 'text-slate-800' : 'text-slate-400'}">Worker Accepted</h5>
                             <p class="text-[11px] text-slate-400">Worker ne tumchi order accept keli aahe.</p>
                         </div>
 
-                        <!-- Step 3 -->
                         <div class="relative">
                             <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isOnTheWay || isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">3</span>
                             <h5 class="font-bold ${isOnTheWay || isCompleted ? 'text-slate-800' : 'text-slate-400'}">Worker On The Way</h5>
                             <p class="text-[11px] text-slate-400">Worker tumchya location var yet aahe.</p>
                         </div>
 
-                        <!-- Step 4 -->
                         <div class="relative">
                             <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">4</span>
                             <h5 class="font-bold ${isCompleted ? 'text-slate-800' : 'text-slate-400'}">Work Completed</h5>
                             <p class="text-[11px] text-slate-400">Kam yashasvirita puran zale aahe.</p>
                         </div>
-
                     </div>
                 `;
                 container.appendChild(statusCard);

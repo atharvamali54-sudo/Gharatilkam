@@ -41,7 +41,6 @@
 </head>
 <body class="p-4 max-w-lg mx-auto pb-12" onload="initWorkerPage()">
 
-    <!-- Floating Background Icons -->
     <div class="bg-icon icon-1">🔨</div>
     <div class="bg-icon icon-2">🖌️</div>
     <div class="bg-icon icon-3">🔧</div>
@@ -50,7 +49,6 @@
 
     <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-white/60 relative z-10 space-y-4">
         
-        <!-- Header & Profile Info -->
         <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-100 p-4 rounded-2xl border border-blue-200/70 shadow-sm flex justify-between items-center">
             <div>
                 <h1 class="text-base font-bold text-gray-800 tracking-tight">Gharkam - Worker Panel</h1>
@@ -58,7 +56,6 @@
                 <p class="text-[11px] text-gray-500">ID: <span id="workerIdDisplay" class="font-mono">--</span> | Service: <span id="workerTypeDisplay" class="font-semibold text-indigo-600">--</span></p>
             </div>
 
-            <!-- Wallet Box -->
             <div class="text-right bg-white/90 p-2.5 rounded-xl border border-blue-100 shadow-sm">
                 <span class="text-[10px] text-gray-500 font-bold block">WALLET BALANCE</span>
                 <span class="text-lg font-bold text-green-600">₹<span id="walletBalance">50</span></span>
@@ -68,7 +65,6 @@
             </div>
         </div>
 
-        <!-- Low Balance Warning -->
         <div id="lowBalanceWarning" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-2xl text-xs font-medium space-y-1">
             <p class="font-bold flex items-center space-x-1">
                 <span>⚠️</span>
@@ -77,7 +73,6 @@
             <p class="text-[11px]">Tumche wallet balance ₹50 peksa kami aahe. Navin order milvanyasathi wallet recharge kara.</p>
         </div>
 
-        <!-- Area Selection & Duty Toggle Button -->
         <div class="space-y-3 pt-1">
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Select Working Area:</label>
@@ -96,24 +91,20 @@
             </button>
         </div>
 
-        <!-- Main Display Cards Section -->
         <div class="border-t pt-4">
 
-            <!-- 1. Off Duty / Empty State -->
             <div id="emptyState" class="text-center py-8 space-y-2">
                 <div class="text-4xl">😴</div>
                 <h3 class="font-bold text-sm text-gray-700">Tumhi Off Duty Ahat</h3>
                 <p class="text-xs text-gray-400">Navin orders milvanyasathi Area select kara aani Duty ON करा.</p>
             </div>
 
-            <!-- 2. Searching For Orders Animation State -->
             <div id="searchingState" class="hidden text-center py-8 space-y-3">
                 <div class="inline-block animate-spin text-3xl">🔍</div>
                 <h3 class="font-bold text-sm text-blue-600 animate-pulse">Finding New Order...</h3>
                 <p class="text-xs text-gray-400">Nivadlelya area madhe navin customer order sodhat aahot.</p>
             </div>
 
-            <!-- 3. New Available Order Card -->
             <div id="orderCard" class="hidden bg-gradient-to-br from-white to-blue-50/40 p-4 rounded-2xl border border-blue-200 shadow-md space-y-3">
                 <div class="flex justify-between items-start border-b pb-2">
                     <div>
@@ -130,13 +121,11 @@
                     <p><strong>🏠 Address:</strong> <span id="orderAddress">--</span></p>
                 </div>
 
-                <!-- Optional Photo -->
                 <div id="photoContainer" class="hidden">
                     <p class="text-[11px] font-semibold text-gray-500 mb-1">Order Photo:</p>
                     <img id="orderPhotoImg" src="" class="w-full h-32 object-cover rounded-xl border">
                 </div>
 
-                <!-- Accept / Reject Buttons -->
                 <div class="grid grid-cols-2 gap-2 pt-2">
                     <button onclick="rejectOrder()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 rounded-xl text-xs transition">
                         ❌ Reject
@@ -147,7 +136,6 @@
                 </div>
             </div>
 
-            <!-- 4. Ongoing Active Order Card -->
             <div id="ongoingOrder" class="hidden bg-indigo-50/70 border border-indigo-200 p-4 rounded-2xl space-y-3">
                 <div class="flex items-center space-x-2">
                     <span class="relative flex h-3 w-3">
@@ -159,7 +147,6 @@
 
                 <p id="activeCustomerInfo" class="text-xs text-gray-700 font-medium">Customer details...</p>
 
-                <!-- Status Update Options -->
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <button onclick="updateOrderStatus('OnTheWay')" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-xl text-xs shadow-sm transition">
                         🚗 On The Way
@@ -173,11 +160,10 @@
         </div>
     </div>
 
-    <!-- Add Money QR Code Modal -->
     <div id="qrModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl p-6 max-w-sm w-full space-y-4 text-center shadow-2xl">
             <h3 class="font-bold text-gray-800 text-base">Add Balance to Wallet</h3>
-            <p class="text-xs text-gray-500">Scan QR Code using any UPI App to Add Funds</p>
+            <p class="text-xs text-gray-500">Scan QR Code or Click below to Pay via UPI</p>
             
             <div class="bg-gray-50 p-3 rounded-2xl border inline-block">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=7875160724@upi%26pn=Gharkam Services" alt="UPI QR" class="mx-auto rounded-lg shadow-sm">
@@ -185,7 +171,13 @@
 
             <p class="text-xs font-semibold text-gray-700">UPI ID: <span class="text-blue-600 font-mono">7875160724@upi</span></p>
 
-            <button onclick="closeAddMoneyModal()" class="w-full bg-gray-800 text-white font-bold py-2.5 rounded-xl text-xs hover:bg-black transition">
+            <a href="upi://pay?pa=7875160724@upi&pn=Gharkam%20Services&cu=INR" 
+               class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-2 active:scale-95">
+                <span>📲</span>
+                <span>Open in Google Pay / PhonePe / Paytm</span>
+            </a>
+
+            <button onclick="closeAddMoneyModal()" class="w-full bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs hover:bg-gray-300 transition">
                 Close
             </button>
         </div>
@@ -253,7 +245,6 @@
             
             if (workerSession.balance < 50) {
                 warningEl.classList.remove('hidden');
-                // जर बॅलन्स ₹50 च्या खाली असेल तर नवीन ऑर्डर्स सर्च करणे थांबवा आणि Duty OFF करा
                 if (isDutyOn && !hasActiveOrder) {
                     isDutyOn = false;
                     updateDutyUI(false);
@@ -325,7 +316,6 @@
         }
 
         function checkForOrders() {
-            // बॅलन्स ₹50 पेक्षा कमी असल्यास ऑर्डर्स शोधणे बंद करा
             if (!isDutyOn || hasActiveOrder || workerSession.balance < 50) {
                 document.getElementById('orderCard').classList.add('hidden');
                 document.getElementById('searchingState').classList.add('hidden');
@@ -377,111 +367,4 @@
 
         function acceptOrder() {
             if (workerSession.balance < 50) {
-                alert("⚠️ Wallet balance less than ₹50. Recharge to accept orders.");
-                return;
-            }
-
-            if(currentOrderData) {
-                let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
-                let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
-                
-                if(index !== -1) {
-                    allOrders[index].status = 'Accepted';
-                    allOrders[index].workerMobile = workerSession.mobile;
-                    allOrders[index].isClaimed = true;
-                    
-                    currentOrderData = allOrders[index];
-                    localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
-                    localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
-                }
-
-                hasActiveOrder = true;
-                document.getElementById('activeCustomerInfo').innerText = (currentOrderData.customerName || "Customer") + " (" + currentOrderData.address + ")";
-            }
-
-            let customerAddress = currentOrderData ? currentOrderData.address + ", " + currentOrderData.area + ", Pune" : "Pune"; 
-            let mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(customerAddress);
-            window.open(mapUrl, '_blank');
-            
-            document.getElementById('orderCard').classList.add('hidden');
-            document.getElementById('ongoingOrder').classList.remove('hidden');
-            
-            if(checkInterval) {
-                clearInterval(checkInterval);
-                checkInterval = null;
-            }
-        }
-
-        function updateOrderStatus(newStatus) {
-            if (currentOrderData) {
-                let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
-                let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
-                
-                if(index !== -1) {
-                    allOrders[index].status = newStatus;
-                    currentOrderData.status = newStatus;
-                    localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
-                    localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
-                }
-                alert("Status updated to: " + newStatus);
-            }
-        }
-
-        function rejectOrder() {
-            currentOrderData = null;
-            hasActiveOrder = false;
-            document.getElementById('orderCard').classList.add('hidden');
-            document.getElementById('searchingState').classList.remove('hidden');
-            alert("Order rejected.");
-        }
-
-        function completeOrder() {
-            if (workerSession.balance >= 10) {
-                // ₹10 कट करणे
-                workerSession.balance -= 10;
-                localStorage.setItem('current_user_session', JSON.stringify(workerSession));
-
-                if (currentOrderData) {
-                    let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
-                    let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
-                    
-                    if(index !== -1) {
-                        allOrders[index].status = 'Completed';
-                        localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
-                        localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(allOrders[index]));
-                    }
-                }
-
-                hasActiveOrder = false;
-                currentOrderData = null;
-
-                document.getElementById('ongoingOrder').classList.add('hidden');
-                document.getElementById('orderCard').classList.add('hidden');
-
-                // Wallet अपडेट करणे (जर ₹50 पेक्षा कमी झाले, तर आपोआप Warning दिसेल आणि Searching बंद होईल)
-                updateWalletUI();
-
-                if (workerSession.balance >= 50) {
-                    document.getElementById('searchingState').classList.remove('hidden');
-                    alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
-                    if(isDutyOn) {
-                        checkForOrders();
-                        if(!checkInterval) {
-                            checkInterval = setInterval(checkForOrders, 1500);
-                        }
-                    }
-                } else {
-                    document.getElementById('emptyState').classList.remove('hidden');
-                    alert("Kam complete zale! Tumche balance ₹50 peksa kami zale aahe. Navin order sathi recharge kara.");
-                }
-
-            } else {
-                alert("Wallet balance insufficient!");
-            }
-        }
-
-        function openAddMoneyModal() { document.getElementById('qrModal').classList.remove('hidden'); }
-        function closeAddMoneyModal() { document.getElementById('qrModal').classList.add('hidden'); }
-    </script>
-</body>
-</html>
+                alert("⚠️

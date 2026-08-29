@@ -21,16 +21,22 @@
                     <h1 id="customerNameDisplay" class="text-xl font-bold tracking-wide">WELCOME</h1>
                     <p class="text-xs text-blue-200 mt-0.5">Need help at home? Book a service below.</p>
                 </div>
-                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow transition">
-                    Logout
-                </button>
+                <!-- Right Side Header Controls -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleTrackingView()" class="bg-yellow-400 hover:bg-yellow-500 text-blue-950 text-xs font-bold px-3 py-1.5 rounded-xl shadow transition flex items-center gap-1">
+                        📦 Your Order Status
+                    </button>
+                    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow transition">
+                        Logout
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Main Content -->
         <main class="max-w-3xl w-full mx-auto p-4 space-y-5 mt-2">
 
-            <!-- LIVE ORDER TRACKING SECTION (Amazon/Flipkart Style) -->
+            <!-- LIVE ORDER TRACKING SECTION (User Specific) -->
             <div id="trackingSection" class="hidden bg-white p-5 rounded-2xl shadow-md border border-blue-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-3">
                     <h3 class="font-bold text-sm text-gray-800 flex items-center gap-2">
@@ -90,6 +96,13 @@
                     </div>
 
                 </div>
+
+                <!-- Option for New Appointment Booking -->
+                <div class="border-t pt-3 text-center">
+                    <button onclick="openNewBookingForm()" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold py-2.5 px-4 rounded-xl text-xs border border-blue-200 transition">
+                        ➕ Click here for new work appointment booking
+                    </button>
+                </div>
             </div>
 
             <!-- BOOKING FORM SECTION -->
@@ -129,7 +142,6 @@
                         </div>
                     </div>
 
-                    <!-- Date & Time Options Added Below -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1">Preferred Date:</label>
@@ -191,7 +203,6 @@
                 return;
             }
 
-            // आजची तारीख डिफॉल्ट सेट करा
             let today = new Date().toISOString().split('T')[0];
             document.getElementById('bookingDate').value = today;
 
@@ -239,7 +250,7 @@
 
         function saveAndPublishOrder(orderData) {
             localStorage.setItem('gharkamActiveOrder', JSON.stringify(orderData));
-            alert("Tumchi order request pathavli geli aahe! Worker accept karentoparient tracking check kara.");
+            alert("Tumchi order request pathavli geli aahe!");
             document.getElementById('serviceBookingForm').reset();
             updateLiveTrackingUI();
         }
@@ -256,6 +267,13 @@
             }
 
             let order = JSON.parse(savedOrder);
+
+            // मुख्य बदल: लॉगिन असणाऱ्या युझरच्या मोबाईल नंबरशी आर्डर जुळली तरच दाखवा
+            if (order.customerMobile !== customerSession.mobile) {
+                if (trackingSection) trackingSection.classList.add('hidden');
+                if (bookingFormCard) bookingFormCard.classList.remove('hidden');
+                return;
+            }
 
             if (trackingSection) trackingSection.classList.remove('hidden');
             if (bookingFormCard) bookingFormCard.classList.add('hidden');
@@ -295,11 +313,33 @@
                 highlightStep('step4', 'bg-green-600');
                 statusBadge.innerText = "🎉 Work Completed";
                 statusBadge.className = "text-[10px] bg-green-100 text-green-800 font-bold px-2.5 py-1 rounded-full";
-                
-                setTimeout(() => {
-                    localStorage.removeItem('gharkamActiveOrder');
-                    updateLiveTrackingUI();
-                }, 5000);
+            }
+        }
+
+        function toggleTrackingView() {
+            let savedOrder = localStorage.getItem('gharkamActiveOrder');
+            if (!savedOrder) {
+                alert("Tumchi kontiyahi active order nahi!");
+                return;
+            }
+            let order = JSON.parse(savedOrder);
+            if (order.customerMobile !== customerSession.mobile) {
+                alert("Tumchi kontiyahi active order nahi!");
+                return;
+            }
+
+            const trackingSection = document.getElementById('trackingSection');
+            const bookingFormCard = document.getElementById('bookingFormCard');
+            
+            trackingSection.classList.toggle('hidden');
+            bookingFormCard.classList.toggle('hidden');
+        }
+
+        function openNewBookingForm() {
+            if (confirm("Naveen appointment book karnyasathi active order tracking cancel/hide honar. Kinarya continuation karayche?")) {
+                localStorage.removeItem('gharkamActiveOrder');
+                document.getElementById('trackingSection').classList.add('hidden');
+                document.getElementById('bookingFormCard').classList.remove('hidden');
             }
         }
 

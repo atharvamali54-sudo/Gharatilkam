@@ -123,8 +123,13 @@
 
                 <!-- Ongoing Work Controls -->
                 <div id="ongoingOrder" class="hidden border border-green-300 bg-green-50 p-4 rounded-xl shadow-sm space-y-3 mt-3">
-                    <h4 class="font-bold text-xs text-green-800">✅ Active Order in Progress</h4>
+                    <div class="flex justify-between items-center border-b border-green-200 pb-2">
+                        <h4 class="font-bold text-xs text-green-800">✅ Active Order in Progress</h4>
+                        <span class="text-[10px] bg-yellow-400 text-gray-900 px-2 py-0.5 rounded-full font-bold">Duty Locked</span>
+                    </div>
                     
+                    <p class="text-xs text-gray-700"><strong>Ongoing Customer:</strong> <span id="activeCustomerInfo">--</span></p>
+
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="updateOrderStatus('OnTheWay')" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 text-xs rounded-lg transition shadow">
                             🛵 Set Status: On The Way
@@ -181,6 +186,7 @@
         let isDutyOn = false;
         let currentOrderData = null;
         let checkInterval = null;
+        let hasActiveOrder = false; // नवीन कंडिशन (Active order indicator)
 
         function initWorkerPage() {
             let sessionJson = localStorage.getItem('current_user_session');
@@ -210,10 +216,35 @@
                 } else {
                     document.getElementById('workerTypeDisplay').innerText = "All Services";
                 }
+
+                // Check for existing ongoing order on reload
+                checkExistingActiveOrder();
+
             } else {
                 alert("Krupaya pahile Login kara!");
                 window.location.href = "index.html";
                 return;
+            }
+        }
+
+        function checkExistingActiveOrder() {
+            let savedOrder = localStorage.getItem('gharkamActiveOrder');
+            if (savedOrder) {
+                let order = JSON.parse(savedOrder);
+                if (order.workerMobile === workerSession.mobile && (order.status === 'Accepted' || order.status === 'OnTheWay')) {
+                    currentOrderData = order;
+                    hasActiveOrder = true;
+                    
+                    // Force Duty ON if there is an active order
+                    isDutyOn = true;
+                    updateDutyUI(true);
+
+                    document.getElementById('emptyState').classList.add('hidden');
+                    document.getElementById('searchingState').classList.add('hidden');
+                    document.getElementById('orderCard').classList.add('hidden');
+                    document.getElementById('ongoingOrder').classList.remove('hidden');
+                    document.getElementById('activeCustomerInfo').innerText = (order.customerName || "Customer") + " (" + order.address + ")";
+                }
             }
         }
 
@@ -223,13 +254,19 @@
             
             if (workerSession.balance < 50) {
                 warningEl.classList.remove('hidden');
-                if (isDutyOn) toggleDuty();
+                if (isDutyOn && !hasActiveOrder) toggleDuty();
             } else {
                 warningEl.classList.add('hidden');
             }
         }
 
         function toggleDuty() {
+            // १. ऑर्डर चालू असताना Duty OFF करू देणार नाही!
+            if (hasActiveOrder && isDutyOn) {
+                alert("For turn duty off you should complete your work first");
+                return;
+            }
+
             if (workerSession.balance < 50) {
                 alert("⚠️ Minimum ₹50 wallet balance required for Duty.");
                 return;
@@ -242,35 +279,44 @@
             }
 
             isDutyOn = !isDutyOn;
+            updateDutyUI(isDutyOn);
+        }
+
+        function updateDutyUI(onState) {
             const btn = document.getElementById('dutyBtn');
             const emptyState = document.getElementById('emptyState');
             const searchingState = document.getElementById('searchingState');
             const orderCard = document.getElementById('orderCard');
 
-            if (isDutyOn) {
+            if (onState) {
                 btn.innerText = "🟢 Duty ON (Active)";
                 btn.className = "w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-green-600 text-white shadow-md";
-                emptyState.classList.add('hidden');
-                searchingState.classList.remove('hidden');
                 
-                checkForOrders();
-                checkInterval = setInterval(checkForOrders, 1500);
+                if (!hasActiveOrder) {
+                    emptyState.classList.add('hidden');
+                    searchingState.classList.remove('hidden');
+                    checkForOrders();
+                    if(!checkInterval) checkInterval = setInterval(checkForOrders, 1500);
+                }
             } else {
                 btn.innerText = "🔴 Duty OFF (Click ON)";
                 btn.className = "w-full py-2.5 px-4 text-sm rounded-xl font-bold transition duration-300 bg-red-500 text-white shadow-md";
                 searchingState.classList.add('hidden');
                 orderCard.classList.add('hidden');
                 emptyState.classList.remove('hidden');
-                if(checkInterval) clearInterval(checkInterval);
+                if(checkInterval) {
+                    clearInterval(checkInterval);
+                    checkInterval = null;
+                }
             }
         }
 
         function onAreaChange() {
-            if (isDutyOn) checkForOrders();
+            if (isDutyOn && !hasActiveOrder) checkForOrders();
         }
 
         function checkForOrders() {
-            if (!isDutyOn) return;
+            if (!isDutyOn || hasActiveOrder) return;
 
             const selectedArea = document.getElementById('workerArea').value;
             let savedOrder = localStorage.getItem('gharkamActiveOrder');
@@ -284,7 +330,8 @@
                 
                 let isAreaMatch = order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase());
 
-                if (isAreaMatch && order.status === 'Pending') {
+                // २. फक्त अन-क्लेमड (Unclaimed) आणि Pending ऑर्डर्सच या वर्करला दिसतील
+                if (isAreaMatch && order.status === 'Pending' && !order.isClaimed) {
                     currentOrderData = order;
                     searchingState.classList.add('hidden');
                     
@@ -323,12 +370,17 @@
             if(currentOrderData) {
                 currentOrderData.status = 'Accepted';
                 currentOrderData.workerMobile = workerSession.mobile;
+                currentOrderData.isClaimed = true; // ऑर्डर लॉक केली जेणेकरून दुसऱ्या वर्करला दिसणार नाही
+
+                hasActiveOrder = true; // ३. वर्कर बिझी झाला (नवीन ऑर्डर येणार नाही)
 
                 localStorage.setItem('gharkamActiveOrder', JSON.stringify(currentOrderData));
 
                 if (currentOrderData.customerMobile) {
                     localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
                 }
+                
+                document.getElementById('activeCustomerInfo').innerText = (currentOrderData.customerName || "Customer") + " (" + currentOrderData.address + ")";
             }
 
             let customerAddress = currentOrderData ? currentOrderData.address + ", " + currentOrderData.area + ", Pune" : "Pune"; 
@@ -337,7 +389,11 @@
             
             document.getElementById('orderCard').classList.add('hidden');
             document.getElementById('ongoingOrder').classList.remove('hidden');
-            if(checkInterval) clearInterval(checkInterval);
+            
+            if(checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+            }
         }
 
         function updateOrderStatus(newStatus) {
@@ -372,12 +428,17 @@
                     }
                 }
 
+                hasActiveOrder = false; // काम पूर्ण झाले (वर्कर फ्री झाला)
+
                 document.getElementById('ongoingOrder').classList.add('hidden');
                 document.getElementById('searchingState').classList.remove('hidden');
                 localStorage.removeItem('gharkamActiveOrder');
                 
                 alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
+
+                // आता वर्कर नवीन ऑर्डर्स शोधू शकतो
                 if(isDutyOn) {
+                    checkForOrders();
                     checkInterval = setInterval(checkForOrders, 1500);
                 }
             } else {

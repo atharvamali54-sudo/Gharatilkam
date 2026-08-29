@@ -95,7 +95,7 @@
                         <textarea id="customerAddress" rows="3" placeholder="House number, society, street or landmark..." required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"></textarea>
                     </div>
 
-                    <!-- 💰 BUDGET OPTION (ADDED HERE) -->
+                    <!-- 💰 BUDGET OPTION -->
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">YOUR ESTIMATED BUDGET</label>
                         <select id="budgetSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
@@ -193,6 +193,13 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 🛑 CANCEL ORDER BUTTON -->
+                        <div class="pt-3 border-t border-slate-100">
+                            <button id="cancelOrderBtn" onclick="cancelCurrentOrder()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2.5 px-4 rounded-xl text-xs transition border border-red-200 flex items-center justify-center gap-1.5 shadow-sm">
+                                <i class="fa-solid fa-xmark"></i> Cancel Order
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -212,6 +219,8 @@
     </div>
 
     <script>
+        let currentOrderId = null;
+
         // Set Default Date to Today
         document.getElementById('bookingDate').valueAsDate = new Date();
 
@@ -242,6 +251,8 @@
 
                 // Push to Firebase Realtime DB
                 const newOrderRef = database.ref("orders").push();
+                currentOrderId = newOrderRef.key;
+
                 await newOrderRef.set({
                     service: service,
                     customerName: name,
@@ -262,10 +273,13 @@
                 document.getElementById('statusAddress').innerText = address;
                 document.getElementById('statusWorker').innerText = "Finding Worker...";
 
+                // Show Cancel Button
+                document.getElementById('cancelOrderBtn').style.display = "flex";
+
                 alert("तुमची अपॉइंटमेंट यशस्वीरीत्या बुक झाली आहे!");
                 
                 // Track Status Live
-                trackLiveStatus(newOrderRef.key);
+                trackLiveStatus(currentOrderId);
 
             } catch (err) {
                 alert("Error: " + err.message);
@@ -290,6 +304,38 @@
                 } else if (data.status === 'Completed') {
                     document.getElementById('statusBadgeText').innerText = "Work Completed";
                     document.getElementById('step4Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                    document.getElementById('cancelOrderBtn').style.display = "none";
+                } else if (data.status === 'Cancelled') {
+                    document.getElementById('statusBadgeText').innerText = "Order Cancelled";
+                    document.getElementById('cancelOrderBtn').style.display = "none";
+                }
+            });
+        }
+
+        // 🛑 Cancel Order Logic with Restriction
+        function cancelCurrentOrder() {
+            if (!currentOrderId) {
+                alert("सध्या कोणतीही सक्रिय ऑर्डर उपलब्ध नाही!");
+                return;
+            }
+
+            database.ref("orders/" + currentOrderId).once("value", (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+
+                // Restriction: If Worker is 'On The Way' or 'Completed'
+                if (data.status === 'On The Way') {
+                    alert("❌ ऑर्डर कॅन्सल करता येणार नाही! Worker निघाला आहे (Worker is On The Way).");
+                } else if (data.status === 'Completed') {
+                    alert("❌ हे काम पूर्ण झाले आहे, त्यामुळे कॅन्सल करता येणार नाही.");
+                } else {
+                    if (confirm("तुम्हाला नक्की ही ऑर्डर रद्द (Cancel) करायची आहे का?")) {
+                        database.ref("orders/" + currentOrderId).update({
+                            status: "Cancelled"
+                        }).then(() => {
+                            alert("तुमची ऑर्डर यशस्वीरीत्या रद्द (Cancelled) झाली आहे.");
+                        });
+                    }
                 }
             });
         }

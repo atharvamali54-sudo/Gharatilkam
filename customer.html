@@ -7,51 +7,93 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #e0f2fe 0%, #f3f4f6 50%, #e0e7ff 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 3D Floating Background Icons Animation */
+        .bg-icon {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.18;
+            filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.2));
+            animation: float3d 12s infinite ease-in-out alternate;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        @keyframes float3d {
+            0% {
+                transform: translateY(0px) rotate(0deg) scale(1);
+            }
+            50% {
+                transform: translateY(-25px) rotate(15deg) scale(1.1);
+            }
+            100% {
+                transform: translateY(20px) rotate(-15deg) scale(0.95);
+            }
+        }
+
+        .icon-1 { top: 8%; left: 5%; animation-duration: 9s; }
+        .icon-2 { top: 25%; right: 8%; animation-duration: 11s; animation-delay: 1s; }
+        .icon-3 { top: 50%; left: 7%; animation-duration: 13s; animation-delay: 2s; }
+        .icon-4 { top: 75%; right: 6%; animation-duration: 10s; animation-delay: 0.5s; }
+        .icon-5 { top: 90%; left: 12%; animation-duration: 14s; animation-delay: 1.5s; }
     </style>
 </head>
 <body class="p-4 max-w-lg mx-auto pb-12" onload="initCustomerPage()">
 
-    <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 space-y-4">
+    <!-- 3D Moving Tool Background Icons -->
+    <div class="bg-icon icon-1">🔨</div>
+    <div class="bg-icon icon-2">🖌️</div>
+    <div class="bg-icon icon-3">🔧</div>
+    <div class="bg-icon icon-4">🪠</div>
+    <div class="bg-icon icon-5">⚡</div>
+
+    <div class="bg-white/95 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-white/60 relative z-10 space-y-4">
         
-        <!-- Header Section with Your Order & Customer Care on Top Right -->
-        <div class="border-b pb-4 flex justify-between items-start">
+        <!-- Header Section with Faint Blue Box & Top Right Buttons -->
+        <div class="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-100 p-4 rounded-2xl border border-blue-200/70 shadow-sm flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold text-gray-800">Gharkam.com</h1>
-                <p class="text-xs text-gray-500">Customer: <span id="custEmailDisplay" class="font-bold text-blue-600">--</span></p>
+                <h1 class="text-lg font-bold text-gray-800 tracking-tight">Gharkam.com - Book Service</h1>
+                <p class="text-xs text-gray-600 font-medium">Customer Account: <span id="custEmailDisplay" class="font-semibold text-blue-600">atharvamali53@gmail.com</span></p>
             </div>
 
-            <!-- Top Right Section (Your Order & Customer Care) -->
-            <div class="flex flex-col items-end space-y-1.5">
+            <!-- Top Right Options -->
+            <div class="flex flex-col items-end space-y-2">
                 <!-- Your Order Button -->
-                <button onclick="scrollToStatusCard()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow transition flex items-center space-x-1">
+                <button onclick="scrollToStatusCard()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow-md transition flex items-center space-x-1 active:scale-95">
                     <span>📦</span>
                     <span>Your Order</span>
                 </button>
 
-                <!-- Customer Care Direct Call Link -->
-                <a href="tel:7875160724" class="text-[11px] font-semibold text-green-700 bg-green-50 hover:bg-green-100 border border-green-300 px-2 py-1 rounded-lg flex items-center space-x-1 shadow-sm transition">
+                <!-- Customer Care Support Link -->
+                <a href="tel:7875160724" class="text-[11px] font-bold text-green-700 bg-white/90 hover:bg-green-50 border border-green-300 px-2.5 py-1 rounded-xl flex items-center space-x-1 shadow-sm transition active:scale-95">
                     <span>📞</span>
-                    <span>Help: 7875160724</span>
+                    <span>Support: 7875160724</span>
                 </a>
             </div>
         </div>
 
         <!-- Booking Form -->
-        <form id="bookingForm" onsubmit="handleBooking(event)" class="space-y-3">
+        <form id="bookingForm" onsubmit="handleBooking(event)" class="space-y-3 pt-2">
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Full Name:</label>
-                <input type="text" id="custName" required placeholder="Tumche Naav" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="custName" required placeholder="Tumche Naav" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Mobile Number:</label>
-                <input type="tel" id="custMobile" required placeholder="Mobile Number" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="tel" id="custMobile" required placeholder="Mobile Number" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Select Service:</label>
-                <select id="custService" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="custService" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
                     <option value="">-- Service Nivada --</option>
                     <option value="Cleaning">Cleaning</option>
                     <option value="Cooking">Cooking</option>
@@ -62,12 +104,12 @@
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Budget (₹):</label>
-                <input type="number" id="custBudget" required placeholder="Budget Amount" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="custBudget" required placeholder="Budget Amount" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Select Area:</label>
-                <select id="custArea" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="custArea" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
                     <option value="">-- Area Nivada --</option>
                     <option value="Swargate">Swargate</option>
                     <option value="Katraj">Katraj</option>
@@ -79,26 +121,26 @@
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Full Address:</label>
-                <textarea id="custAddress" required rows="2" placeholder="Sampurna Pata" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <textarea id="custAddress" required rows="2" placeholder="Sampurna Pata" class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50"></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Date:</label>
-                    <input type="date" id="custDate" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="date" id="custDate" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1">Time:</label>
-                    <input type="time" id="custTime" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="time" id="custTime" required class="w-full p-2.5 text-sm border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50">
                 </div>
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Photo (Optional):</label>
-                <input type="file" id="custPhoto" accept="image/*" class="w-full text-xs text-gray-500 border rounded-xl p-2">
+                <input type="file" id="custPhoto" accept="image/*" class="w-full text-xs text-gray-500 border rounded-xl p-2 bg-gray-50/50">
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-md">
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-md hover:shadow-lg active:scale-98">
                 🚀 Book Appointment
             </button>
         </form>
@@ -123,8 +165,10 @@
             let sessionJson = localStorage.getItem('current_user_session');
             if (sessionJson) {
                 customerSession = JSON.parse(sessionJson);
-                document.getElementById('custEmailDisplay').innerText = customerSession.email || 'Customer';
-                if(customerSession.mobile) {
+                if (customerSession.email) {
+                    document.getElementById('custEmailDisplay').innerText = customerSession.email;
+                }
+                if (customerSession.mobile) {
                     document.getElementById('custMobile').value = customerSession.mobile;
                 }
             }
@@ -200,7 +244,6 @@
             }
         }
 
-        // Your Order क्लिक केल्यावर खाली स्क्रोल होण्यासाठी
         function scrollToStatusCard() {
             let statusCard = document.getElementById('statusCard');
             if (!statusCard.classList.contains('hidden')) {

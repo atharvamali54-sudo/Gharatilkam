@@ -9,11 +9,7 @@
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #f3f4f6; }
         .profile-header { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
         .blink-text { animation: blink 1.5s infinite; }
     </style>
 </head>
@@ -103,7 +99,6 @@
                     <p class="text-xs text-gray-700"><strong>Date & Time:</strong> <span id="orderDateTimeText" class="font-semibold text-blue-800">--</span></p>
                     <p class="text-xs text-gray-700"><strong>Address:</strong> <span id="orderAddress">--</span></p>
                     
-                    <!-- Customer Photo -->
                     <div id="photoContainer" class="hidden pt-2">
                         <p class="text-[11px] font-bold text-gray-700 mb-1">Kamacha Photo:</p>
                         <div class="bg-black p-2 rounded-xl border border-blue-300 flex justify-center items-center">
@@ -175,18 +170,16 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="text-center py-4 text-gray-500 text-xs bg-white border-t mt-auto">
         © 2026 Gharkam.com | Worker Portal
     </footer>
 
-    <!-- Logic Script -->
     <script>
         let workerSession = null;
         let isDutyOn = false;
         let currentOrderData = null;
         let checkInterval = null;
-        let hasActiveOrder = false; // नवीन कंडिशन (Active order indicator)
+        let hasActiveOrder = false;
 
         function initWorkerPage() {
             let sessionJson = localStorage.getItem('current_user_session');
@@ -198,28 +191,20 @@
                     return;
                 }
                 
-                if (workerSession.balance === undefined) {
-                    workerSession.balance = 50;
-                }
-
+                if (workerSession.balance === undefined) workerSession.balance = 50;
                 updateWalletUI();
                 
                 if(workerSession.email) {
-                    let extractedName = workerSession.email.split('@')[0].toUpperCase();
-                    document.getElementById('workerNameDisplay').innerText = extractedName;
+                    document.getElementById('workerNameDisplay').innerText = workerSession.email.split('@')[0].toUpperCase();
                 }
                 if(workerSession.mobile) {
                     document.getElementById('workerIdDisplay').innerText = workerSession.mobile.slice(-6);
                 }
                 if(workerSession.workType) {
                     document.getElementById('workerTypeDisplay').innerText = workerSession.workType;
-                } else {
-                    document.getElementById('workerTypeDisplay').innerText = "All Services";
                 }
 
-                // Check for existing ongoing order on reload
                 checkExistingActiveOrder();
-
             } else {
                 alert("Krupaya pahile Login kara!");
                 window.location.href = "index.html";
@@ -228,30 +213,26 @@
         }
 
         function checkExistingActiveOrder() {
-            let savedOrder = localStorage.getItem('gharkamActiveOrder');
-            if (savedOrder) {
-                let order = JSON.parse(savedOrder);
-                if (order.workerMobile === workerSession.mobile && (order.status === 'Accepted' || order.status === 'OnTheWay')) {
-                    currentOrderData = order;
-                    hasActiveOrder = true;
-                    
-                    // Force Duty ON if there is an active order
-                    isDutyOn = true;
-                    updateDutyUI(true);
+            let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+            let myActiveOrder = allOrders.find(o => o.workerMobile === workerSession.mobile && (o.status === 'Accepted' || o.status === 'OnTheWay'));
+            
+            if (myActiveOrder) {
+                currentOrderData = myActiveOrder;
+                hasActiveOrder = true;
+                isDutyOn = true;
+                updateDutyUI(true);
 
-                    document.getElementById('emptyState').classList.add('hidden');
-                    document.getElementById('searchingState').classList.add('hidden');
-                    document.getElementById('orderCard').classList.add('hidden');
-                    document.getElementById('ongoingOrder').classList.remove('hidden');
-                    document.getElementById('activeCustomerInfo').innerText = (order.customerName || "Customer") + " (" + order.address + ")";
-                }
+                document.getElementById('emptyState').classList.add('hidden');
+                document.getElementById('searchingState').classList.add('hidden');
+                document.getElementById('orderCard').classList.add('hidden');
+                document.getElementById('ongoingOrder').classList.remove('hidden');
+                document.getElementById('activeCustomerInfo').innerText = (myActiveOrder.customerName || "Customer") + " (" + myActiveOrder.address + ")";
             }
         }
 
         function updateWalletUI() {
             document.getElementById('walletBalance').innerText = workerSession.balance;
             const warningEl = document.getElementById('lowBalanceWarning');
-            
             if (workerSession.balance < 50) {
                 warningEl.classList.remove('hidden');
                 if (isDutyOn && !hasActiveOrder) toggleDuty();
@@ -261,17 +242,14 @@
         }
 
         function toggleDuty() {
-            // १. ऑर्डर चालू असताना Duty OFF करू देणार नाही!
             if (hasActiveOrder && isDutyOn) {
                 alert("For turn duty off you should complete your work first");
                 return;
             }
-
             if (workerSession.balance < 50) {
                 alert("⚠️ Minimum ₹50 wallet balance required for Duty.");
                 return;
             }
-
             const area = document.getElementById('workerArea').value;
             if (!area && !isDutyOn) {
                 alert("Krupaya Area select kara!");
@@ -319,42 +297,37 @@
             if (!isDutyOn || hasActiveOrder) return;
 
             const selectedArea = document.getElementById('workerArea').value;
-            let savedOrder = localStorage.getItem('gharkamActiveOrder');
+            let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
 
             const searchingState = document.getElementById('searchingState');
             const orderCard = document.getElementById('orderCard');
             const photoContainer = document.getElementById('photoContainer');
 
-            if (savedOrder) {
-                let order = JSON.parse(savedOrder);
+            let availableOrder = allOrders.find(order => 
+                order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase()) &&
+                order.status === 'Pending' && !order.isClaimed
+            );
+
+            if (availableOrder) {
+                currentOrderData = availableOrder;
+                searchingState.classList.add('hidden');
                 
-                let isAreaMatch = order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase());
-
-                // २. फक्त अन-क्लेमड (Unclaimed) आणि Pending ऑर्डर्सच या वर्करला दिसतील
-                if (isAreaMatch && order.status === 'Pending' && !order.isClaimed) {
-                    currentOrderData = order;
-                    searchingState.classList.add('hidden');
-                    
-                    document.getElementById('orderService').innerText = "⚡ Service: " + order.service;
-                    document.getElementById('orderBudget').innerText = "Budget: ₹" + order.budget;
-                    document.getElementById('orderCustomerName').innerText = order.customerName || "Customer";
-                    document.getElementById('orderCustomerMobile').innerText = order.customerMobile || "--";
-                    document.getElementById('orderAreaText').innerText = order.area;
-                    document.getElementById('orderDateTimeText').innerText = (order.bookingDate || '--') + " @ " + (order.bookingTime || '--');
-                    document.getElementById('orderAddress').innerText = order.address;
-                    
-                    if (order.photo) {
-                        document.getElementById('orderPhotoImg').src = order.photo;
-                        photoContainer.classList.remove('hidden');
-                    } else {
-                        photoContainer.classList.add('hidden');
-                    }
-
-                    orderCard.classList.remove('hidden');
+                document.getElementById('orderService').innerText = "⚡ Service: " + availableOrder.service;
+                document.getElementById('orderBudget').innerText = "Budget: ₹" + availableOrder.budget;
+                document.getElementById('orderCustomerName').innerText = availableOrder.customerName || "Customer";
+                document.getElementById('orderCustomerMobile').innerText = availableOrder.customerMobile || "--";
+                document.getElementById('orderAreaText').innerText = availableOrder.area;
+                document.getElementById('orderDateTimeText').innerText = (availableOrder.bookingDate || '--') + " @ " + (availableOrder.bookingTime || '--');
+                document.getElementById('orderAddress').innerText = availableOrder.address;
+                
+                if (availableOrder.photo) {
+                    document.getElementById('orderPhotoImg').src = availableOrder.photo;
+                    photoContainer.classList.remove('hidden');
                 } else {
-                    orderCard.classList.add('hidden');
-                    searchingState.classList.remove('hidden');
+                    photoContainer.classList.add('hidden');
                 }
+
+                orderCard.classList.remove('hidden');
             } else {
                 orderCard.classList.add('hidden');
                 searchingState.classList.remove('hidden');
@@ -368,18 +341,20 @@
             }
 
             if(currentOrderData) {
-                currentOrderData.status = 'Accepted';
-                currentOrderData.workerMobile = workerSession.mobile;
-                currentOrderData.isClaimed = true; // ऑर्डर लॉक केली जेणेकरून दुसऱ्या वर्करला दिसणार नाही
-
-                hasActiveOrder = true; // ३. वर्कर बिझी झाला (नवीन ऑर्डर येणार नाही)
-
-                localStorage.setItem('gharkamActiveOrder', JSON.stringify(currentOrderData));
-
-                if (currentOrderData.customerMobile) {
+                let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+                let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
+                
+                if(index !== -1) {
+                    allOrders[index].status = 'Accepted';
+                    allOrders[index].workerMobile = workerSession.mobile;
+                    allOrders[index].isClaimed = true;
+                    
+                    currentOrderData = allOrders[index];
+                    localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
                     localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
                 }
-                
+
+                hasActiveOrder = true;
                 document.getElementById('activeCustomerInfo').innerText = (currentOrderData.customerName || "Customer") + " (" + currentOrderData.address + ")";
             }
 
@@ -398,10 +373,13 @@
 
         function updateOrderStatus(newStatus) {
             if (currentOrderData) {
-                currentOrderData.status = newStatus;
-                localStorage.setItem('gharkamActiveOrder', JSON.stringify(currentOrderData));
-
-                if (currentOrderData.customerMobile) {
+                let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+                let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
+                
+                if(index !== -1) {
+                    allOrders[index].status = newStatus;
+                    currentOrderData.status = newStatus;
+                    localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
                     localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
                 }
                 alert("Status updated to: " + newStatus);
@@ -418,25 +396,25 @@
             if (workerSession.balance >= 10) {
                 workerSession.balance -= 10;
                 updateWalletUI();
-                
                 localStorage.setItem('current_user_session', JSON.stringify(workerSession));
 
                 if (currentOrderData) {
-                    currentOrderData.status = 'Completed';
-                    if (currentOrderData.customerMobile) {
-                        localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
+                    let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+                    let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
+                    
+                    if(index !== -1) {
+                        allOrders[index].status = 'Completed';
+                        localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
+                        localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(allOrders[index]));
                     }
                 }
 
-                hasActiveOrder = false; // काम पूर्ण झाले (वर्कर फ्री झाला)
-
+                hasActiveOrder = false;
                 document.getElementById('ongoingOrder').classList.add('hidden');
                 document.getElementById('searchingState').classList.remove('hidden');
-                localStorage.removeItem('gharkamActiveOrder');
                 
                 alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
 
-                // आता वर्कर नवीन ऑर्डर्स शोधू शकतो
                 if(isDutyOn) {
                     checkForOrders();
                     checkInterval = setInterval(checkForOrders, 1500);
@@ -446,13 +424,8 @@
             }
         }
 
-        function openAddMoneyModal() {
-            document.getElementById('qrModal').classList.remove('hidden');
-        }
-
-        function closeAddMoneyModal() {
-            document.getElementById('qrModal').classList.add('hidden');
-        }
+        function openAddMoneyModal() { document.getElementById('qrModal').classList.remove('hidden'); }
+        function closeAddMoneyModal() { document.getElementById('qrModal').classList.add('hidden'); }
     </script>
 </body>
 </html>

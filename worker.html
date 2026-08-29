@@ -213,6 +213,7 @@
             } else {
                 alert("Krupaya pahile Login kara!");
                 window.location.href = "index.html";
+                return;
             }
         }
 
@@ -281,7 +282,6 @@
             if (savedOrder) {
                 let order = JSON.parse(savedOrder);
                 
-                // सुधारित लॉजिक: एरिया मॅच (Case Insensitive) आणि स्टेटस Pending असल्यास ऑर्डर दाखवणे
                 let isAreaMatch = order.area && (order.area.trim().toLowerCase() === selectedArea.trim().toLowerCase());
 
                 if (isAreaMatch && order.status === 'Pending') {

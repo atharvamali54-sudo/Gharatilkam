@@ -51,10 +51,10 @@
             </div>
         </header>
 
-        <!-- Main Content Area: Split Grid (Left: Form | Right: Past Orders & Support) -->
+        <!-- Main Content Area: Split Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
             
-            <!-- Left Side: Stylish Form Container -->
+            <!-- Left Side: Form Container -->
             <div class="lg:col-span-7 p-6 md:p-8 bg-white">
                 <div class="mb-6">
                     <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -124,24 +124,21 @@
                 </form>
             </div>
 
-            <!-- Right Side: Past Orders & Customer Care Contact -->
+            <!-- Right Side: Live Status Tracker & Support -->
             <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
                 
-                <!-- Section 1: Your Past Orders -->
+                <!-- Section 1: Detailed Live Booking Status -->
                 <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                            <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Your Past Orders
-                        </h3>
-                        <span class="text-[10px] bg-blue-100 text-blue-700 font-bold px-2.5 py-1 rounded-full">Live Status</span>
-                    </div>
+                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Live Booking Status
+                    </h3>
 
-                    <div id="customerStatusList" class="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                        <p class="text-slate-400 text-xs text-center py-6">कोणतीही जुनी ऑर्डर उपलब्ध नाही.</p>
+                    <div id="customerStatusList">
+                        <p class="text-slate-400 text-xs text-center py-8">कोणतीही बुकिंग उपलब्ध नाही.</p>
                     </div>
                 </div>
 
-                <!-- Section 2: Customer Care Contact Panel -->
+                <!-- Section 2: Customer Care Support -->
                 <div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
                     <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
                         <i class="fa-solid fa-headset text-emerald-600"></i> Customer Care Support
@@ -167,6 +164,7 @@
     <script>
         document.getElementById('bookingDate').valueAsDate = new Date();
 
+        // Form Submission Logic
         function handleFormSubmit(event) {
             event.preventDefault();
 
@@ -206,36 +204,79 @@
             });
         }
 
-        // Live Realtime Listener for Customer Past Orders
+        // Live Realtime Listener for Customer Status UI Timeline
         database.ref("orders").on("value", (snapshot) => {
             const container = document.getElementById('customerStatusList');
             container.innerHTML = "";
             const data = snapshot.val();
 
             if (!data) {
-                container.innerHTML = '<p class="text-slate-400 text-xs text-center py-6">कोणतीही जुनी ऑर्डर उपलब्ध नाही.</p>';
+                container.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">कोणतीही बुकिंग उपलब्ध नाही.</p>';
                 return;
             }
 
             const keys = Object.keys(data).reverse();
-            keys.forEach(key => {
+            // Display latest active order status card
+            keys.slice(0, 1).forEach(key => {
                 const item = data[key];
+                
                 const isAccepted = item.status === 'Accepted';
+                const isOnTheWay = item.status === 'On The Way';
+                const isCompleted = item.status === 'Completed';
 
                 const statusCard = document.createElement('div');
-                statusCard.className = `p-3.5 rounded-xl border ${isAccepted ? 'bg-emerald-50/60 border-emerald-200' : 'bg-white border-slate-200 shadow-sm'} transition flex justify-between items-center`;
+                statusCard.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
+                
                 statusCard.innerHTML = `
-                    <div>
-                        <div class="flex items-center gap-2 mb-0.5">
-                            <span class="font-bold text-slate-800 text-xs">${item.service}</span>
-                            <span class="text-[10px] text-slate-400">(${item.area})</span>
-                        </div>
-                        <p class="text-[11px] text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${item.date || ''} ${item.time || ''}</p>
-                    </div>
-                    <div>
-                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${isAccepted ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${isAccepted ? '✓ Accepted' : '⏳ Pending'}
+                    <!-- Top Header Status -->
+                    <div class="flex justify-between items-center border-b pb-3 border-slate-100">
+                        <span class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            📦 Live Booking Status
                         </span>
+                        <span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${isAccepted ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                            ${isAccepted ? '✓ Worker Assigned' : '⏳ Finding Worker'}
+                        </span>
+                    </div>
+
+                    <!-- Detail Box -->
+                    <div class="bg-blue-50/60 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
+                        <p><strong>Service:</strong> ${item.service}</p>
+                        <p><strong>Budget:</strong> ₹500</p>
+                        <p><strong>Assigned Worker ID/Mobile:</strong> <span class="${isAccepted ? 'text-emerald-700 font-bold' : 'text-blue-600'}">${isAccepted ? (item.workerMobile || 'Accepted by Worker') : 'Finding Worker...'}</span></p>
+                        <p><strong>Address:</strong> ${item.address || item.area}</p>
+                    </div>
+
+                    <!-- 4-Step Timeline Tracker -->
+                    <div class="relative pl-6 space-y-4 border-l-2 border-slate-200 my-2 text-xs">
+                        
+                        <!-- Step 1 -->
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">1</span>
+                            <h5 class="font-bold text-slate-800">Order Requested</h5>
+                            <p class="text-[11px] text-slate-500">Kamachi request successfully pathvali aahe.</p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isAccepted || isOnTheWay || isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">2</span>
+                            <h5 class="font-bold ${isAccepted || isOnTheWay || isCompleted ? 'text-slate-800' : 'text-slate-400'}">Worker Accepted</h5>
+                            <p class="text-[11px] text-slate-400">Worker ne tumchi order accept keli aahe.</p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isOnTheWay || isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">3</span>
+                            <h5 class="font-bold ${isOnTheWay || isCompleted ? 'text-slate-800' : 'text-slate-400'}">Worker On The Way</h5>
+                            <p class="text-[11px] text-slate-400">Worker tumchya location var yet aahe.</p>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="relative">
+                            <span class="absolute -left-[31px] top-0 w-6 h-6 rounded-full ${isCompleted ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'} font-bold flex items-center justify-center text-[10px]">4</span>
+                            <h5 class="font-bold ${isCompleted ? 'text-slate-800' : 'text-slate-400'}">Work Completed</h5>
+                            <p class="text-[11px] text-slate-400">Kam yashasvirita puran zale aahe.</p>
+                        </div>
+
                     </div>
                 `;
                 container.appendChild(statusCard);

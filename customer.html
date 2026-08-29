@@ -36,7 +36,7 @@
         <!-- Main Content -->
         <main class="max-w-3xl w-full mx-auto p-4 space-y-5 mt-2">
 
-            <!-- LIVE ORDER TRACKING SECTION (User Specific) -->
+            <!-- LIVE ORDER TRACKING SECTION -->
             <div id="trackingSection" class="hidden bg-white p-5 rounded-2xl shadow-md border border-blue-200 space-y-4">
                 <div class="flex justify-between items-center border-b pb-3">
                     <h3 class="font-bold text-sm text-gray-800 flex items-center gap-2">
@@ -50,6 +50,7 @@
                 <!-- Active Order Info -->
                 <div class="text-xs text-gray-700 bg-blue-50/60 p-3 rounded-xl border border-blue-100 space-y-1">
                     <p><strong>Service:</strong> <span id="trackService">--</span></p>
+                    <p><strong>Area:</strong> <span id="trackArea" class="font-bold text-blue-700">--</span></p>
                     <p><strong>Budget:</strong> ₹<span id="trackBudget">0</span></p>
                     <p><strong>Scheduled Date & Time:</strong> <span id="trackDateTime" class="font-semibold text-blue-800">--</span></p>
                     <p><strong>Assigned Worker ID/Mobile:</strong> <span id="trackWorker" class="font-bold text-blue-700">Finding Worker...</span></p>
@@ -58,8 +59,6 @@
 
                 <!-- Progress Tracker Visual Steps -->
                 <div class="relative pl-6 space-y-6 pt-2 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-gray-200">
-                    
-                    <!-- Step 1 -->
                     <div id="step1" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">1</span>
                         <div>
@@ -68,7 +67,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 2 -->
                     <div id="step2" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">2</span>
                         <div>
@@ -77,7 +75,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 3 -->
                     <div id="step3" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">3</span>
                         <div>
@@ -86,7 +83,6 @@
                         </div>
                     </div>
 
-                    <!-- Step 4 -->
                     <div id="step4" class="relative flex items-center space-x-3 text-gray-400">
                         <span class="step-icon absolute -left-[23px] bg-gray-300 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">4</span>
                         <div>
@@ -94,7 +90,6 @@
                             <p class="text-[10px] text-gray-500">Kam yashasvirita puran zale aahe.</p>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Option for New Appointment Booking -->
@@ -207,14 +202,14 @@
             document.getElementById('bookingDate').value = today;
 
             updateLiveTrackingUI();
-            trackingInterval = setInterval(updateLiveTrackingUI, 2000);
+            trackingInterval = setInterval(updateLiveTrackingUI, 1000);
         }
 
         function handleOrderSubmit(e) {
             e.preventDefault();
 
             const service = document.getElementById('serviceType').value;
-            const area = document.getElementById('bookingArea').value;
+            const area = String(document.getElementById('bookingArea').value).trim();
             const budget = document.getElementById('bookingBudget').value;
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
@@ -223,7 +218,7 @@
 
             let orderData = {
                 id: 'ORD' + Date.now(),
-                customerMobile: customerSession.mobile,
+                customerMobile: String(customerSession.mobile).trim(),
                 customerName: customerSession.email ? customerSession.email.split('@')[0] : "Customer",
                 service: service,
                 area: area,
@@ -249,9 +244,7 @@
         }
 
         function saveAndPublishOrder(orderData) {
-            // १. कस्टमरची स्वतःची खाजगी ऑर्डर चावी
             localStorage.setItem('gharkam_order_' + customerSession.mobile, JSON.stringify(orderData));
-            // २. वर्करसाठी ॲक्टिव्ह ऑर्डर चावी
             localStorage.setItem('gharkamActiveOrder', JSON.stringify(orderData));
 
             alert("Tumchi order request pathavli geli aahe!");
@@ -260,7 +253,6 @@
         }
 
         function updateLiveTrackingUI() {
-            // फक्त लॉगिन असणाऱ्या कस्टमरची स्वतःचीच ऑर्डर लोड करणे
             let savedOrder = localStorage.getItem('gharkam_order_' + customerSession.mobile);
             const trackingSection = document.getElementById('trackingSection');
             const bookingFormCard = document.getElementById('bookingFormCard');
@@ -277,6 +269,7 @@
             if (bookingFormCard) bookingFormCard.classList.add('hidden');
 
             document.getElementById('trackService').innerText = order.service;
+            if(document.getElementById('trackArea')) document.getElementById('trackArea').innerText = order.area || '--';
             document.getElementById('trackBudget').innerText = order.budget;
             document.getElementById('trackDateTime').innerText = (order.bookingDate || '--') + " at " + (order.bookingTime || '--');
             document.getElementById('trackWorker').innerText = order.workerMobile ? order.workerMobile : "Finding Worker...";

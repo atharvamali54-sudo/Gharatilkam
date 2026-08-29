@@ -367,4 +367,109 @@
 
         function acceptOrder() {
             if (workerSession.balance < 50) {
-                alert("⚠️
+                alert("⚠️ Wallet balance less than ₹50. Recharge to accept orders.");
+                return;
+            }
+
+            if(currentOrderData) {
+                let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+                let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
+                
+                if(index !== -1) {
+                    allOrders[index].status = 'Accepted';
+                    allOrders[index].workerMobile = workerSession.mobile;
+                    allOrders[index].isClaimed = true;
+                    
+                    currentOrderData = allOrders[index];
+                    localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
+                    localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
+                }
+
+                hasActiveOrder = true;
+                document.getElementById('activeCustomerInfo').innerText = (currentOrderData.customerName || "Customer") + " (" + currentOrderData.address + ")";
+            }
+
+            let customerAddress = currentOrderData ? currentOrderData.address + ", " + currentOrderData.area + ", Pune" : "Pune"; 
+            let mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(customerAddress);
+            window.open(mapUrl, '_blank');
+            
+            document.getElementById('orderCard').classList.add('hidden');
+            document.getElementById('ongoingOrder').classList.remove('hidden');
+            
+            if(checkInterval) {
+                clearInterval(checkInterval);
+                checkInterval = null;
+            }
+        }
+
+        function updateOrderStatus(newStatus) {
+            if (currentOrderData) {
+                let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+                let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
+                
+                if(index !== -1) {
+                    allOrders[index].status = newStatus;
+                    currentOrderData.status = newStatus;
+                    localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
+                    localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(currentOrderData));
+                }
+                alert("Status updated to: " + newStatus);
+            }
+        }
+
+        function rejectOrder() {
+            currentOrderData = null;
+            hasActiveOrder = false;
+            document.getElementById('orderCard').classList.add('hidden');
+            document.getElementById('searchingState').classList.remove('hidden');
+            alert("Order rejected.");
+        }
+
+        function completeOrder() {
+            if (workerSession.balance >= 10) {
+                workerSession.balance -= 10;
+                localStorage.setItem('current_user_session', JSON.stringify(workerSession));
+
+                if (currentOrderData) {
+                    let allOrders = JSON.parse(localStorage.getItem('gharkamAllOrders') || '[]');
+                    let index = allOrders.findIndex(o => o.orderId === currentOrderData.orderId);
+                    
+                    if(index !== -1) {
+                        allOrders[index].status = 'Completed';
+                        localStorage.setItem('gharkamAllOrders', JSON.stringify(allOrders));
+                        localStorage.setItem('gharkam_order_' + currentOrderData.customerMobile, JSON.stringify(allOrders[index]));
+                    }
+                }
+
+                hasActiveOrder = false;
+                currentOrderData = null;
+
+                document.getElementById('ongoingOrder').classList.add('hidden');
+                document.getElementById('orderCard').classList.add('hidden');
+
+                updateWalletUI();
+
+                if (workerSession.balance >= 50) {
+                    document.getElementById('searchingState').classList.remove('hidden');
+                    alert("Kam successful complete zale! Wallet madhun ₹10 cut zale.");
+                    if(isDutyOn) {
+                        checkForOrders();
+                        if(!checkInterval) {
+                            checkInterval = setInterval(checkForOrders, 1500);
+                        }
+                    }
+                } else {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                    alert("Kam complete zale! Tumche balance ₹50 peksa kami zale aahe. Navin order sathi recharge kara.");
+                }
+
+            } else {
+                alert("Wallet balance insufficient!");
+            }
+        }
+
+        function openAddMoneyModal() { document.getElementById('qrModal').classList.remove('hidden'); }
+        function closeAddMoneyModal() { document.getElementById('qrModal').classList.add('hidden'); }
+    </script>
+</body>
+</html>

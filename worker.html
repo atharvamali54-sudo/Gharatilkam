@@ -1,455 +1,460 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gharkam - Worker Portal</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gharkam - Worker Portal</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-    <style>
-        .card-3d {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1d4ed8 100%);
-            box-shadow: 0 20px 30px -10px rgba(30, 64, 175, 0.4), 
-                        0 10px 10px -5px rgba(0, 0, 0, 0.1),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.4);
-            transform: translateY(-2px);
-            transition: all 0.3s ease;
-        }
-        .card-3d:hover {
-            transform: translateY(-4px) scale(1.005);
-            box-shadow: 0 25px 35px -10px rgba(30, 64, 175, 0.5);
-        }
-        .inner-3d-box {
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-        }
-    </style>
+<style>
+.card-3d {
+background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1d4ed8 100%);
+box-shadow: 0 20px 30px -10px rgba(30, 64, 175, 0.4),
+0 10px 10px -5px rgba(0, 0, 0, 0.1),
+inset 0 1px 2px rgba(255, 255, 255, 0.4);
+transform: translateY(-2px);
+transition: all 0.3s ease;
+}
+.card-3d:hover {
+transform: translateY(-4px) scale(1.005);
+box-shadow: 0 25px 35px -10px rgba(30, 64, 175, 0.5);
+}
+.inner-3d-box {
+background: rgba(255, 255, 255, 0.95);
+box-shadow: inset 0 2px 4px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1);
+backdrop-filter: blur(10px);
+}
+</style>
 
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyD7Y-2un6pfAY8rafRsAzMre-OvNBAkosU",
-        authDomain: "gharkam-6c879.firebaseapp.com",
-        databaseURL: "https://gharkam-6c879-default-rtdb.firebaseio.com",
-        projectId: "gharkam-6c879",
-        storageBucket: "gharkam-6c879.firebasestorage.app",
-        messagingSenderId: "706729205935",
-        appId: "1:706729205935:web:598569d60ad414765e345a"
-      };
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyD7Y-2un6pfAY8rafRsAzMre-OvNBAkosU",
+authDomain: "gharkam-6c879.firebaseapp.com",
+databaseURL: "https://gharkam-6c879-default-rtdb.firebaseio.com",
+projectId: "gharkam-6c879",
+storageBucket: "gharkam-6c879.firebasestorage.app",
+messagingSenderId: "706729205935",
+appId: "1:706729205935:web:598569d60ad414765e345a"
+};
 
-      firebase.initializeApp(firebaseConfig);
-      const database = firebase.database();
-      const auth = firebase.auth();
-    </script>
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+</script>
 </head>
 <body class="bg-gradient-to-br from-blue-600 via-indigo-700 to-blue-900 min-h-screen p-4 md:p-8 flex items-center justify-center font-sans">
 
-    <div class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
-        
-        <!-- Header -->
-        <header class="bg-blue-600 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-md select-none">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 text-2xl font-black tracking-tight text-white">
-                    <span class="bg-white text-blue-600 p-2 rounded-xl text-lg flex items-center justify-center shadow-sm">🏠 GK</span>
-                    <span>GHARKAM<span class="text-blue-200">.com</span></span>
-                </div>
-                <span class="hidden md:inline-block text-xs font-semibold bg-blue-700 text-blue-100 px-3 py-1 rounded-full border border-blue-500">
-                    Worker Dashboard
-                </span>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <span id="headerDutyStatus" class="text-xs font-bold bg-white text-blue-700 border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                    <span id="dutyDot" class="w-2 h-2 rounded-full bg-red-500"></span> <span id="dutyText">Duty OFF</span>
-                </span>
-            </div>
-        </header>
+<div class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+<!-- Header -->
+<header class="bg-blue-600 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-md select-none">
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 text-2xl font-black tracking-tight text-white">
+<span class="bg-white text-blue-600 p-2 rounded-xl text-lg flex items-center justify-center shadow-sm">🏠 GK</span>
+<span>GHARKAM<span class="text-blue-200">.com</span></span>
+</div>
+<span class="hidden md:inline-block text-xs font-semibold bg-blue-700 text-blue-100 px-3 py-1 rounded-full border border-blue-500">
+Worker Dashboard
+</span>
+</div>
+<div class="flex items-center gap-3">
+<span id="headerDutyStatus" class="text-xs font-bold bg-white text-blue-700 border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+<span id="dutyDot" class="w-2 h-2 rounded-full bg-red-500"></span> <span id="dutyText">Duty OFF</span>
+</span>
+</div>
+</header>
 
-        <!-- Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
-            
-            <!-- Left Side: Profile, Controls & Jobs -->
-            <div class="lg:col-span-7 p-6 md:p-8 bg-white border-b lg:border-b-0 border-slate-200">
-                
-                <!-- 3D WORKER PROFILE & WALLET CARD -->
-                <div class="card-3d p-6 rounded-3xl text-white mb-6 relative overflow-hidden flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="space-y-1.5 w-full sm:w-auto text-left">
-                        <div class="flex items-center gap-2">
-                            <h2 class="font-black text-xl tracking-wide text-white">Gharkam Worker Panel</h2>
-                            <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-400/30">Verified Partner</span>
-                        </div>
-                        
-                        <p class="text-sm font-semibold text-blue-100 flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-gear text-xs text-blue-300"></i> Worker: <span id="workerUsername" class="text-white font-bold underline decoration-blue-300 underline-offset-2">Loading...</span>
-                        </p>
-                        
-                        <p class="text-xs font-medium text-blue-200 tracking-wide flex items-center gap-2 flex-wrap">
-                            <span>ID: <strong id="workerID" class="text-white">GK-000001</strong></span>
-                            <span>|</span>
-                            <span>Service: <strong id="workerService" class="text-white">Loading...</strong></span>
-                        </p>
-                    </div>
+<!-- Main Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+<!-- Left Side: Profile, Controls & Jobs -->
+<div class="lg:col-span-7 p-6 md:p-8 bg-white border-b lg:border-b-0 border-slate-200">
+<!-- 3D WORKER PROFILE & WALLET CARD -->
+<div class="card-3d p-6 rounded-3xl text-white mb-6 relative overflow-hidden flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="space-y-1.5 w-full sm:w-auto text-left">
+<div class="flex items-center gap-2">
+<h2 class="font-black text-xl tracking-wide text-white">Gharkam Worker Panel</h2>
+<span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-400/30">Verified Partner</span>
+</div>
+<p class="text-sm font-semibold text-blue-100 flex items-center gap-1.5">
+<i class="fa-solid fa-user-gear text-xs text-blue-300"></i> Worker: <span id="workerUsername" class="text-white font-bold underline decoration-blue-300 underline-offset-2">Loading...</span>
+</p>
+<p class="text-xs font-medium text-blue-200 tracking-wide flex items-center gap-2 flex-wrap">
+<span>ID: <strong id="workerID" class="text-white">GK-000001</strong></span>
+<span>|</span>
+<span>Service: <strong id="workerService" class="text-white">Loading...</strong></span>
+</p>
+</div>
 
-                    <!-- Wallet Box -->
-                    <div class="inner-3d-box p-4 rounded-2xl text-center min-w-[145px] w-full sm:w-auto text-slate-800">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">WALLET BALANCE</span>
-                        <span class="text-2xl font-black text-emerald-600 block my-1">₹<span id="walletAmount">50</span></span>
-                        <button onclick="openPaymentModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-plus text-[10px]"></i> Add Money
-                        </button>
-                    </div>
-                </div>
+<!-- Wallet Box -->
+<div class="inner-3d-box p-4 rounded-2xl text-center min-w-[145px] w-full sm:w-auto text-slate-800">
+<span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">WALLET BALANCE</span>
+<span class="text-2xl font-black text-emerald-600 block my-1">₹<span id="walletAmount">50</span></span>
+<button onclick="openPaymentModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-1">
+<i class="fa-solid fa-plus text-[10px]"></i> Add Money
+</button>
+</div>
+</div>
 
-                <!-- Select Area -->
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Select Working Area:</label>
-                    <select id="workingAreaSelect" onchange="filterAreaJobs()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
-                        <option value="Swargate">Swargate</option>
-                        <option value="Kothrud">Kothrud</option>
-                        <option value="Katraj">Katraj</option>
-                        <option value="Shivajinagar">Shivajinagar</option>
-                    </select>
-                </div>
+<!-- Select Area -->
+<div class="mb-4">
+<label class="block text-xs font-bold text-slate-700 mb-1.5">Select Working Area:</label>
+<select id="workingAreaSelect" onchange="filterAreaJobs()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
+<option value="Swargate">Swargate</option>
+<option value="Kothrud">Kothrud</option>
+<option value="Katraj">Katraj</option>
+<option value="Shivajinagar">Shivajinagar</option>
+</select>
+</div>
 
-                <!-- Duty Toggle Button -->
-                <button id="dutyToggleBtn" onclick="toggleDuty()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6">
-                    🔴 Duty OFF (Click ON)
-                </button>
+<!-- Duty Toggle Button -->
+<button id="dutyToggleBtn" onclick="toggleDuty()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6">
+🔴 Duty OFF (Click ON)
+</button>
 
-                <hr class="border-slate-100 mb-6">
+<hr class="border-slate-100 mb-6">
 
-                <!-- Available Jobs List -->
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-briefcase text-blue-600"></i> Available Jobs
-                    </h3>
-                    <span id="jobCount" class="bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">
-                        0 New Jobs
-                    </span>
-                </div>
+<!-- Available Jobs List -->
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+<i class="fa-solid fa-briefcase text-blue-600"></i> Available Jobs
+</h3>
+<span id="jobCount" class="bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1 rounded-full">
+0 New Jobs
+</span>
+</div>
 
-                <div id="availableJobsContainer" class="space-y-4 max-h-[450px] overflow-y-auto pr-1"></div>
-            </div>
+<div id="availableJobsContainer" class="space-y-4 max-h-[450px] overflow-y-auto pr-1"></div>
+</div>
 
-            <!-- Right Side: Active Tasks -->
-            <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
-                <div>
-                    <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check text-emerald-600"></i> My Active Task
-                    </h3>
-                    <div id="acceptedJobsContainer">
-                        <p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>
-                    </div>
-                </div>
+<!-- Right Side: Active Tasks -->
+<div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
+<div>
+<h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+<i class="fa-solid fa-circle-check text-emerald-600"></i> My Active Task
+</h3>
+<div id="acceptedJobsContainer">
+<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>
+</div>
+</div>
 
-                <!-- Support Helpline -->
-                <div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
-                    <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
-                        <i class="fa-solid fa-headset text-blue-600"></i> Worker Support Helpline
-                    </h4>
-                    <p class="text-xs text-slate-500 mb-4">कामाबाबत काही अडचण असल्यास सपोर्ट टीमशी बोला.</p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <a href="tel:7875160724" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition">
-                            <i class="fa-solid fa-phone text-blue-600"></i> Call Support
-                        </a>
-                        <a href="https://wa.me/917875160724?text=Hello%20Gharkam%20Worker%20Support," target="_blank" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-sm transition">
-                            <i class="fa-brands fa-whatsapp text-white text-sm"></i> WhatsApp
-                        </a>
-                    </div>
-                </div>
-            </div>
+<!-- Support Helpline -->
+<div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
+<h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
+<i class="fa-solid fa-headset text-blue-600"></i> Worker Support Helpline
+</h4>
+<p class="text-xs text-slate-500 mb-4">कामाबाबत काही अडचण असल्यास सपोर्ट टीमशी बोला.</p>
+<div class="grid grid-cols-2 gap-3">
+<a href="tel:7875160724" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 px-3 rounded-xl transition">
+<i class="fa-solid fa-phone text-blue-600"></i> Call Support
+</a>
+<a href="https://wa.me/917875160724?text=Hello%20Gharkam%20Worker%20Support," target="_blank" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs py-2.5 px-3 rounded-xl shadow-sm transition">
+<i class="fa-brands fa-whatsapp text-white text-sm"></i> WhatsApp
+</a>
+</div>
+</div>
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-    <!-- FULL PHOTO VIEW MODAL -->
-    <div id="imageModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4">
-        <button onclick="closeImageModal()" class="absolute top-5 right-5 text-white hover:text-red-400 text-2xl font-bold bg-white/20 hover:bg-white/30 w-10 h-10 rounded-full flex items-center justify-center transition">✕</button>
-        <div class="max-w-3xl w-full max-h-[85vh] flex items-center justify-center p-2">
-            <img id="modalImage" src="" alt="Full Photo View" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl border border-white/20">
-        </div>
-        <p class="text-white/70 text-xs mt-3"><i class="fa-solid fa-magnifying-glass-plus mr-1"></i> Full View Image</p>
-    </div>
+<!-- PAYMENT MODAL -->
+<div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 relative">
+<button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
 
-    <!-- PAYMENT MODAL -->
-    <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 relative">
-            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
+<div class="flex items-center justify-center gap-2 mb-3">
+<div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">AM</div>
+<div class="text-left">
+<h4 class="font-bold text-slate-800 text-base leading-tight">Atharva Mali</h4>
+<p class="text-[11px] text-slate-500">Scan or click below to pay</p>
+</div>
+</div>
 
-            <div class="flex items-center justify-center gap-2 mb-3">
-                <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">AM</div>
-                <div class="text-left">
-                    <h4 class="font-bold text-slate-800 text-base leading-tight">Atharva Mali</h4>
-                    <p class="text-[11px] text-slate-500">Scan or click below to pay</p>
-                </div>
-            </div>
+<div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 inline-block mb-3">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=maliatulmali07@okicici%26pn=Atharva%20Mali" alt="UPI QR Code" class="w-44 h-44 rounded-xl mx-auto shadow-sm">
+</div>
 
-            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 inline-block mb-3">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=maliatulmali07@okicici%26pn=Atharva%20Mali" alt="UPI QR Code" class="w-44 h-44 rounded-xl mx-auto shadow-sm">
-            </div>
+<p class="text-xs text-slate-600 font-medium mb-1">Scan to pay with any UPI app</p>
+<div class="bg-blue-50 border border-blue-100 p-2 rounded-xl mb-4 flex items-center justify-between text-xs">
+<span class="text-slate-600 font-semibold truncate">UPI ID: <strong class="text-blue-700">maliatulmali07@okicici</strong></span>
+<button onclick="copyUpi()" class="text-blue-600 font-bold hover:underline text-[11px]">Copy</button>
+</div>
 
-            <p class="text-xs text-slate-600 font-medium mb-1">Scan to pay with any UPI app</p>
-            <div class="bg-blue-50 border border-blue-100 p-2 rounded-xl mb-4 flex items-center justify-between text-xs">
-                <span class="text-slate-600 font-semibold truncate">UPI ID: <strong class="text-blue-700">maliatulmali07@okicici</strong></span>
-                <button onclick="copyUpi()" class="text-blue-600 font-bold hover:underline text-[11px]">Copy</button>
-            </div>
+<div class="grid grid-cols-2 gap-2">
+<a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2.5 rounded-xl border border-slate-200 transition">
+🔵 Google Pay / PhonePe
+</a>
+<a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition">
+⚡ Any UPI App
+</a>
+</div>
+</div>
+</div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2.5 rounded-xl border border-slate-200 transition">
-                    🔵 Google Pay / PhonePe
-                </a>
-                <a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition">
-                    ⚡ Any UPI App
-                </a>
-            </div>
-        </div>
-    </div>
+<!-- FULLSCREEN IMAGE PREVIEW MODAL -->
+<div id="imagePreviewModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeImagePreview()">
+  <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+    <button onclick="closeImagePreview()" class="absolute -top-12 right-0 text-white hover:text-slate-300 text-2xl font-bold bg-white/20 hover:bg-white/40 w-10 h-10 rounded-full flex items-center justify-center transition">✕</button>
+    <img id="previewModalImg" src="" alt="Full Preview" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/20">
+    <p class="text-white/70 text-xs mt-3 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> बंद करण्यासाठी बाहेर क्लिक करा</p>
+  </div>
+</div>
 
-    <script>
-        let isDutyOn = false;
-        let allOrdersData = null;
+<script>
+let isDutyOn = false;
+let allOrdersData = null;
 
-        // Auto Load Worker Info
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
-                document.getElementById('workerUsername').innerText = emailPrefix;
+// Auto Load Worker Info, Dynamic ID (00000X) & Selected Service
+auth.onAuthStateChanged((user) => {
+if (user) {
+const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
+document.getElementById('workerUsername').innerText = emailPrefix;
 
-                database.ref('workers/' + user.uid).once('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        const workerNum = data.workerIndex || 1;
-                        document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
-                        document.getElementById('workerService').innerText = data.service || "Electrician";
-                    } else {
-                        document.getElementById('workerID').innerText = 'GK-000001';
-                        document.getElementById('workerService').innerText = "General Repair";
-                    }
-                });
-            } else {
-                document.getElementById('workerUsername').innerText = "Atharva Mali";
-                document.getElementById('workerID').innerText = "GK-000002";
-                document.getElementById('workerService').innerText = "Plumbing Work";
-            }
-        });
+// Fetch Worker Database Info
+database.ref('workers/' + user.uid).once('value', (snapshot) => {
+const data = snapshot.val();
+if (data) {
+const workerNum = data.workerIndex || 1;
+document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
+document.getElementById('workerService').innerText = data.service || "Electrician";
+} else {
+document.getElementById('workerID').innerText = 'GK-000001';
+document.getElementById('workerService').innerText = "General Repair";
+}
+});
+} else {
+document.getElementById('workerUsername').innerText = "Atharva Mali";
+document.getElementById('workerID').innerText = "GK-000002";
+document.getElementById('workerService').innerText = "Plumbing Work";
+}
+});
 
-        function openPaymentModal() { document.getElementById('paymentModal').classList.remove('hidden'); }
-        function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
-        
-        function openImageModal(imageUrl) {
-            document.getElementById('modalImage').src = imageUrl;
-            document.getElementById('imageModal').classList.remove('hidden');
-        }
-        function closeImageModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-            document.getElementById('modalImage').src = "";
-        }
+function openPaymentModal() { document.getElementById('paymentModal').classList.remove('hidden'); }
+function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
+function copyUpi() {
+navigator.clipboard.writeText("maliatulmali07@okicici");
+alert("UPI ID कॉपी केला आहे!");
+}
 
-        function copyUpi() {
-            navigator.clipboard.writeText("maliatulmali07@okicici");
-            alert("UPI ID कॉपी केला आहे!");
-        }
+function openImagePreview(url) {
+  document.getElementById('previewModalImg').src = url;
+  document.getElementById('imagePreviewModal').classList.remove('hidden');
+}
 
-        function toggleDuty() {
-            isDutyOn = !isDutyOn;
-            const btn = document.getElementById('dutyToggleBtn');
-            const headerDot = document.getElementById('dutyDot');
-            const headerText = document.getElementById('dutyText');
+function closeImagePreview() {
+  document.getElementById('imagePreviewModal').classList.add('hidden');
+  document.getElementById('previewModalImg').src = "";
+}
 
-            if (isDutyOn) {
-                btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6";
-                btn.innerHTML = "🟢 Duty ON (Click OFF)";
-                headerDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-                headerText.innerText = "Duty ON";
-            } else {
-                btn.className = "w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6";
-                btn.innerHTML = "🔴 Duty OFF (Click ON)";
-                headerDot.className = "w-2 h-2 rounded-full bg-red-500";
-                headerText.innerText = "Duty OFF";
-            }
-            renderJobs();
-        }
+function toggleDuty() {
+isDutyOn = !isDutyOn;
+const btn = document.getElementById('dutyToggleBtn');
+const headerDot = document.getElementById('dutyDot');
+const headerText = document.getElementById('dutyText');
 
-        function filterAreaJobs() { renderJobs(); }
+if (isDutyOn) {
+btn.className = "w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6";
+btn.innerHTML = "🟢 Duty ON (Click OFF)";
+headerDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+headerText.innerText = "Duty ON";
+} else {
+btn.className = "w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6";
+btn.innerHTML = "🔴 Duty OFF (Click ON)";
+headerDot.className = "w-2 h-2 rounded-full bg-red-500";
+headerText.innerText = "Duty OFF";
+}
+renderJobs();
+}
 
-        database.ref("orders").on("value", (snapshot) => {
-            allOrdersData = snapshot.val();
-            renderJobs();
-        });
+function filterAreaJobs() { renderJobs(); }
 
-        function renderJobs() {
-            const jobsContainer = document.getElementById('availableJobsContainer');
-            const acceptedContainer = document.getElementById('acceptedJobsContainer');
-            const jobCountBadge = document.getElementById('jobCount');
-            const selectedArea = document.getElementById('workingAreaSelect').value;
+database.ref("orders").on("value", (snapshot) => {
+allOrdersData = snapshot.val();
+renderJobs();
+});
 
-            acceptedContainer.innerHTML = "";
+function renderJobs() {
+const jobsContainer = document.getElementById('availableJobsContainer');
+const acceptedContainer = document.getElementById('acceptedJobsContainer');
+const jobCountBadge = document.getElementById('jobCount');
+const selectedArea = document.getElementById('workingAreaSelect').value;
 
-            if (!isDutyOn) {
-                jobsContainer.innerHTML = `
-                    <div class="text-center py-10">
-                        <span class="text-5xl block mb-3">😴</span>
-                        <p class="font-bold text-slate-700 text-sm">तुम्ही सध्या Duty OFF वर आहात</p>
-                        <p class="text-xs text-slate-400 mt-1">नवीन कामे पाहण्यासाठी व स्वीकारण्यासाठी वरील "Duty OFF" बटण दाबा.</p>
-                    </div>
-                `;
-                jobCountBadge.innerText = "0 New Jobs";
-                return;
-            }
+acceptedContainer.innerHTML = "";
 
-            if (!allOrdersData) {
-                jobsContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-10">सध्या एकही काम उपलब्ध नाही...</p>';
-                jobCountBadge.innerText = "0 New Jobs";
-                return;
-            }
+if (!isDutyOn) {
+jobsContainer.innerHTML = `
+<div class="text-center py-10">
+<span class="text-5xl block mb-3">😴</span>
+<p class="font-bold text-slate-700 text-sm">तुम्ही सध्या Duty OFF वर आहात</p>
+<p class="text-xs text-slate-400 mt-1">नवीन कामे पाहण्यासाठी व स्वीकारण्यासाठी वरील "Duty OFF" बटण दाबा.</p>
+</div>
+`;
+jobCountBadge.innerText = "0 New Jobs";
+return;
+}
 
-            jobsContainer.innerHTML = "";
-            const keys = Object.keys(allOrdersData).reverse();
-            let pendingCount = 0;
-            let activeTaskFound = false;
+if (!allOrdersData) {
+jobsContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-10">सध्या एकही काम उपलब्ध नाही...</p>';
+jobCountBadge.innerText = "0 New Jobs";
+return;
+}
 
-            keys.forEach(key => {
-                const item = allOrdersData[key];
+jobsContainer.innerHTML = "";
+const keys = Object.keys(allOrdersData).reverse();
+let pendingCount = 0;
+let activeTaskFound = false;
 
-                if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {
-                    pendingCount++;
-                    const jobCard = document.createElement('div');
-                    jobCard.className = "bg-slate-50 border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition shadow-sm space-y-3";
-                    
-                    // Photo html shown BELOW Information
-                    const photoHtml = item.photoUrl ? `
-                        <div class="pt-2 border-t border-slate-200/60">
-                            <p class="text-[11px] font-bold text-slate-600 mb-1.5 flex items-center gap-1">
-                                <i class="fa-solid fa-image text-blue-600"></i> ग्राहकाने पाठवलेला फोटो (झूम करण्यासाठी फोटोवर क्लिक करा):
-                            </p>
-                            <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-300" onclick="openImageModal('${item.photoUrl}')">
-                                <img src="${item.photoUrl}" alt="Customer Upload" class="w-full h-auto max-h-60 object-contain bg-slate-900 rounded-xl transition duration-300 group-hover:scale-105">
-                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-bold text-xs gap-1.5">
-                                    <i class="fa-solid fa-expand text-base"></i> Full View
-                                </div>
-                            </div>
-                        </div>
-                    ` : '';
+keys.forEach(key => {
+const item = allOrdersData[key];
 
-                    jobCard.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full">⚡ ${item.service}</span>
-                                <h4 class="font-bold text-slate-800 text-sm mt-2"><i class="fa-solid fa-user text-blue-600"></i> ${item.customerName}</h4>
-                            </div>
-                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-                                ${item.budget || '₹500 Fix'}
-                            </span>
-                        </div>
+if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {
+pendingCount++;
+const jobCard = document.createElement('div');
+jobCard.className = "bg-slate-50 border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition shadow-sm space-y-3";
 
-                        <div class="text-xs text-slate-600 space-y-1 bg-white p-3 rounded-xl border border-slate-100">
-                            <p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area || selectedArea})</p>
-                            <p><i class="fa-solid fa-clock text-blue-500 mr-1.5"></i><strong>वेळ:</strong> ${item.date || ''} | ${item.time || ''}</p>
-                            <p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold">${item.customerMobile}</a></p>
-                        </div>
+// Photo View HTML (पत्ता आणि माहितीच्या खाली)
+const photoHtml = item.photoUrl ? `
+<div class="my-2">
+<p class="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-between">
+<span><i class="fa-solid fa-image text-blue-500"></i> कामाचा फोटो:</span>
+<span class="text-[10px] text-blue-600 font-semibold">(झूम करण्यासाठी फोटोवर क्लिक करा)</span>
+</p>
+<div class="relative cursor-pointer group rounded-xl overflow-hidden border border-slate-200" onclick="openImagePreview('${item.photoUrl}')">
+<img src="${item.photoUrl}" alt="Customer Upload" class="w-full h-44 object-cover group-hover:scale-105 transition duration-300">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
+<span class="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full font-bold backdrop-blur-sm flex items-center gap-1.5 opacity-90 group-hover:opacity-100 shadow">
+<i class="fa-solid fa-expand text-[10px]"></i> Full Photo
+</span>
+</div>
+</div>
+</div>
+` : '';
 
-                        ${photoHtml}
+jobCard.innerHTML = `
+<div class="flex justify-between items-start">
+<div>
+<span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full">⚡ ${item.service}</span>
+<h4 class="font-bold text-slate-800 text-sm mt-2"><i class="fa-solid fa-user text-blue-600"></i> ${item.customerName}</h4>
+</div>
+<span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+₹500 Fix
+</span>
+</div>
 
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <button onclick="acceptOrder('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                                🤝 Accept Order
-                            </button>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address + ' ' + (item.area || selectedArea))}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                                📍 Open Map
-                            </a>
-                        </div>
-                    `;
-                    jobsContainer.appendChild(jobCard);
-                }
+<!-- १. आधी ग्राहकाची सर्व माहिती -->
+<div class="text-xs text-slate-600 space-y-1 bg-white p-3 rounded-xl border border-slate-100">
+<p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area || selectedArea})</p>
+<p><i class="fa-solid fa-clock text-blue-500 mr-1.5"></i><strong>वेळ:</strong> ${item.date || ''} | ${item.time || ''}</p>
+<p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold">${item.customerMobile}</a></p>
+</div>
 
-                if ((item.status === 'Accepted' || item.status === 'On The Way') && !activeTaskFound) {
-                    activeTaskFound = true;
-                    const activeCard = document.createElement('div');
-                    activeCard.className = "bg-white p-5 rounded-2xl border border-emerald-200 shadow-md space-y-4";
-                    
-                    const activePhotoHtml = item.photoUrl ? `
-                        <div class="pt-2 border-t border-slate-100">
-                            <p class="text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
-                                <i class="fa-solid fa-image text-blue-600"></i> Job Photo (Click to Full View):
-                            </p>
-                            <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200" onclick="openImageModal('${item.photoUrl}')">
-                                <img src="${item.photoUrl}" alt="Task Photo" class="w-full h-auto max-h-52 object-contain bg-slate-900 rounded-xl transition duration-300 group-hover:scale-105">
-                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-bold text-xs gap-1.5">
-                                    <i class="fa-solid fa-expand text-base"></i> Click to Zoom
-                                </div>
-                            </div>
-                        </div>
-                    ` : '';
+<!-- २. माहितीच्या खाली फोटो -->
+${photoHtml}
 
-                    activeCard.innerHTML = `
-                        <div class="flex justify-between items-center border-b pb-3 border-slate-100">
-                            <span class="font-bold text-slate-800 text-xs">🛠️ Active Task In-Progress</span>
-                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                                ${item.status}
-                            </span>
-                        </div>
+<div class="grid grid-cols-2 gap-2">
+<button onclick="acceptOrder('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+🤝 Accept Order
+</button>
+<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address + ' ' + (item.area || selectedArea))}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+📍 Open Google Map
+</a>
+</div>
+`;
+jobsContainer.appendChild(jobCard);
+}
 
-                        <div class="bg-blue-50/70 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
-                            <p><strong>ग्राहक:</strong> ${item.customerName}</p>
-                            <p><strong>सेवा:</strong> ${item.service}</p>
-                            <p><strong>मोबाइल:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold underline">${item.customerMobile}</a></p>
-                            <p><strong>पत्ता:</strong> ${item.address}</p>
-                        </div>
+if ((item.status === 'Accepted' || item.status === 'On The Way') && !activeTaskFound) {
+activeTaskFound = true;
+const activeCard = document.createElement('div');
+activeCard.className = "bg-white p-5 rounded-2xl border border-emerald-200 shadow-md space-y-4";
 
-                        ${activePhotoHtml}
+const activePhotoHtml = item.photoUrl ? `
+<div class="my-2">
+<p class="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-between">
+<span><i class="fa-solid fa-image text-blue-500"></i> कामाचा फोटो:</span>
+<span class="text-[10px] text-blue-600 font-semibold">(झूम करण्यासाठी क्लिक करा)</span>
+</p>
+<div class="relative cursor-pointer group rounded-xl overflow-hidden border border-slate-200" onclick="openImagePreview('${item.photoUrl}')">
+<img src="${item.photoUrl}" alt="Task Photo" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
+<span class="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full font-bold backdrop-blur-sm flex items-center gap-1 shadow">
+<i class="fa-solid fa-expand text-[10px]"></i> Full View
+</span>
+</div>
+</div>
+</div>
+` : '';
 
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">
-                            📍 Navigate via Google Map
-                        </a>
+activeCard.innerHTML = `
+<div class="flex justify-between items-center border-b pb-3 border-slate-100">
+<span class="font-bold text-slate-800 text-xs">🛠️ Active Task In-Progress</span>
+<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+${item.status}
+</span>
+</div>
 
-                        <div class="grid grid-cols-2 gap-2 pt-1">
-                            <button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
-                                🚗 On The Way
-                            </button>
-                            <button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
-                                ✓ Work Completed
-                            </button>
-                        </div>
-                    `;
-                    acceptedContainer.appendChild(activeCard);
-                }
-            });
+<!-- ग्राहक माहिती -->
+<div class="bg-blue-50/70 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
+<p><strong>ग्राहक:</strong> ${item.customerName}</p>
+<p><strong>सेवा:</strong> ${item.service}</p>
+<p><strong>मोबाइल:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold underline">${item.customerMobile}</a></p>
+<p><strong>पत्ता:</strong> ${item.address}</p>
+</div>
 
-            jobCountBadge.innerText = `${pendingCount} New Jobs`;
-            if (pendingCount === 0) {
-                jobsContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-10">${selectedArea} एरियामध्ये सध्या एकही नवीन काम उपलब्ध नाही...</p>`;
-            }
-            if (!activeTaskFound) {
-                acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>';
-            }
-        }
+<!-- माहितीच्या खाली फोटो -->
+${activePhotoHtml}
 
-        function acceptOrder(orderId) {
-            database.ref("orders/" + orderId).update({
-                status: "Accepted",
-                workerMobile: "Verified Worker Assigned"
-            }).then(() => {
-                alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
-            }).catch((err) => {
-                alert("त्रुटी: " + err.message);
-            });
-        }
+<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">
+📍 Navigate via Google Map
+</a>
 
-        function updateStatus(orderId, newStatus) {
-            database.ref("orders/" + orderId).update({
-                status: newStatus
-            }).then(() => {
-                alert("स्टेटस अपडेट केले: " + newStatus);
-            });
-        }
-    </script>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
+🚗 On The Way
+</button>
+<button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
+✓ Work Completed
+</button>
+</div>
+`;
+acceptedContainer.appendChild(activeCard);
+}
+});
+
+jobCountBadge.innerText = `${pendingCount} New Jobs`;
+if (pendingCount === 0) {
+jobsContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-10">${selectedArea} एरियामध्ये सध्या एकही नवीन काम उपलब्ध नाही...</p>`;
+}
+if (!activeTaskFound) {
+acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>';
+}
+}
+
+function acceptOrder(orderId) {
+database.ref("orders/" + orderId).update({
+status: "Accepted",
+workerMobile: "Verified Worker Assigned"
+}).then(() => {
+alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
+}).catch((err) => {
+alert("त्रुटी: " + err.message);
+});
+}
+
+function updateStatus(orderId, newStatus) {
+database.ref("orders/" + orderId).update({
+status: newStatus
+}).then(() => {
+alert("स्टेटस अपडेट केले: " + newStatus);
+});
+}
+</script>
 </body>
 </html>

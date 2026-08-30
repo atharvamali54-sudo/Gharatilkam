@@ -203,7 +203,6 @@
     <script>
         let currentOrderId = null;
 
-        // Set Default Date to Today
         document.getElementById('bookingDate').valueAsDate = new Date();
 
         async function handleFormSubmit(e) {
@@ -225,23 +224,25 @@
             let photoUrl = "";
 
             try {
-                // Upload Photo only if selected (with Try-Catch Error Handling)
-                if (photoInput.files && photoInput.files[0]) {
+                // Photo upload with fallback (अडकून राहू नये म्हणून)
+                if (photoInput.files && photoInput.files.length > 0) {
                     try {
                         const file = photoInput.files[0];
                         const storageRef = storage.ref('order_photos/' + Date.now() + '_' + file.name);
-                        const snapshot = await storageRef.put(file);
+                        const snapshot = await Promise.race([
+                            storageRef.put(file),
+                            new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 7000))
+                        ]);
                         photoUrl = await snapshot.ref.getDownloadURL();
                     } catch (storageError) {
-                        console.warn("Photo upload skipped/failed:", storageError);
+                        console.warn("Storage Upload Warning:", storageError);
                     }
                 }
 
-                // Push to Firebase Realtime DB
                 const newOrderRef = database.ref("orders").push();
                 currentOrderId = newOrderRef.key;
 
-                await newOrderRef.set({
+                const payload = {
                     service: service,
                     customerName: name,
                     customerMobile: mobile,
@@ -253,24 +254,24 @@
                     photoUrl: photoUrl,
                     status: "Pending",
                     timestamp: firebase.database.ServerValue.TIMESTAMP
-                });
+                };
 
-                // Update UI Card Side
+                await newOrderRef.set(payload);
+
                 document.getElementById('statusService').innerText = service;
                 document.getElementById('statusBudget').innerText = budget;
                 document.getElementById('statusAddress').innerText = address;
                 document.getElementById('statusWorker').innerText = "Finding Worker...";
                 document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
 
-                // Show Cancel Button
                 document.getElementById('cancelContainer').classList.remove('hidden');
 
                 alert("तुमची अपॉइंटमेंट यशस्वीरीत्या बुक झाली आहे!");
                 
-                // Track Status Live
                 trackLiveStatus(currentOrderId);
 
             } catch (err) {
+                console.error("Booking Error:", err);
                 alert("बुकिंग करताना अडचण आली: " + err.message);
             } finally {
                 submitBtn.disabled = false;
@@ -301,7 +302,6 @@
             });
         }
 
-        // 🛑 Cancel Order Logic
         function cancelCurrentOrder() {
             if (!currentOrderId) {
                 alert("सध्या कोणतीही सक्रिय ऑर्डर उपलब्ध नाही!");

@@ -170,6 +170,15 @@
 
     </div>
 
+    <!-- FULL PHOTO VIEW MODAL -->
+    <div id="imageModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4">
+        <button onclick="closeImageModal()" class="absolute top-5 right-5 text-white hover:text-red-400 text-2xl font-bold bg-white/20 hover:bg-white/30 w-10 h-10 rounded-full flex items-center justify-center transition">✕</button>
+        <div class="max-w-3xl w-full max-h-[85vh] flex items-center justify-center p-2">
+            <img id="modalImage" src="" alt="Full Photo View" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl border border-white/20">
+        </div>
+        <p class="text-white/70 text-xs mt-3"><i class="fa-solid fa-magnifying-glass-plus mr-1"></i> Full View Image</p>
+    </div>
+
     <!-- PAYMENT MODAL -->
     <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 relative">
@@ -208,17 +217,15 @@
         let isDutyOn = false;
         let allOrdersData = null;
 
-        // Auto Load Worker Info, Dynamic ID (00000X) & Selected Service
+        // Auto Load Worker Info
         auth.onAuthStateChanged((user) => {
             if (user) {
                 const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
                 document.getElementById('workerUsername').innerText = emailPrefix;
 
-                // Fetch Worker Database Info
                 database.ref('workers/' + user.uid).once('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
-                        // 6-digit Auto Sequential ID (GK-000002, GK-000003, etc.)
                         const workerNum = data.workerIndex || 1;
                         document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
                         document.getElementById('workerService').innerText = data.service || "Electrician";
@@ -236,6 +243,16 @@
 
         function openPaymentModal() { document.getElementById('paymentModal').classList.remove('hidden'); }
         function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
+        
+        function openImageModal(imageUrl) {
+            document.getElementById('modalImage').src = imageUrl;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('modalImage').src = "";
+        }
+
         function copyUpi() {
             navigator.clipboard.writeText("maliatulmali07@okicici");
             alert("UPI ID कॉपी केला आहे!");
@@ -307,11 +324,18 @@
                     const jobCard = document.createElement('div');
                     jobCard.className = "bg-slate-50 border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition shadow-sm space-y-3";
                     
-                    // Photo View if uploaded by customer
+                    // Photo html shown BELOW Information
                     const photoHtml = item.photoUrl ? `
-                        <div class="my-2">
-                            <p class="text-[11px] font-bold text-slate-500 mb-1">ग्राहकाने पाठवलेला फोटो:</p>
-                            <img src="${item.photoUrl}" alt="Customer Upload" class="w-full h-36 object-cover rounded-xl border border-slate-200">
+                        <div class="pt-2 border-t border-slate-200/60">
+                            <p class="text-[11px] font-bold text-slate-600 mb-1.5 flex items-center gap-1">
+                                <i class="fa-solid fa-image text-blue-600"></i> ग्राहकाने पाठवलेला फोटो (झूम करण्यासाठी फोटोवर क्लिक करा):
+                            </p>
+                            <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-300" onclick="openImageModal('${item.photoUrl}')">
+                                <img src="${item.photoUrl}" alt="Customer Upload" class="w-full h-auto max-h-60 object-contain bg-slate-900 rounded-xl transition duration-300 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-bold text-xs gap-1.5">
+                                    <i class="fa-solid fa-expand text-base"></i> Full View
+                                </div>
+                            </div>
                         </div>
                     ` : '';
 
@@ -322,11 +346,9 @@
                                 <h4 class="font-bold text-slate-800 text-sm mt-2"><i class="fa-solid fa-user text-blue-600"></i> ${item.customerName}</h4>
                             </div>
                             <span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-                                ₹500 Fix
+                                ${item.budget || '₹500 Fix'}
                             </span>
                         </div>
-
-                        ${photoHtml}
 
                         <div class="text-xs text-slate-600 space-y-1 bg-white p-3 rounded-xl border border-slate-100">
                             <p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area || selectedArea})</p>
@@ -334,12 +356,14 @@
                             <p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold">${item.customerMobile}</a></p>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-2">
+                        ${photoHtml}
+
+                        <div class="grid grid-cols-2 gap-2 pt-1">
                             <button onclick="acceptOrder('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
                                 🤝 Accept Order
                             </button>
                             <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address + ' ' + (item.area || selectedArea))}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                                📍 Open Google Map
+                                📍 Open Map
                             </a>
                         </div>
                     `;
@@ -352,7 +376,17 @@
                     activeCard.className = "bg-white p-5 rounded-2xl border border-emerald-200 shadow-md space-y-4";
                     
                     const activePhotoHtml = item.photoUrl ? `
-                        <img src="${item.photoUrl}" alt="Task Photo" class="w-full h-32 object-cover rounded-xl border border-slate-200 my-2">
+                        <div class="pt-2 border-t border-slate-100">
+                            <p class="text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1">
+                                <i class="fa-solid fa-image text-blue-600"></i> Job Photo (Click to Full View):
+                            </p>
+                            <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-200" onclick="openImageModal('${item.photoUrl}')">
+                                <img src="${item.photoUrl}" alt="Task Photo" class="w-full h-auto max-h-52 object-contain bg-slate-900 rounded-xl transition duration-300 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-bold text-xs gap-1.5">
+                                    <i class="fa-solid fa-expand text-base"></i> Click to Zoom
+                                </div>
+                            </div>
+                        </div>
                     ` : '';
 
                     activeCard.innerHTML = `
@@ -363,14 +397,14 @@
                             </span>
                         </div>
 
-                        ${activePhotoHtml}
-
                         <div class="bg-blue-50/70 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
                             <p><strong>ग्राहक:</strong> ${item.customerName}</p>
                             <p><strong>सेवा:</strong> ${item.service}</p>
                             <p><strong>मोबाइल:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold underline">${item.customerMobile}</a></p>
                             <p><strong>पत्ता:</strong> ${item.address}</p>
                         </div>
+
+                        ${activePhotoHtml}
 
                         <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">
                             📍 Navigate via Google Map

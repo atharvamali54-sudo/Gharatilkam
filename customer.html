@@ -36,6 +36,9 @@
                 <span class="bg-white text-blue-600 p-2 rounded-xl text-lg flex items-center justify-center shadow-sm">🏠 GK</span>
                 <span>GHARKAM<span class="text-blue-200">.com</span></span>
             </div>
+            <button onclick="openMyOrdersModal()" class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs py-2 px-4 rounded-xl transition border border-white/20 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i> Your Orders
+            </button>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
@@ -200,6 +203,36 @@
         </div>
     </div>
 
+    <!-- Your Orders Modal -->
+    <div id="myOrdersModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Your Past & Active Orders
+                </h3>
+                <button onclick="closeMyOrdersModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="py-4 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Enter Your Mobile Number to View Orders</label>
+                    <div class="flex gap-2">
+                        <input type="tel" id="searchMobileInput" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-2.5 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
+                        <button onclick="fetchCustomerOrders()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl transition text-xs shrink-0">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ordersListContainer" class="overflow-y-auto space-y-3 pr-1 grow mt-2">
+                <p class="text-xs text-slate-400 text-center py-8">Enter your mobile number above to see your order list.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentOrderId = null;
 
@@ -224,7 +257,6 @@
             let photoUrl = "";
 
             try {
-                // Photo upload with fallback (अडकून राहू नये म्हणून)
                 if (photoInput.files && photoInput.files.length > 0) {
                     try {
                         const file = photoInput.files[0];
@@ -280,53 +312,4 @@
         }
 
         function trackLiveStatus(orderId) {
-            database.ref("orders/" + orderId).on("value", (snapshot) => {
-                const data = snapshot.val();
-                if(!data) return;
-
-                if (data.status === 'Accepted') {
-                    document.getElementById('statusBadgeText').innerText = "Worker Accepted";
-                    document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
-                    document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
-                } else if (data.status === 'On The Way') {
-                    document.getElementById('statusBadgeText').innerText = "Worker On The Way";
-                    document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
-                } else if (data.status === 'Completed') {
-                    document.getElementById('statusBadgeText').innerText = "Work Completed";
-                    document.getElementById('step4Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
-                    document.getElementById('cancelContainer').classList.add('hidden');
-                } else if (data.status === 'Cancelled') {
-                    document.getElementById('statusBadgeText').innerText = "Order Cancelled";
-                    document.getElementById('cancelContainer').classList.add('hidden');
-                }
-            });
-        }
-
-        function cancelCurrentOrder() {
-            if (!currentOrderId) {
-                alert("सध्या कोणतीही सक्रिय ऑर्डर उपलब्ध नाही!");
-                return;
-            }
-
-            database.ref("orders/" + currentOrderId).once("value", (snapshot) => {
-                const data = snapshot.val();
-                if (!data) return;
-
-                if (data.status === 'On The Way') {
-                    alert("❌ ऑर्डर कॅन्सल करता येणार नाही! Worker निघाला आहे (Worker is On The Way).");
-                } else if (data.status === 'Completed') {
-                    alert("❌ हे काम पूर्ण झाले आहे, त्यामुळे कॅन्सल करता येणार नाही.");
-                } else {
-                    if (confirm("तुम्हाला नक्की ही ऑर्डर रद्द (Cancel) करायची आहे का?")) {
-                        database.ref("orders/" + currentOrderId).update({
-                            status: "Cancelled"
-                        }).then(() => {
-                            alert("तुमची ऑर्डर यशस्वीरीत्या रद्द (Cancelled) झाली आहे.");
-                        });
-                    }
-                }
-            });
-        }
-    </script>
-</body>
-</html>
+            database.ref("orders/" + or

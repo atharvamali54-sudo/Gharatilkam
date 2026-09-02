@@ -306,7 +306,7 @@
             }
         }
 
-        // Live status tracking function that updates UI elements dynamically
+        // Live status tracking function updated to handle Completed/Cancelled orders correctly
         function trackLiveStatus(orderId) {
             currentOrderId = orderId;
 
@@ -326,6 +326,9 @@
                 document.getElementById('statusAddress').innerText = data.address || "-";
                 document.getElementById('cancelContainer').classList.remove('hidden');
 
+                const badgeEl = document.getElementById('statusBadge');
+                const badgeTextEl = document.getElementById('statusBadgeText');
+
                 // Reset all dots first
                 document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                 document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
@@ -333,26 +336,30 @@
                 document.getElementById('step4Dot').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
 
                 if (data.status === 'Pending') {
-                    document.getElementById('statusBadgeText').innerText = "Finding Worker";
+                    badgeEl.className = "bg-amber-100 text-amber-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
+                    badgeTextEl.innerText = "Finding Worker";
                     document.getElementById('statusWorker').innerText = "Finding Worker...";
                     document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                 } 
                 else if (data.status === 'Accepted') {
-                    document.getElementById('statusBadgeText').innerText = "Worker Accepted";
+                    badgeEl.className = "bg-blue-100 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
+                    badgeTextEl.innerText = "Worker Accepted";
                     document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
                     document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                 } 
                 else if (data.status === 'On The Way') {
-                    document.getElementById('statusBadgeText').innerText = "Worker On The Way";
+                    badgeEl.className = "bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
+                    badgeTextEl.innerText = "Worker On The Way";
                     document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
                     document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                 } 
                 else if (data.status === 'Completed') {
-                    document.getElementById('statusBadgeText').innerText = "Work Completed";
-                    document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
+                    badgeEl.className = "bg-emerald-100 text-emerald-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
+                    badgeTextEl.innerText = "Work Completed";
+                    document.getElementById('statusWorker').innerText = data.workerMobile || "Completed Worker";
                     document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
@@ -360,7 +367,8 @@
                     document.getElementById('cancelContainer').classList.add('hidden');
                 } 
                 else if (data.status === 'Cancelled') {
-                    document.getElementById('statusBadgeText').innerText = "Order Cancelled";
+                    badgeEl.className = "bg-red-100 text-red-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
+                    badgeTextEl.innerText = "Order Cancelled";
                     document.getElementById('statusWorker').innerText = "Cancelled";
                     document.getElementById('cancelContainer').classList.add('hidden');
                 }
@@ -465,10 +473,10 @@
             });
         }
 
-        // New function when user clicks "Track Live Status" on any order
+        // Function when user clicks "Track Live Status" on any past or active order
         function trackSelectedOrder(orderId) {
             closeMyOrdersModal();       // Close the modal
-            trackLiveStatus(orderId);   // Start tracking this specific order on the main dashboard block
+            trackLiveStatus(orderId);   // Load and track the selected order on the main screen
         }
     </script>
 </body>

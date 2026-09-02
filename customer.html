@@ -122,6 +122,7 @@
                 </form>
             </div>
 
+            <!-- Right Side: Live Status -->
             <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-6">
@@ -147,6 +148,7 @@
                             <p><strong>Address:</strong> <span id="statusAddress">-</span></p>
                         </div>
 
+                        <!-- 4 Steps Tracker -->
                         <div class="space-y-4 pt-2">
                             <div class="flex items-start gap-3">
                                 <div id="step1Dot" class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
@@ -235,6 +237,7 @@
 
     <script>
         let currentOrderId = null;
+        let activeListener = null;
 
         document.getElementById('bookingDate').valueAsDate = new Date();
 
@@ -290,14 +293,6 @@
 
                 await newOrderRef.set(payload);
 
-                document.getElementById('statusService').innerText = service;
-                document.getElementById('statusBudget').innerText = budget;
-                document.getElementById('statusAddress').innerText = address;
-                document.getElementById('statusWorker').innerText = "Finding Worker...";
-                document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
-
-                document.getElementById('cancelContainer').classList.remove('hidden');
-
                 alert("तुमची अपॉइंटमेंट यशस्वीरीत्या बुक झाली आहे!");
                 
                 trackLiveStatus(currentOrderId);
@@ -311,24 +306,62 @@
             }
         }
 
+        // Live status tracking function that updates UI elements dynamically
         function trackLiveStatus(orderId) {
+            currentOrderId = orderId;
+
+            // Remove previous listener if exists to prevent duplication
+            if (activeListener) {
+                database.ref("orders/" + activeListener).off();
+            }
+            activeListener = orderId;
+
             database.ref("orders/" + orderId).on("value", (snapshot) => {
                 const data = snapshot.val();
                 if(!data) return;
 
-                if (data.status === 'Accepted') {
+                // Update basic display info
+                document.getElementById('statusService').innerText = data.service || "-";
+                document.getElementById('statusBudget').innerText = data.budget || "-";
+                document.getElementById('statusAddress').innerText = data.address || "-";
+                document.getElementById('cancelContainer').classList.remove('hidden');
+
+                // Reset all dots first
+                document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                document.getElementById('step4Dot').className = "w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+
+                if (data.status === 'Pending') {
+                    document.getElementById('statusBadgeText').innerText = "Finding Worker";
+                    document.getElementById('statusWorker').innerText = "Finding Worker...";
+                    document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                } 
+                else if (data.status === 'Accepted') {
                     document.getElementById('statusBadgeText').innerText = "Worker Accepted";
                     document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
-                    document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
-                } else if (data.status === 'On The Way') {
+                    document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                    document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                } 
+                else if (data.status === 'On The Way') {
                     document.getElementById('statusBadgeText').innerText = "Worker On The Way";
-                    document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
-                } else if (data.status === 'Completed') {
+                    document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
+                    document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                    document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                    document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                } 
+                else if (data.status === 'Completed') {
                     document.getElementById('statusBadgeText').innerText = "Work Completed";
+                    document.getElementById('statusWorker').innerText = data.workerMobile || "Assigned Worker";
+                    document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                    document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
+                    document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     document.getElementById('step4Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     document.getElementById('cancelContainer').classList.add('hidden');
-                } else if (data.status === 'Cancelled') {
+                } 
+                else if (data.status === 'Cancelled') {
                     document.getElementById('statusBadgeText').innerText = "Order Cancelled";
+                    document.getElementById('statusWorker').innerText = "Cancelled";
                     document.getElementById('cancelContainer').classList.add('hidden');
                 }
             });
@@ -405,7 +438,7 @@
                     if(order.status === 'Cancelled') badgeColor = "bg-red-100 text-red-700";
 
                     const card = document.createElement('div');
-                    card.className = "bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-2 text-xs";
+                    card.className = "bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-3 text-xs hover:border-blue-400 transition cursor-pointer";
                     card.innerHTML = `
                         <div class="flex items-center justify-between border-b pb-2 border-slate-200">
                             <span class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-wrench text-blue-600"></i> ${order.service}</span>
@@ -418,6 +451,11 @@
                             <p><strong>Area:</strong> ${order.area}</p>
                         </div>
                         <p class="text-slate-500 truncate"><strong>Address:</strong> ${order.address}</p>
+                        <div class="text-right pt-1">
+                            <button onclick="trackSelectedOrder('${orderId}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-3 rounded-lg text-[11px] transition">
+                                <i class="fa-solid fa-eye"></i> Track Live Status
+                            </button>
+                        </div>
                     `;
                     container.appendChild(card);
                 });
@@ -425,6 +463,12 @@
                 console.error("Fetch Error:", error);
                 container.innerHTML = '<p class="text-xs text-red-500 text-center py-6">डेटा आणताना एरर आली. कृपया Firebase Rules तपासा.</p>';
             });
+        }
+
+        // New function when user clicks "Track Live Status" on any order
+        function trackSelectedOrder(orderId) {
+            closeMyOrdersModal();       // Close the modal
+            trackLiveStatus(orderId);   // Start tracking this specific order on the main dashboard block
         }
     </script>
 </body>

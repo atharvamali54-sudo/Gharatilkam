@@ -369,6 +369,7 @@ ${item.budget || '₹500'}
 <p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold">${item.customerMobile}</a></p>
 </div>
 
+<!-- फोटो आता पत्ता, वेळ आणि संपर्क माहितीच्या खाली दिसेल -->
 ${photoHtml}
 
 <div class="grid grid-cols-2 gap-2">
@@ -420,6 +421,7 @@ ${item.status}
 <p><strong>पत्ता:</strong> ${item.address}</p>
 </div>
 
+<!-- Active Task मध्ये सुद्धा फोटो माहितीच्या खाली दिसेल -->
 ${activePhotoHtml}
 
 <a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">

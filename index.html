@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gharkam.com - Secure Login & Signup</title>
+    <title>Gharmitra.online - Secure Login & Signup</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -30,7 +30,7 @@
         <div class="flex items-center space-x-3">
             <div class="bg-white p-2 rounded-full shadow-lg font-bold text-blue-600 text-xl">🏠 GK</div>
             <div>
-                <h1 class="text-white text-2xl font-bold">GHARKAM<span class="text-yellow-400">.com</span></h1>
+                <h1 class="text-white text-2xl font-bold">GHARMITRA<span class="text-yellow-400">.online</span></h1>
                 <p class="text-xs text-blue-200">Pune City Services</p>
             </div>
         </div>
@@ -126,7 +126,7 @@
     </main>
 
     <footer class="text-center py-4 text-blue-200 text-xs bg-black/20">
-        &copy; 2026 Gharkam.com | Pune City
+        &copy; 2026 Gharmitra.online | Pune City
     </footer>
 
     <script>
@@ -227,7 +227,7 @@
                 return;
             }
 
-            let savedUserJson = localStorage.getItem('gharkam_user_' + mobile);
+            let savedUserJson = localStorage.getItem('gharmitra_user_' + mobile) || localStorage.getItem('gharkam_user_' + mobile);
             if (!savedUserJson) {
                 showStatus("❌ Ha mobile number registered nahi ahe! Adhi Signup kara.", "error");
                 return;
@@ -237,7 +237,6 @@
             resetPasswordMobile = mobile;
             isForgotPasswordMode = true;
 
-            // UI Adjust for Forgot Password
             document.getElementById('formTitle').innerText = "Reset Password";
             document.getElementById('formSub').innerText = "OTP will be sent to: " + savedUser.email;
             document.getElementById('email').value = savedUser.email;
@@ -247,7 +246,6 @@
             document.getElementById('forgotPasswordLinkContainer').classList.add('hidden');
             document.getElementById('submitBtn').classList.add('hidden');
 
-            // Generate & Send OTP
             generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
             sendEmailOTPForReset(savedUser.email, generatedOTP);
         }
@@ -263,7 +261,7 @@
                 email: email,
                 user_email: email,
                 otp_code: otp,
-                message: "Your Gharkam.com Password Reset OTP Code is: " + otp
+                message: "Your Gharmitra.online Password Reset OTP Code is: " + otp
             };
 
             emailjs.send(serviceID, templateID, templateParams)
@@ -307,11 +305,11 @@
                 return;
             }
 
-            let savedUserJson = localStorage.getItem('gharkam_user_' + resetPasswordMobile);
+            let savedUserJson = localStorage.getItem('gharmitra_user_' + resetPasswordMobile) || localStorage.getItem('gharkam_user_' + resetPasswordMobile);
             if (savedUserJson) {
                 let savedUser = JSON.parse(savedUserJson);
                 savedUser.password = newPass;
-                localStorage.setItem('gharkam_user_' + resetPasswordMobile, JSON.stringify(savedUser));
+                localStorage.setItem('gharmitra_user_' + resetPasswordMobile, JSON.stringify(savedUser));
 
                 showStatus("🎉 Password successfully changed! Now Sign In.", "success");
                 
@@ -321,7 +319,7 @@
                     document.getElementById('email').readOnly = false;
                     document.getElementById('email').value = "";
                     document.getElementById('password').value = "";
-                    toggleMode(); // Go back to Sign In
+                    toggleMode(); 
                 }, 1500);
             }
         }
@@ -331,7 +329,7 @@
 
             let mobile = document.getElementById('mobile').value.trim();
             let password = document.getElementById('password').value.trim();
-            let savedUserJson = localStorage.getItem('gharkam_user_' + mobile);
+            let savedUserJson = localStorage.getItem('gharmitra_user_' + mobile) || localStorage.getItem('gharkam_user_' + mobile);
 
             if (isSignupMode) {
                 let email = document.getElementById('email').value.trim().toLowerCase();
@@ -352,7 +350,6 @@
                 sendEmailOTP(email, generatedOTP);
 
             } else {
-                // Sign In (Password validation)
                 if (!savedUserJson) {
                     showStatus("Your account is not available, please first signup.", "error");
                     return;
@@ -387,7 +384,7 @@
                 email: email,
                 user_email: email,
                 otp_code: otp,
-                message: "Your Gharkam.com OTP Code is: " + otp
+                message: "Your Gharmitra.online OTP Code is: " + otp
             };
 
             emailjs.send(serviceID, templateID, templateParams)
@@ -418,7 +415,7 @@
             let userEnteredOTP = document.getElementById('otpInput').value.trim();
 
             if (userEnteredOTP === generatedOTP) {
-                localStorage.setItem('gharkam_user_' + pendingUserData.mobile, JSON.stringify(pendingUserData));
+                localStorage.setItem('gharmitra_user_' + pendingUserData.mobile, JSON.stringify(pendingUserData));
                 localStorage.setItem('current_user_session', JSON.stringify(pendingUserData));
 
                 showStatus("🎉 Signup Successful! Redirecting...", "success");

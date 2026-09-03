@@ -56,10 +56,21 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">SELECT SERVICE</label>
                         <select id="serviceSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
+                            <option value="Plumbing">🪠 Plumbing</option>
                             <option value="Electrician">⚡ Electrician</option>
-                            <option value="Plumber">🪠 Plumber</option>
-                            <option value="Cleaner">🧹 Cleaning Service</option>
-                            <option value="Home Repair">🛠️ Home Repair</option>
+                            <option value="Carpenter">🪚 Carpenter</option>
+                            <option value="Painting">🎨 Painting</option>
+                            <option value="Cleaning">🧹 Cleaning</option>
+                            <option value="AC Repair">❄️ AC Repair</option>
+                            <option value="Appliance Repair">🔌 Appliance Repair</option>
+                            <option value="Masonry">🧱 Masonry</option>
+                            <option value="Locksmith">🔑 Locksmith</option>
+                            <option value="Pest Control">🦟 Pest Control</option>
+                            <option value="Gardening">🌿 Gardening</option>
+                            <option value="Glass & Aluminium">🪟 Glass & Aluminium</option>
+                            <option value="TV & DTH">📺 TV & DTH</option>
+                            <option value="Moving & Shifting">📦 Moving & Shifting</option>
+                            <option value="Bathroom Services">🚿 Bathroom Services</option>
                         </select>
                     </div>
 
@@ -75,12 +86,38 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">SELECT AREA</label>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">SELECT AREA (PUNE)</label>
                         <select id="areaSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
                             <option value="Swargate">Swargate</option>
-                            <option value="Kothrud">Kothrud</option>
+                            <option value="Hadapsar">Hadapsar</option>
                             <option value="Katraj">Katraj</option>
+                            <option value="Kothrud">Kothrud</option>
+                            <option value="Baner">Baner</option>
+                            <option value="Wakad">Wakad</option>
+                            <option value="Hinjawadi">Hinjawadi</option>
+                            <option value="Viman Nagar">Viman Nagar</option>
+                            <option value="Kharadi">Kharadi</option>
+                            <option value="Aundh">Aundh</option>
                             <option value="Shivajinagar">Shivajinagar</option>
+                            <option value="Koregaon Park">Koregaon Park</option>
+                            <option value="Kondhwa">Kondhwa</option>
+                            <option value="Bibwewadi">Bibwewadi</option>
+                            <option value="Dhankawadi">Dhankawadi</option>
+                            <option value="Pimple Saudagar">Pimple Saudagar</option>
+                            <option value="Pimpri">Pimpri</option>
+                            <option value="Chinchwad">Chinchwad</option>
+                            <option value="Yerawada">Yerawada</option>
+                            <option value="Wagholi">Wagholi</option>
+                            <option value="Dhanori">Dhanori</option>
+                            <option value="Lohegaon">Lohegaon</option>
+                            <option value="Camp">Camp</option>
+                            <option value="Deccan">Deccan</option>
+                            <option value="Sinhagad Road">Sinhagad Road</option>
+                            <option value="Warje">Warje</option>
+                            <option value="Bavdhan">Bavdhan</option>
+                            <option value="NIBM">NIBM</option>
+                            <option value="Vishrantwadi">Vishrantwadi</option>
+                            <option value="Magarpatta">Magarpatta</option>
                         </select>
                     </div>
 
@@ -90,14 +127,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">YOUR ESTIMATED BUDGET</label>
-                        <select id="budgetSelect" required class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
-                            <option value="₹500">₹500 (Standard Charge)</option>
-                            <option value="₹500 - ₹1,000">₹500 - ₹1,000</option>
-                            <option value="₹1,000 - ₹3,000">₹1,000 - ₹3,000</option>
-                            <option value="₹3,000 - ₹5,000">₹3,000 - ₹5,000</option>
-                            <option value="₹5,000+">₹5,000+</option>
-                        </select>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">YOUR ESTIMATED BUDGET (₹)</label>
+                        <input type="number" id="budgetInput" placeholder="Enter your budget e.g., 500" required min="100" class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -142,7 +173,7 @@
 
                         <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                             <p><strong>Service:</strong> <span id="statusService">Not Booked Yet</span></p>
-                            <p><strong>Budget:</strong> <span id="statusBudget" class="text-emerald-600 font-bold">-</span></p>
+                            <p><strong>Budget:</strong> ₹<span id="statusBudget" class="text-emerald-600 font-bold">-</span></p>
                             <p><strong>Assigned Worker ID/Mobile:</strong> <span id="statusWorker" class="text-blue-600 font-medium">Finding Worker...</span></p>
                             <p><strong>Address:</strong> <span id="statusAddress">-</span></p>
                         </div>
@@ -255,7 +286,7 @@
             const mobile = document.getElementById('customerMobile').value;
             const area = document.getElementById('areaSelect').value;
             const address = document.getElementById('customerAddress').value;
-            const budget = document.getElementById('budgetSelect').value;
+            const budget = document.getElementById('budgetInput').value;
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
             const photoInput = document.getElementById('jobPhoto');
@@ -286,7 +317,7 @@
                     customerMobile: mobile,
                     area: area,
                     address: address,
-                    budget: budget,
+                    budget: "₹" + budget,
                     date: date,
                     time: time,
                     photoUrl: photoUrl,
@@ -322,7 +353,7 @@
                 if(!data) return;
 
                 document.getElementById('statusService').innerText = data.service || "-";
-                document.getElementById('statusBudget').innerText = data.budget || "-";
+                document.getElementById('statusBudget').innerText = data.budget ? data.budget.replace('₹', '') : "-";
                 document.getElementById('statusAddress').innerText = data.address || "-";
 
                 const badgeEl = document.getElementById('statusBadge');

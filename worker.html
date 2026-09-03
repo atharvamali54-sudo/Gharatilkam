@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gharkam - Worker Portal</title>
-<!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -52,7 +50,6 @@ const auth = firebase.auth();
 <body class="bg-gradient-to-br from-blue-600 via-indigo-700 to-blue-900 min-h-screen p-4 md:p-8 flex items-center justify-center font-sans">
 
 <div class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-white/20">
-<!-- Header -->
 <header class="bg-blue-600 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-md select-none">
 <div class="flex items-center gap-3">
 <div class="flex items-center gap-2 text-2xl font-black tracking-tight text-white">
@@ -70,11 +67,8 @@ Worker Dashboard
 </div>
 </header>
 
-<!-- Main Content -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
-<!-- Left Side: Profile, Controls & Jobs -->
 <div class="lg:col-span-7 p-6 md:p-8 bg-white border-b lg:border-b-0 border-slate-200">
-<!-- 3D WORKER PROFILE & WALLET CARD -->
 <div class="card-3d p-6 rounded-3xl text-white mb-6 relative overflow-hidden flex flex-col sm:flex-row justify-between items-center gap-4">
 <div class="space-y-1.5 w-full sm:w-auto text-left">
 <div class="flex items-center gap-2">
@@ -91,7 +85,6 @@ Worker Dashboard
 </p>
 </div>
 
-<!-- Wallet Box -->
 <div class="inner-3d-box p-4 rounded-2xl text-center min-w-[145px] w-full sm:w-auto text-slate-800">
 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">WALLET BALANCE</span>
 <span class="text-2xl font-black text-emerald-600 block my-1">₹<span id="walletAmount">50</span></span>
@@ -101,7 +94,6 @@ Worker Dashboard
 </div>
 </div>
 
-<!-- Select Area -->
 <div class="mb-4">
 <label class="block text-xs font-bold text-slate-700 mb-1.5">Select Working Area:</label>
 <select id="workingAreaSelect" onchange="filterAreaJobs()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm">
@@ -112,14 +104,12 @@ Worker Dashboard
 </select>
 </div>
 
-<!-- Duty Toggle Button -->
 <button id="dutyToggleBtn" onclick="toggleDuty()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl shadow-md transition text-sm flex items-center justify-center gap-2 mb-6">
 🔴 Duty OFF (Click ON)
 </button>
 
 <hr class="border-slate-100 mb-6">
 
-<!-- Available Jobs List -->
 <div class="flex items-center justify-between mb-4">
 <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
 <i class="fa-solid fa-briefcase text-blue-600"></i> Available Jobs
@@ -132,7 +122,6 @@ Worker Dashboard
 <div id="availableJobsContainer" class="space-y-4 max-h-[450px] overflow-y-auto pr-1"></div>
 </div>
 
-<!-- Right Side: Active Tasks -->
 <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
 <div>
 <h3 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
@@ -143,7 +132,6 @@ Worker Dashboard
 </div>
 </div>
 
-<!-- Support Helpline -->
 <div class="mt-8 bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
 <h4 class="font-bold text-slate-800 text-sm mb-1 flex items-center gap-2">
 <i class="fa-solid fa-headset text-blue-600"></i> Worker Support Helpline
@@ -164,7 +152,6 @@ Worker Dashboard
 
 </div>
 
-<!-- PAYMENT MODAL -->
 <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 relative">
 <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
@@ -198,7 +185,6 @@ Worker Dashboard
 </div>
 </div>
 
-<!-- FULLSCREEN IMAGE PREVIEW MODAL -->
 <div id="imagePreviewModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeImagePreview()">
   <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
     <button onclick="closeImagePreview()" class="absolute -top-12 right-0 text-white hover:text-slate-300 text-2xl font-bold bg-white/20 hover:bg-white/40 w-10 h-10 rounded-full flex items-center justify-center transition">✕</button>
@@ -314,7 +300,6 @@ let activeTaskFound = false;
 keys.forEach(key => {
 const item = allOrdersData[key];
 
-// Fetch photo URL checking all possible database field names
 const imgUrl = item.photoUrl || item.imageUrl || item.photo || item.image || null;
 
 if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {
@@ -322,7 +307,6 @@ pendingCount++;
 const jobCard = document.createElement('div');
 jobCard.className = "bg-slate-50 border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition shadow-sm space-y-3";
 
-// Photo Component (माहितीच्या खाली)
 const photoHtml = imgUrl ? `
 <div class="my-2">
 <p class="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-between">
@@ -355,21 +339,19 @@ jobCard.innerHTML = `
 </span>
 </div>
 
-<!-- १. ग्राहक माहिती -->
 <div class="text-xs text-slate-600 space-y-1 bg-white p-3 rounded-xl border border-slate-100">
 <p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area || selectedArea})</p>
 <p><i class="fa-solid fa-clock text-blue-500 mr-1.5"></i><strong>वेळ:</strong> ${item.date || ''} | ${item.time || ''}</p>
 <p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold">${item.customerMobile}</a></p>
 </div>
 
-<!-- २. माहितीच्या खाली फोटो -->
 ${photoHtml}
 
 <div class="grid grid-cols-2 gap-2">
 <button onclick="acceptOrder('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
 🤝 Accept Order
 </button>
-<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address + ' ' + (item.area || selectedArea))}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+<a href="https://maps.google.com/?q=${encodeURIComponent(item.address + ' ' + (item.area || selectedArea))}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
 📍 Open Google Map
 </a>
 </div>
@@ -407,7 +389,6 @@ ${item.status}
 </span>
 </div>
 
-<!-- ग्राहक माहिती -->
 <div class="bg-blue-50/70 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
 <p><strong>ग्राहक:</strong> ${item.customerName}</p>
 <p><strong>सेवा:</strong> ${item.service}</p>
@@ -415,10 +396,9 @@ ${item.status}
 <p><strong>पत्ता:</strong> ${item.address}</p>
 </div>
 
-<!-- माहितीच्या खाली फोटो -->
 ${activePhotoHtml}
 
-<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">
+<a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">
 📍 Navigate via Google Map
 </a>
 
@@ -444,15 +424,19 @@ acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8
 }
 }
 
+// Updated acceptOrder function to pass actual worker mobile number
 function acceptOrder(orderId) {
-database.ref("orders/" + orderId).update({
-status: "Accepted",
-workerMobile: "Verified Worker Assigned"
-}).then(() => {
-alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
-}).catch((err) => {
-alert("त्रुटी: " + err.message);
-});
+    // इथे तुमच्या वर्करचा मोबाईल नंबर टाका जो कस्टमरच्या डॅशबोर्डवर दिसेल
+    const workerMobileNumber = "7875160724";
+
+    database.ref("orders/" + orderId).update({
+        status: "Accepted",
+        workerMobile: workerMobileNumber
+    }).then(() => {
+        alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
+    }).catch((err) => {
+        alert("त्रुटी: " + err.message);
+    });
 }
 
 function updateStatus(orderId, newStatus) {

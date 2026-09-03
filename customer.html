@@ -122,7 +122,6 @@
                 </form>
             </div>
 
-            <!-- Right Side: Live Status -->
             <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-6">
@@ -148,7 +147,6 @@
                             <p><strong>Address:</strong> <span id="statusAddress">-</span></p>
                         </div>
 
-                        <!-- 4 Steps Tracker Container -->
                         <div id="stepsTrackerContainer" class="space-y-4 pt-2">
                             <div class="flex items-start gap-3">
                                 <div id="step1Dot" class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
@@ -183,7 +181,6 @@
                             </div>
                         </div>
 
-                        <!-- Non-Progress Message Box (Hidden by default for active orders) -->
                         <div id="completedOrCancelledMsg" class="hidden text-center py-6 space-y-2">
                             <div id="finishedIcon" class="text-3xl">🎉</div>
                             <h4 id="finishedTitle" class="font-bold text-slate-800 text-sm">Order Completed</h4>
@@ -212,7 +209,6 @@
         </div>
     </div>
 
-    <!-- Your Orders Modal -->
     <div id="myOrdersModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -337,6 +333,14 @@
                 const cancelContainer = document.getElementById('cancelContainer');
                 const workerMobileEl = document.getElementById('statusWorker');
 
+                // Determine assigned worker label/number safely
+                let workerInfo = "Verified Worker Assigned";
+                if (data.workerMobile) {
+                    workerInfo = data.workerMobile;
+                } else if (data.workerId) {
+                    workerInfo = data.workerId;
+                }
+
                 if (data.status === 'Completed' || data.status === 'Cancelled') {
                     stepsContainer.classList.add('hidden');
                     cancelContainer.classList.add('hidden');
@@ -345,7 +349,7 @@
                     if (data.status === 'Completed') {
                         badgeEl.className = "bg-emerald-100 text-emerald-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
                         badgeTextEl.innerText = "Work Completed";
-                        workerMobileEl.innerText = data.workerMobile || "Completed Worker";
+                        workerMobileEl.innerText = workerInfo;
                         document.getElementById('finishedIcon').innerText = "🎉";
                         document.getElementById('finishedTitle').innerText = "Order Completed Successfully";
                     } else {
@@ -375,14 +379,14 @@
                     else if (data.status === 'Accepted') {
                         badgeEl.className = "bg-blue-100 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
                         badgeTextEl.innerText = "Worker Accepted";
-                        workerMobileEl.innerText = data.workerMobile ? data.workerMobile : "Assigned Worker";
+                        workerMobileEl.innerText = workerInfo;
                         document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                         document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                     } 
                     else if (data.status === 'On The Way') {
                         badgeEl.className = "bg-indigo-100 text-indigo-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
                         badgeTextEl.innerText = "Worker On The Way";
-                        workerMobileEl.innerText = data.workerMobile ? data.workerMobile : "Assigned Worker";
+                        workerMobileEl.innerText = workerInfo;
                         document.getElementById('step1Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                         document.getElementById('step2Dot').className = "w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";
                         document.getElementById('step3Dot').className = "w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5";

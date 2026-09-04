@@ -79,15 +79,16 @@ Worker Dashboard
 <i class="fa-solid fa-user-gear text-xs text-blue-300"></i> Worker: <span id="workerUsername" class="text-white font-bold underline decoration-blue-300 underline-offset-2">Loading...</span>
 </p>
 <p class="text-xs font-medium text-blue-200 tracking-wide flex items-center gap-2 flex-wrap">
-<span>ID: <strong id="workerID" class="text-white">GK-000001</strong></span>
+<span>ID: <strong id="workerID" class="text-white">Loading...</strong></span>
 <span>|</span>
 <span>Service: <strong id="workerService" class="text-white">Loading...</strong></span>
+<button onclick="openChangeServiceModal()" class="ml-2 text-[10px] bg-white/20 hover:bg-white/30 text-white font-bold px-2 py-0.5 rounded transition">Change Service</button>
 </p>
 </div>
 
 <div class="inner-3d-box p-4 rounded-2xl text-center min-w-[145px] w-full sm:w-auto text-slate-800">
 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">WALLET BALANCE</span>
-<span class="text-2xl font-black text-emerald-600 block my-1">₹<span id="walletAmount">50</span></span>
+<span class="text-2xl font-black text-emerald-600 block my-1">₹<span id="walletAmount">0</span></span>
 <button onclick="openPaymentModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-1">
 <i class="fa-solid fa-plus text-[10px]"></i> Add Money
 </button>
@@ -178,6 +179,7 @@ Worker Dashboard
 
 </div>
 
+<!-- Payment Modal -->
 <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 relative">
 <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
@@ -186,7 +188,7 @@ Worker Dashboard
 <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">AM</div>
 <div class="text-left">
 <h4 class="font-bold text-slate-800 text-base leading-tight">Atharva Mali</h4>
-<p class="text-[11px] text-slate-500">Scan or click below to pay</p>
+<p class="text-[11px] text-slate-500">Scan or click below to pay & verify</p>
 </div>
 </div>
 
@@ -200,14 +202,41 @@ Worker Dashboard
 <button onclick="copyUpi()" class="text-blue-600 font-bold hover:underline text-[11px]">Copy</button>
 </div>
 
-<div class="grid grid-cols-2 gap-2">
-<a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2.5 rounded-xl border border-slate-200 transition">
-🔵 Google Pay / PhonePe
-</a>
-<a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition">
-⚡ Any UPI App
-</a>
+<!-- Payment Submission for Admin Verification -->
+<div class="mb-3 text-left">
+  <label class="block text-[11px] font-bold text-slate-700 mb-1">Enter Amount Paid & UTR/Txn ID:</label>
+  <input type="number" id="paidAmountInput" placeholder="Amount (e.g. 50)" class="w-full p-2 border rounded-xl text-xs mb-2">
+  <input type="text" id="txnIdInput" placeholder="GooglePay/UPI Transaction ID / UTR" class="w-full p-2 border rounded-xl text-xs">
 </div>
+<button onclick="submitPaymentProof()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
+  Submit Payment for Verification
+</button>
+</div>
+</div>
+
+<!-- Change Service Modal -->
+<div id="changeServiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative">
+<button onclick="closeChangeServiceModal()" class="absolute top-4 right-4 text-slate-400 font-bold">✕</button>
+<h4 class="font-bold text-slate-800 text-base mb-3">Change Your Service</h4>
+<select id="newServiceSelect" class="w-full p-3 border rounded-xl text-sm mb-4 bg-white">
+    <option value="Cleaning">🧹 Cleaning</option>
+    <option value="Electrician">⚡ Electrician</option>
+    <option value="Plumbing">🪠 Plumbing</option>
+    <option value="Painting">🎨 Painting</option>
+    <option value="Carpenter">🪚 Carpenter</option>
+    <option value="AC Repair">❄️ AC Repair</option>
+    <option value="Appliance Repair">🔌 Appliance Repair</option>
+    <option value="Masonry">🧱 Masonry</option>
+    <option value="Locksmith">🔑 Locksmith</option>
+    <option value="Pest Control">🦟 Pest Control</option>
+    <option value="Gardening">🌿 Gardening</option>
+    <option value="Glass & Aluminium">🪟 Glass & Aluminium</option>
+    <option value="TV & DTH">📺 TV & DTH</option>
+    <option value="Moving & Shifting">📦 Moving & Shifting</option>
+    <option value="Bathroom Services">🚿 Bathroom Services</option>
+</select>
+<button onclick="updateWorkerService()" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs">Update Service</button>
 </div>
 </div>
 
@@ -215,36 +244,122 @@ Worker Dashboard
   <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
     <button onclick="closeImagePreview()" class="absolute -top-12 right-0 text-white hover:text-slate-300 text-2xl font-bold bg-white/20 hover:bg-white/40 w-10 h-10 rounded-full flex items-center justify-center transition">✕</button>
     <img id="previewModalImg" src="" alt="Full Preview" class="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-white/20">
-    <p class="text-white/70 text-xs mt-3 flex items-center gap-1"><i class="fa-solid fa-circle-info"></i> बंद करण्यासाठी बाहेर क्लिक करा</p>
   </div>
 </div>
 
 <script>
 let isDutyOn = false;
 let allOrdersData = null;
+let currentWorkerKey = null;
+let currentWorkerData = null;
 
-auth.onAuthStateChanged((user) => {
-if (user) {
-const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
-document.getElementById('workerUsername').innerText = emailPrefix;
+// Load Worker Session and Generate Sequential ID based on Service Type
+document.addEventListener("DOMContentLoaded", () => {
+    let sessionUser = JSON.parse(localStorage.getItem('current_user_session'));
+    
+    if (!sessionUser) {
+        sessionUser = {
+            mobile: "7875160724",
+            email: "atharva@gmail.com",
+            role: "worker",
+            balance: 0,
+            workType: "Plumbing"
+        };
+        localStorage.setItem('gharmitra_user_7875160724', JSON.stringify(sessionUser));
+    }
 
-database.ref('workers/' + user.uid).once('value', (snapshot) => {
-const data = snapshot.val();
-if (data) {
-const workerNum = data.workerIndex || 1;
-document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
-document.getElementById('workerService').innerText = data.service || "Electrician";
-} else {
-document.getElementById('workerID').innerText = 'GK-000001';
-document.getElementById('workerService').innerText = "General Repair";
-}
+    currentWorkerKey = sessionUser.mobile;
+    
+    database.ref('workers/' + currentWorkerKey).once('value', (snapshot) => {
+        let dbWorker = snapshot.val();
+        
+        if (!dbWorker) {
+            const serviceName = sessionUser.workType || sessionUser.service || "Plumbing";
+            
+            database.ref('workers').orderByChild('service').equalTo(serviceName).once('value', (serviceSnap) => {
+                let count = 1;
+                if(serviceSnap.exists()) {
+                    count = Object.keys(serviceSnap.val()).length + 1;
+                }
+                
+                let codeMap = { "Plumbing": "PL", "Cleaning": "CL", "Electrician": "EL", "Painting": "PA", "Carpenter": "CA", "AC Repair": "AC", "Appliance Repair": "AR", "Masonry": "MA", "Locksmith": "LK", "Pest Control": "PC", "Gardening": "GA", "Glass & Aluminium": "GL", "TV & DTH": "TV", "Moving & Shifting": "MS", "Bathroom Services": "BS" };
+                let pCode = codeMap[serviceName] || "WK";
+                let formattedWorkerID = `GK-${pCode}-${String(count).padStart(6, '0')}`;
+
+                dbWorker = {
+                    email: sessionUser.email,
+                    mobile: sessionUser.mobile,
+                    service: serviceName,
+                    workerIndex: count,
+                    workerIdString: formattedWorkerID,
+                    balance: 0
+                };
+                database.ref('workers/' + currentWorkerKey).set(dbWorker);
+                applyWorkerUI(dbWorker);
+            });
+        } else {
+            applyWorkerUI(dbWorker);
+        }
+    });
+
+    listenWorkerWallet(currentWorkerKey);
 });
-} else {
-document.getElementById('workerUsername').innerText = "Atharva Mali";
-document.getElementById('workerID').innerText = "GK-000002";
-document.getElementById('workerService').innerText = "Plumbing Work";
+
+function applyWorkerUI(worker) {
+    currentWorkerData = worker;
+    const emailPrefix = worker.email ? worker.email.split('@')[0] : "Worker";
+    document.getElementById('workerUsername').innerText = emailPrefix;
+    document.getElementById('workerID').innerText = worker.workerIdString || 'GK-WK-000001';
+    document.getElementById('workerService').innerText = worker.service || "Plumbing";
+    document.getElementById('walletAmount').innerText = worker.balance !== undefined ? worker.balance : 0;
 }
-});
+
+function listenWorkerWallet(mobile) {
+    database.ref('workers/' + mobile).on('value', (snap) => {
+        let data = snap.val();
+        if(data && data.balance !== undefined) {
+            document.getElementById('walletAmount').innerText = data.balance;
+        }
+    });
+}
+
+function submitPaymentProof() {
+    let amt = document.getElementById('paidAmountInput').value.trim();
+    let txnId = document.getElementById('txnIdInput').value.trim();
+
+    if(!amt || !txnId) {
+        alert("कृपया रक्कम आणि Transaction ID / UTR दोन्ही भरा.");
+        return;
+    }
+
+    let verificationData = {
+        workerMobile: currentWorkerData.mobile,
+        workerEmail: currentWorkerData.email,
+        workerId: currentWorkerData.workerIdString,
+        amount: Number(amt),
+        transactionId: txnId,
+        timestamp: new Date().toISOString(),
+        status: "PendingVerification"
+    };
+
+    database.ref('paymentRequests/' + Date.now()).set(verificationData).then(() => {
+        alert("Payment verification request sent to Admin successfully! Balance will update once verified.");
+        closePaymentModal();
+    }).catch(err => {
+        alert("Error: " + err.message);
+    });
+}
+
+function openChangeServiceModal() { document.getElementById('changeServiceModal').classList.remove('hidden'); }
+function closeChangeServiceModal() { document.getElementById('changeServiceModal').classList.add('hidden'); }
+
+function updateWorkerService() {
+    let newServ = document.getElementById('newServiceSelect').value;
+    database.ref('workers/' + currentWorkerKey).update({ service: newServ }).then(() => {
+        alert("Service successfully updated!");
+        location.reload();
+    });
+}
 
 function openPaymentModal() { document.getElementById('paymentModal').classList.remove('hidden'); }
 function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
@@ -323,7 +438,6 @@ let activeTaskFound = false;
 
 keys.forEach(key => {
 const item = allOrdersData[key];
-
 const imgUrl = item.photoUrl || item.imageUrl || item.photo || item.image || null;
 
 if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {
@@ -339,18 +453,9 @@ const photoHtml = imgUrl ? `
 </p>
 <div class="relative cursor-pointer group rounded-xl overflow-hidden border border-slate-200" onclick="openImagePreview('${imgUrl}')">
 <img src="${imgUrl}" alt="Customer Upload" class="w-full h-44 object-cover group-hover:scale-105 transition duration-300">
-<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
-<span class="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full font-bold backdrop-blur-sm flex items-center gap-1.5 opacity-90 group-hover:opacity-100 shadow">
-<i class="fa-solid fa-expand text-[10px]"></i> Full Photo
-</span>
 </div>
 </div>
-</div>
-` : `
-<div class="my-2 p-2 bg-slate-100 rounded-xl border border-dashed border-slate-300 text-center">
-<p class="text-[11px] text-slate-400 font-medium"><i class="fa-solid fa-image-slash mr-1"></i> ग्राहकाने फोटो अपलोड केलेला नाही</p>
-</div>
-`;
+` : '';
 
 jobCard.innerHTML = `
 <div class="flex justify-between items-start">
@@ -362,16 +467,11 @@ jobCard.innerHTML = `
 ${item.budget || '₹500'}
 </span>
 </div>
-
 <div class="text-xs text-slate-600 space-y-1 bg-white p-3 rounded-xl border border-slate-100">
 <p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area || selectedArea})</p>
-<p><i class="fa-solid fa-clock text-blue-500 mr-1.5"></i><strong>वेळ:</strong> ${item.date || ''} | ${item.time || ''}</p>
 <p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold">${item.customerMobile}</a></p>
 </div>
-
-<!-- फोटो आता पत्ता, वेळ आणि संपर्क माहितीच्या खाली दिसेल -->
 ${photoHtml}
-
 <div class="grid grid-cols-2 gap-2">
 <button onclick="acceptOrder('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
 🤝 Accept Order
@@ -383,75 +483,14 @@ ${photoHtml}
 `;
 jobsContainer.appendChild(jobCard);
 }
-
-if ((item.status === 'Accepted' || item.status === 'On The Way') && !activeTaskFound) {
-activeTaskFound = true;
-const activeCard = document.createElement('div');
-activeCard.className = "bg-white p-5 rounded-2xl border border-emerald-200 shadow-md space-y-4";
-
-const activePhotoHtml = imgUrl ? `
-<div class="my-2">
-<p class="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-between">
-<span><i class="fa-solid fa-image text-blue-500"></i> कामाचा फोटो:</span>
-<span class="text-[10px] text-blue-600 font-semibold">(झूम करण्यासाठी क्लिक करा)</span>
-</p>
-<div class="relative cursor-pointer group rounded-xl overflow-hidden border border-slate-200" onclick="openImagePreview('${imgUrl}')">
-<img src="${imgUrl}" alt="Task Photo" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
-<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
-<span class="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full font-bold backdrop-blur-sm flex items-center gap-1 shadow">
-<i class="fa-solid fa-expand text-[10px]"></i> Full View
-</span>
-</div>
-</div>
-</div>
-` : '';
-
-activeCard.innerHTML = `
-<div class="flex justify-between items-center border-b pb-3 border-slate-100">
-<span class="font-bold text-slate-800 text-xs">🛠️ Active Task In-Progress</span>
-<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-${item.status}
-</span>
-</div>
-
-<div class="bg-blue-50/70 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
-<p><strong>ग्राहक:</strong> ${item.customerName}</p>
-<p><strong>सेवा:</strong> ${item.service}</p>
-<p><strong>मोबाइल:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold underline">${item.customerMobile}</a></p>
-<p><strong>पत्ता:</strong> ${item.address}</p>
-</div>
-
-<!-- Active Task मध्ये सुद्धा फोटो माहितीच्या खाली दिसेल -->
-${activePhotoHtml}
-
-<a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">
-📍 Navigate via Google Map
-</a>
-
-<div class="grid grid-cols-2 gap-2 pt-1">
-<button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
-🚗 On The Way
-</button>
-<button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
-✓ Work Completed
-</button>
-</div>
-`;
-acceptedContainer.appendChild(activeCard);
-}
 });
 
 jobCountBadge.innerText = `${pendingCount} New Jobs`;
-if (pendingCount === 0) {
-jobsContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-10">${selectedArea} एरियामध्ये सध्या एकही नवीन काम उपलब्ध नाही...</p>`;
-}
-if (!activeTaskFound) {
-acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>';
-}
-}
+});
 
 function acceptOrder(orderId) {
-    const workerMobileNumber = "7875160724";
+    let sessionUser = JSON.parse(localStorage.getItem('current_user_session'));
+    const workerMobileNumber = sessionUser ? sessionUser.mobile : "7875160724";
 
     database.ref("orders/" + orderId).update({
         status: "Accepted",
@@ -461,14 +500,6 @@ function acceptOrder(orderId) {
     }).catch((err) => {
         alert("त्रुटी: " + err.message);
     });
-}
-
-function updateStatus(orderId, newStatus) {
-database.ref("orders/" + orderId).update({
-status: newStatus
-}).then(() => {
-alert("स्टेटस अपडेट केले: " + newStatus);
-});
 }
 </script>
 </body>

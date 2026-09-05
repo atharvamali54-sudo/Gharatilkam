@@ -7,31 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
             emailjs.init("PfAaODZ_GPiBPHvOi"); 
         })();
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyD7Y-2un6pfAY8rafRsAzMre-OvNBAkosU",
-            authDomain: "gharkam-6c879.firebaseapp.com",
-            databaseURL: "https://gharkam-6c879-default-rtdb.firebaseio.com",
-            projectId: "gharkam-6c879",
-            storageBucket: "gharkam-6c879.firebasestorage.app",
-            messagingSenderId: "706729205935",
-            appId: "1:706729205935:web:598569d60ad414765e345a"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
     </script>
-
     <style>
         body { font-family: 'Poppins', sans-serif; }
         .hero-bg { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
@@ -87,7 +68,7 @@
 
                 <div id="passwordContainer">
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Password:</label>
-                    <input type="password" id="password" placeholder="Enter password (min 6 chars)" minlength="6" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                    <input type="password" id="password" placeholder="Enter password" minlength="6" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                 </div>
 
                 <div id="workTypeContainer" class="hidden">
@@ -100,7 +81,19 @@
                         <option value="Carpenter">🪚 Carpenter</option>
                         <option value="AC Repair">❄️ AC Repair</option>
                         <option value="Appliance Repair">🔌 Appliance Repair</option>
+                        <option value="Masonry">🧱 Masonry</option>
+                        <option value="Locksmith">🔑 Locksmith</option>
+                        <option value="Pest Control">🦟 Pest Control</option>
+                        <option value="Gardening">🌿 Gardening</option>
+                        <option value="Glass & Aluminium">🪟 Glass & Aluminium</option>
+                        <option value="TV & DTH">📺 TV & DTH</option>
+                        <option value="Moving & Shifting">📦 Moving & Shifting</option>
+                        <option value="Bathroom Services">🚿 Bathroom Services</option>
                     </select>
+                </div>
+
+                <div id="forgotPasswordLinkContainer" class="hidden text-right">
+                    <button type="button" onclick="showForgotPasswordUI()" class="text-xs text-blue-600 font-semibold hover:underline">Forgot Password?</button>
                 </div>
 
                 <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-300">
@@ -113,6 +106,24 @@
                         <input type="text" id="otpInput" placeholder="6-digit OTP" class="flex-1 p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-mono text-center">
                         <button type="button" id="verifyOtpBtn" onclick="verifyOTPAndRegister(event)" class="bg-green-600 hover:bg-green-700 text-white font-bold px-4 rounded-xl text-xs transition">Verify & Signup</button>
                     </div>
+
+                    <div class="flex justify-between items-center text-xs pt-1">
+                        <button type="button" onclick="resendOTP()" id="resendBtn" class="text-blue-600 hover:underline font-semibold">🔄 Resend OTP</button>
+                    </div>
+                </div>
+
+                <div id="newPasswordContainer" class="hidden space-y-3 pt-3 border-t">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">New Password:</label>
+                        <input type="password" id="newPassword" placeholder="Enter new password" minlength="6" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Confirm New Password:</label>
+                        <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" minlength="6" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                    </div>
+                    <button type="button" onclick="updateNewPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg transition">
+                        Update Password
+                    </button>
                 </div>
             </form>
 
@@ -125,11 +136,17 @@
         </div>
     </main>
 
+    <footer class="text-center py-4 text-blue-200 text-xs bg-black/20">
+        &copy; 2026 Gharmitra.online | Pune City
+    </footer>
+
     <script>
         let currentRole = 'customer'; 
         let isSignupMode = true;      
+        let isForgotPasswordMode = false;
         let generatedOTP = null;
         let pendingUserData = null;
+        let resetPasswordMobile = null;
 
         function setRole(role) {
             currentRole = role;
@@ -143,13 +160,15 @@
                 tabW.className = "flex-1 py-2 text-sm font-bold rounded-lg bg-yellow-500 text-gray-900 transition";
                 tabC.className = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-700 transition";
             }
-            updateFormUI();
+            if(!isForgotPasswordMode) updateFormUI();
         }
 
         function toggleMode() {
             isSignupMode = !isSignupMode;
+            isForgotPasswordMode = false;
             showStatus('', 'hidden');
             document.getElementById('otpContainer').classList.add('hidden');
+            document.getElementById('newPasswordContainer').classList.add('hidden');
             document.getElementById('submitBtn').classList.remove('hidden');
             updateFormUI();
         }
@@ -160,6 +179,11 @@
             const btn = document.getElementById('submitBtn');
             const toggleTxt = document.getElementById('toggleText');
             const workTypeContainer = document.getElementById('workTypeContainer');
+            const emailContainer = document.getElementById('emailContainer');
+            const emailInput = document.getElementById('email');
+            const passwordContainer = document.getElementById('passwordContainer');
+            const passwordInput = document.getElementById('password');
+            const forgotLinkContainer = document.getElementById('forgotPasswordLinkContainer');
 
             let roleName = currentRole === 'customer' ? 'Customer' : 'Worker';
 
@@ -173,87 +197,243 @@
                 title.innerText = roleName + " Signup";
                 sub.innerText = "Create account using Email OTP & Password";
                 btn.innerText = "Send OTP & Verify";
+                emailContainer.classList.remove('hidden');
+                emailInput.required = true;
+                passwordContainer.classList.remove('hidden');
+                passwordInput.required = true;
+                forgotLinkContainer.classList.add('hidden');
+                btn.className = currentRole === 'customer' ? "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition" : "w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 rounded-xl shadow-lg transition";
                 toggleTxt.innerHTML = `Already have an account? <a href="#" onclick="toggleMode()" class="text-blue-600 font-bold hover:underline">Sign In</a>`;
             } else {
                 title.innerText = roleName + " Sign In";
-                sub.innerText = "Enter Email & Password to Sign In";
+                sub.innerText = "Enter Mobile & Password to Sign In";
                 btn.innerText = "Sign In";
+                emailContainer.classList.add('hidden'); 
+                emailInput.required = false;
+                passwordContainer.classList.remove('hidden');
+                passwordInput.required = true;
+                forgotLinkContainer.classList.remove('hidden');
+                btn.className = currentRole === 'customer' ? "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition" : "w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 rounded-xl shadow-lg transition";
                 toggleTxt.innerHTML = `Don't have an account? <a href="#" onclick="toggleMode()" class="text-blue-600 font-bold hover:underline">Sign Up</a>`;
             }
         }
 
         function showStatus(msg, type) {
             const el = document.getElementById('statusMsg');
-            if (type === 'hidden') { el.classList.add('hidden'); return; }
+            if (type === 'hidden') {
+                el.classList.add('hidden');
+                return;
+            }
             el.innerText = msg;
             el.className = "mb-4 p-3 rounded-xl text-center text-xs font-semibold " + 
-                (type === 'success' ? "bg-green-100 border border-green-400 text-green-700" : "bg-red-100 border border-red-400 text-red-700");
+                (type === 'success' ? "bg-green-100 border border-green-400 text-green-700" : 
+                 type === 'error' ? "bg-red-100 border border-red-400 text-red-700" : "bg-blue-100 border border-blue-400 text-blue-700");
             el.classList.remove('hidden');
+        }
+
+        function showForgotPasswordUI() {
+            let mobile = document.getElementById('mobile').value.trim();
+            if (!mobile || mobile.length !== 10) {
+                showStatus("❌ Krupaya adhi barobar 10-digit Mobile Number taka!", "error");
+                return;
+            }
+
+            let savedUserJson = localStorage.getItem('gharmitra_user_' + mobile) || localStorage.getItem('gharkam_user_' + mobile);
+            if (!savedUserJson) {
+                showStatus("❌ Ha mobile number registered nahi ahe! Adhi Signup kara.", "error");
+                return;
+            }
+
+            let savedUser = JSON.parse(savedUserJson);
+            resetPasswordMobile = mobile;
+            isForgotPasswordMode = true;
+
+            document.getElementById('formTitle').innerText = "Reset Password";
+            document.getElementById('formSub').innerText = "OTP will be sent to: " + savedUser.email;
+            document.getElementById('email').value = savedUser.email;
+            document.getElementById('emailContainer').classList.remove('hidden');
+            document.getElementById('email').readOnly = true;
+            document.getElementById('passwordContainer').classList.add('hidden');
+            document.getElementById('forgotPasswordLinkContainer').classList.add('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            sendEmailOTPForReset(savedUser.email, generatedOTP);
+        }
+
+        function sendEmailOTPForReset(email, otp) {
+            showStatus("⏳ Sending Password Reset OTP to " + email + "...", "info");
+
+            const serviceID = 'service_lst67g7';
+            const templateID = 'template_ope5xzi';
+
+            const templateParams = {
+                to_email: email,
+                email: email,
+                user_email: email,
+                otp_code: otp,
+                message: "Your Gharmitra.online Password Reset OTP Code is: " + otp
+            };
+
+            emailjs.send(serviceID, templateID, templateParams)
+                .then(() => {
+                    showStatus("📩 Reset OTP pathavla ahe! Krupaya check kara.", "success");
+                    document.getElementById('otpContainer').classList.remove('hidden');
+                    document.getElementById('otpLabel').innerText = "Enter Reset OTP sent to Email:";
+                    document.getElementById('verifyOtpBtn').setAttribute('onclick', 'verifyResetOTP(event)');
+                    document.getElementById('verifyOtpBtn').innerText = "Verify OTP";
+                })
+                .catch((err) => {
+                    console.error("EmailJS Error:", err);
+                    showStatus("❌ Email send fails.", "error");
+                });
+        }
+
+        function verifyResetOTP(event) {
+            if(event) event.preventDefault();
+            let userEnteredOTP = document.getElementById('otpInput').value.trim();
+
+            if (userEnteredOTP === generatedOTP) {
+                showStatus("✅ OTP verified successfully! Now enter your new password.", "success");
+                document.getElementById('otpContainer').classList.add('hidden');
+                document.getElementById('newPasswordContainer').classList.remove('hidden');
+            } else {
+                showStatus("❌ चुकीचा OTP! Correct code taka.", "error");
+            }
+        }
+
+        function updateNewPassword() {
+            let newPass = document.getElementById('newPassword').value.trim();
+            let confirmPass = document.getElementById('confirmNewPassword').value.trim();
+
+            if (!newPass || newPass.length < 6) {
+                showStatus("❌ Password kamit kami 6 anki asla pahije.", "error");
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                showStatus("❌ New Password and Confirm Password match hot nahi!", "error");
+                return;
+            }
+
+            let savedUserJson = localStorage.getItem('gharmitra_user_' + resetPasswordMobile) || localStorage.getItem('gharkam_user_' + resetPasswordMobile);
+            if (savedUserJson) {
+                let savedUser = JSON.parse(savedUserJson);
+                savedUser.password = newPass;
+                localStorage.setItem('gharmitra_user_' + resetPasswordMobile, JSON.stringify(savedUser));
+
+                showStatus("🎉 Password successfully changed! Now Sign In.", "success");
+                
+                setTimeout(() => {
+                    isForgotPasswordMode = false;
+                    document.getElementById('newPasswordContainer').classList.add('hidden');
+                    document.getElementById('email').readOnly = false;
+                    document.getElementById('email').value = "";
+                    document.getElementById('password').value = "";
+                    toggleMode(); 
+                }, 1500);
+            }
         }
 
         function handleSubmit(event) {
             event.preventDefault();
-            let email = document.getElementById('email').value.trim().toLowerCase();
-            let password = document.getElementById('password').value.trim();
+
             let mobile = document.getElementById('mobile').value.trim();
+            let password = document.getElementById('password').value.trim();
+            let savedUserJson = localStorage.getItem('gharmitra_user_' + mobile) || localStorage.getItem('gharkam_user_' + mobile);
 
             if (isSignupMode) {
-                let selectedWorkType = (currentRole === 'worker') ? document.getElementById('workType').value : 'Customer';
-                pendingUserData = { mobile, email, password, role: currentRole, service: selectedWorkType, balance: 50 };
+                let email = document.getElementById('email').value.trim().toLowerCase();
+
+                if (savedUserJson) {
+                    showStatus("Ha mobile number registered ahe! Direct Sign In kara.", "error");
+                    return;
+                }
+
+                let selectedWorkType = (currentRole === 'worker') ? document.getElementById('workType').value : null;
+
+                pendingUserData = { 
+                    mobile, email, password, role: currentRole, balance: 50, 
+                    workType: selectedWorkType 
+                };
 
                 generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                showStatus("⏳ Sending OTP to " + email + "...", "info");
-                emailjs.send('service_lst67g7', 'template_ope5xzi', {
-                    to_email: email,
-                    otp_code: generatedOTP,
-                    message: "Your Gharmitra.online OTP Code is: " + generatedOTP
-                }).then(() => {
-                    showStatus("📩 OTP Pathavla ahe! Check your email.", "success");
-                    document.getElementById('otpContainer').classList.remove('hidden');
-                    document.getElementById('submitBtn').classList.add('hidden');
-                }).catch((err) => {
-                    showStatus("❌ Email send failed.", "error");
-                });
+                sendEmailOTP(email, generatedOTP);
 
             } else {
-                // Firebase Sign In
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        showStatus("🎉 Login Successful! Redirecting...", "success");
-                        setTimeout(() => { redirectUser(currentRole); }, 800);
-                    })
-                    .catch((error) => {
-                        showStatus("❌ Error: " + error.message, "error");
-                    });
+                if (!savedUserJson) {
+                    showStatus("Your account is not available, please first signup.", "error");
+                    return;
+                }
+
+                let savedUser = JSON.parse(savedUserJson);
+
+                if (savedUser.password !== password) {
+                    showStatus("❌ चुकीचा Password! Krupaya बरोबर पासवर्ड टाका.", "error");
+                    return;
+                }
+
+                savedUser.role = currentRole;
+                localStorage.setItem('current_user_session', JSON.stringify(savedUser));
+
+                showStatus("🎉 Login Successful! Redirecting...", "success");
+
+                setTimeout(() => {
+                    redirectUser(currentRole);
+                }, 800);
+            }
+        }
+
+        function sendEmailOTP(email, otp) {
+            showStatus("⏳ Sending OTP to " + email + "...", "info");
+
+            const serviceID = 'service_lst67g7';
+            const templateID = 'template_ope5xzi';
+
+            const templateParams = {
+                to_email: email,
+                email: email,
+                user_email: email,
+                otp_code: otp,
+                message: "Your Gharmitra.online OTP Code is: " + otp
+            };
+
+            emailjs.send(serviceID, templateID, templateParams)
+                .then(() => {
+                    showStatus("📩 OTP Pathavla ahe! Krupaya Inbox ki Spam folder check kara.", "success");
+                    document.getElementById('otpContainer').classList.remove('hidden');
+                    document.getElementById('submitBtn').classList.add('hidden');
+                })
+                .catch((err) => {
+                    console.error("EmailJS Error:", err);
+                    showStatus("❌ Email send fails. Re-check EmailJS Template.", "error");
+                });
+        }
+
+        function resendOTP() {
+            let email = document.getElementById('email').value.trim();
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            if(isForgotPasswordMode) {
+                sendEmailOTPForReset(email, generatedOTP);
+            } else {
+                sendEmailOTP(email, generatedOTP);
             }
         }
 
         function verifyOTPAndRegister(event) {
             if(event) event.preventDefault();
+            
             let userEnteredOTP = document.getElementById('otpInput').value.trim();
 
             if (userEnteredOTP === generatedOTP) {
-                // Firebase Create User
-                auth.createUserWithEmailAndPassword(pendingUserData.email, pendingUserData.password)
-                    .then((userCredential) => {
-                        const uid = userCredential.user.uid;
-                        if(pendingUserData.role === 'worker') {
-                            database.ref('workers/' + uid).set({
-                                name: "Worker " + pendingUserData.mobile,
-                                service: pendingUserData.service,
-                                mobile: pendingUserData.mobile,
-                                email: pendingUserData.email,
-                                balance: 50,
-                                workerIndex: Math.floor(Math.random() * 1000)
-                            });
-                        }
-                        showStatus("🎉 Signup Successful! Redirecting...", "success");
-                        setTimeout(() => { redirectUser(pendingUserData.role); }, 800);
-                    })
-                    .catch((error) => {
-                        showStatus("❌ Firebase Error: " + error.message, "error");
-                    });
+                localStorage.setItem('gharmitra_user_' + pendingUserData.mobile, JSON.stringify(pendingUserData));
+                localStorage.setItem('current_user_session', JSON.stringify(pendingUserData));
+
+                showStatus("🎉 Signup Successful! Redirecting...", "success");
+
+                setTimeout(() => {
+                    redirectUser(currentRole);
+                }, 800);
             } else {
                 showStatus("❌ चुकीचा OTP! Correct code taka.", "error");
             }
@@ -261,9 +441,9 @@
 
         function redirectUser(role) {
             if (role === 'customer') {
-                window.location.href = "customer.html";
-            } else {
-                window.location.href = "worker.html";
+                window.location.href = "./customer.html";
+            } else if (role === 'worker') {
+                window.location.href = "./worker.html";
             }
         }
     </script>

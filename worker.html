@@ -225,25 +225,24 @@ let allOrdersData = null;
 
 auth.onAuthStateChanged((user) => {
 if (user) {
-    const displayName = user.displayName || (user.email ? user.email.split('@')[0] : "Worker");
-    document.getElementById('workerUsername').innerText = displayName;
+const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
+document.getElementById('workerUsername').innerText = emailPrefix;
 
-    database.ref('workers/' + user.uid).once('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            const workerNum = data.workerIndex || 1;
-            document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
-            document.getElementById('workerService').innerText = data.service || "Electrician";
-            if(data.name) {
-                document.getElementById('workerUsername').innerText = data.name;
-            }
-        } else {
-            document.getElementById('workerID').innerText = 'GK-000001';
-            document.getElementById('workerService').innerText = "General Repair";
-        }
-    });
+database.ref('workers/' + user.uid).once('value', (snapshot) => {
+const data = snapshot.val();
+if (data) {
+const workerNum = data.workerIndex || 1;
+document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
+document.getElementById('workerService').innerText = data.service || "Electrician";
 } else {
-    window.location.href = "index.html";
+document.getElementById('workerID').innerText = 'GK-000001';
+document.getElementById('workerService').innerText = "General Repair";
+}
+});
+} else {
+document.getElementById('workerUsername').innerText = "Atharva Mali";
+document.getElementById('workerID').innerText = "GK-000002";
+document.getElementById('workerService').innerText = "Plumbing Work";
 }
 });
 

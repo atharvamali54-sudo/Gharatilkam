@@ -324,6 +324,7 @@ let activeTaskFound = false;
 keys.forEach(key => {
 const item = allOrdersData[key];
 
+// सर्व संभाव्य फोटो कीजचा सपोर्ट समाविष्ट केला आहे
 const imgUrl = item.photoUrl || item.imageUrl || item.photo || item.image || null;
 
 if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {

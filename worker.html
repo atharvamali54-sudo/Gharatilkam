@@ -6,6 +6,8 @@
 <title>Gharmitra - Worker Portal</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!-- Chart.js for Earnings Graph -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -18,15 +20,9 @@
 <style>
 .card-3d {
 background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1d4ed8 100%);
-box-shadow: 0 20px 30px -10px rgba(30, 64, 175, 0.4),
-0 10px 10px -5px rgba(0, 0, 0, 0.1),
-inset 0 1px 2px rgba(255, 255, 255, 0.4);
+box-shadow: 0 20px 30px -10px rgba(30, 64, 175, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
 transform: translateY(-2px);
 transition: all 0.3s ease;
-}
-.card-3d:hover {
-transform: translateY(-4px) scale(1.005);
-box-shadow: 0 25px 35px -10px rgba(30, 64, 175, 0.5);
 }
 .inner-3d-box {
 background: rgba(255, 255, 255, 0.95);
@@ -45,7 +41,6 @@ storageBucket: "gharkam-6c879.firebasestorage.app",
 messagingSenderId: "706729205935",
 appId: "1:706729205935:web:598569d60ad414765e345a"
 };
-
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const auth = firebase.auth();
@@ -90,7 +85,6 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 <button onclick="openServiceModal()" class="bg-white/20 hover:bg-white/30 text-white text-[10px] px-2 py-0.5 rounded-md transition underline">Change</button>
 </span>
 </p>
-<!-- Rating Display Box inside Card -->
 <div class="flex items-center gap-2 pt-1">
 <span class="bg-amber-400 text-slate-900 text-xs font-black px-2 py-0.5 rounded-md flex items-center gap-1">
 <i class="fa-solid fa-star text-[10px]"></i> <span id="workerAvgRating">5.0</span>
@@ -105,6 +99,22 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 <button onclick="payWithRazorpay()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-1">
 <i class="fa-solid fa-plus text-[10px]"></i> Add Money
 </button>
+</div>
+</div>
+
+<!-- दैनिक कमाई आणि साप्ताहिक अहवाल बॉक्स (Earnings Box) -->
+<div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl mb-6 shadow-sm">
+<div class="flex justify-between items-center mb-3">
+<h4 class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+<i class="fa-solid fa-chart-line text-blue-600"></i> आजची कमाई व साप्ताहिक अहवाल
+</h4>
+<span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+आज: ₹<span id="todayEarnings">0</span> (<span id="todayJobsCount">0</span> कामे)
+</span>
+</div>
+<!-- छोटा ग्राफ (Chart.js Canvas) -->
+<div class="w-full h-32">
+<canvas id="weeklyEarningsChart"></canvas>
 </div>
 </div>
 
@@ -187,9 +197,7 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 </div>
 </div>
 </div>
-
 </div>
-
 </div>
 
 <!-- Service Change Modal -->
@@ -197,7 +205,6 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative">
 <button onclick="closeServiceModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
 <h3 class="font-bold text-slate-800 text-base mb-3"><i class="fa-solid fa-tools text-blue-600"></i> तुमची सर्विस बदला</h3>
-<p class="text-xs text-slate-500 mb-4">तुम्हाला हवी असलेली नवीन सर्विस निवडा:</p>
 <select id="newServiceSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm mb-4">
     <option value="Electrician">Electrician (इलेक्ट्रिक काम)</option>
     <option value="Plumber">Plumber (प्लंबिंग काम)</option>
@@ -246,6 +253,8 @@ let allOrdersData = null;
 let currentWorkerUid = null;
 let currentWorkerService = "Electrician";
 let activeChatOrderId = null;
+let locationWatchId = null;
+let earningsChartInstance = null;
 
 auth.onAuthStateChanged((user) => {
 if (user) {
@@ -261,31 +270,111 @@ document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padSta
 currentWorkerService = data.service || "Electrician";
 document.getElementById('workerService').innerText = currentWorkerService;
 
-if(data.wallet !== undefined) {
-    document.getElementById('walletAmount').innerText = data.wallet;
-}
-if(data.rating !== undefined) {
-    document.getElementById('workerAvgRating').innerText = Number(data.rating).toFixed(1);
-}
-if(data.totalReviews !== undefined) {
-    document.getElementById('workerTotalReviews').innerText = data.totalReviews;
-}
-} else {
-document.getElementById('workerID').innerText = 'GK-000001';
-currentWorkerService = "Electrician";
-document.getElementById('workerService').innerText = currentWorkerService;
+if(data.wallet !== undefined) document.getElementById('walletAmount').innerText = data.wallet;
+if(data.rating !== undefined) document.getElementById('workerAvgRating').innerText = Number(data.rating).toFixed(1);
+if(data.totalReviews !== undefined) document.getElementById('workerTotalReviews').innerText = data.totalReviews;
 }
 renderJobs();
 });
+loadWorkerEarnings(user.uid);
 } else {
 currentWorkerUid = null;
 document.getElementById('workerUsername').innerText = "Guest Worker";
 document.getElementById('workerID').innerText = "GK-000000";
-currentWorkerService = "Electrician";
-document.getElementById('workerService').innerText = currentWorkerService;
 renderJobs();
 }
 });
+
+// कमाई आणि साप्ताहिक अहवाल लोड करणे व ग्राफ दाखवणे
+function loadWorkerEarnings(workerUid) {
+    database.ref('orders').orderByChild('workerUid').equalTo(workerUid).on('value', (snapshot) => {
+        const orders = snapshot.val();
+        let todaySum = 0;
+        let todayCount = 0;
+        let weeklyData = [0, 0, 0, 0, 0, 0, 0]; // सोम ते रविवारी कमाई
+        
+        const todayStr = new Date().toLocaleDateString();
+
+        if (orders) {
+            Object.values(orders).forEach(order => {
+                if (order.status === 'Completed') {
+                    const amount = parseInt(order.budget ? order.budget.replace(/[^0-9]/g, '') : '500') || 500;
+                    if (order.date === todayStr) {
+                        todaySum += amount;
+                        todayCount++;
+                    }
+                    // सोपी युनिव्हर्सल पद्धत: आठवड्यातील डमी किंवा रिअल डेटा मॅपिंग
+                    let dayIndex = new Date(order.timestamp || Date.now()).getDay(); // 0 (Sun) to 6 (Sat)
+                    weeklyData[dayIndex] += amount;
+                }
+            });
+        }
+
+        document.getElementById('todayEarnings').innerText = todaySum;
+        document.getElementById('todayJobsCount').innerText = todayCount;
+
+        renderEarningsChart(weeklyData);
+    });
+}
+
+function renderEarningsChart(dataVals) {
+    const ctx = document.getElementById('weeklyEarningsChart').getContext('2d');
+    if (earningsChartInstance) earningsChartInstance.destroy();
+
+    earningsChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['सोम', 'मंगळ', 'बुध', 'गुरु', 'शुक्र', 'शनि', 'रव'],
+            datasets: [{
+                label: 'कमाई (₹)',
+                data: dataVals,
+                backgroundColor: '#3b82f6',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { display: false } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// लाईव्ह लोकेशन ट्रॅकिंग फंक्शन
+function startLiveLocationTracking(orderId) {
+    if ("geolocation" in navigator) {
+        locationWatchId = navigator.geolocation.watchPosition((position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // Firebase मध्ये वर्करचे लाईव्ह जीपीएस लोकेशन सेव्ह करणे
+            database.ref('orders/' + orderId + '/workerLocation').set({
+                lat: lat,
+                lng: lng,
+                updatedAt: Date.now()
+            });
+        }, (error) => {
+            console.error("Location error: ", error.message);
+        }, {
+            enableHighAccuracy: true,
+            maximumAge: 10000,
+            timeout: 5000
+        });
+    } else {
+        alert("तुमच्याブラウザमध्ये जीपीएस लोकेशन सपोर्ट उपलब्ध नाही.");
+    }
+}
+
+function stopLiveLocationTracking() {
+    if (locationWatchId !== null) {
+        navigator.geolocation.clearWatch(locationWatchId);
+        locationWatchId = null;
+    }
+}
 
 function openServiceModal() { document.getElementById('serviceModal').classList.remove('hidden'); }
 function closeServiceModal() { document.getElementById('serviceModal').classList.add('hidden'); }
@@ -293,24 +382,16 @@ function closeServiceModal() { document.getElementById('serviceModal').classList
 function updateWorkerService() {
 const newService = document.getElementById('newServiceSelect').value;
 const user = auth.currentUser;
-
 if (user) {
-database.ref('workers/' + user.uid).update({
-service: newService
-}).then(() => {
+database.ref('workers/' + user.uid).update({ service: newService }).then(() => {
 alert("तुमची सर्विस यशस्वीरीत्या बदलण्यात आली आहे!");
 closeServiceModal();
-}).catch((err) => {
-alert("त्रुटी: " + err.message);
 });
-} else {
-alert("कृपया Firebase वर लॉग इन करा, त्यानंतरच सर्विस अपडेट होईल!");
 }
 }
 
 function payWithRazorpay() {
     let amountToAdd = 100;
-
     var options = {
         "key": "rzp_test_TZF48VPVnZ9JH2",
         "amount": amountToAdd * 100, 
@@ -321,43 +402,16 @@ function payWithRazorpay() {
             alert("पेमेंट यशस्वी! पेमेंट आयडी: " + response.razorpay_payment_id);
             addMoneyToFirebaseWallet(amountToAdd);
         },
-        "modal": {
-            "ondismiss": function(){
-                console.log("Payment modal closed by user");
-            }
-        },
-        "prefill": {
-            "name": document.getElementById('workerUsername').innerText,
-            "email": auth.currentUser ? auth.currentUser.email : "worker@gharmitra.online",
-            "contact": "7875160724"
-        },
-        "theme": {
-            "color": "#2563eb"
-        }
+        "theme": { "color": "#2563eb" }
     };
-    
     var rzp1 = new Razorpay(options);
-    
-    rzp1.on('payment.failed', function (response){
-        alert("Payment Failed: " + response.error.description);
-    });
-
     rzp1.open();
 }
 
 function addMoneyToFirebaseWallet(amount) {
     const user = auth.currentUser;
     if (user) {
-        const walletRef = database.ref('workers/' + user.uid + '/wallet');
-        walletRef.transaction(currentBalance => {
-            return (currentBalance || 50) + amount;
-        }, (error, committed, snapshot) => {
-            if (!error && committed) {
-                alert("वॉलेटमध्ये यशस्वीरित्या पैसे जमा झाले!");
-            }
-        });
-    } else {
-        alert("कृपया वॉलेट रिचार्ज करण्यासाठी आधी लॉग इन करा!");
+        database.ref('workers/' + user.uid + '/wallet').transaction(currentBalance => (currentBalance || 50) + amount);
     }
 }
 
@@ -365,7 +419,6 @@ function openChatModal(orderId, customerName) {
     activeChatOrderId = orderId;
     document.getElementById('chatCustomerName').innerText = customerName;
     document.getElementById('chatModal').classList.remove('hidden');
-    
     database.ref('orders/' + orderId + '/chats').on('value', (snapshot) => {
         const chatBox = document.getElementById('chatMessagesContainer');
         chatBox.innerHTML = "";
@@ -394,21 +447,15 @@ function closeChatModal() {
 function sendChatMessage() {
     const txt = document.getElementById('chatInputMsg').value.trim();
     if(!txt || !activeChatOrderId) return;
-    
     database.ref('orders/' + activeChatOrderId + '/chats').push({
-        sender: 'worker',
-        text: txt,
-        timestamp: Date.now()
-    }).then(() => {
-        document.getElementById('chatInputMsg').value = "";
-    });
+        sender: 'worker', text: txt, timestamp: Date.now()
+    }).then(() => { document.getElementById('chatInputMsg').value = ""; });
 }
 
 function openImagePreview(url) {
   document.getElementById('previewModalImg').src = url;
   document.getElementById('imagePreviewModal').classList.remove('hidden');
 }
-
 function closeImagePreview() {
   document.getElementById('imagePreviewModal').classList.add('hidden');
   document.getElementById('previewModalImg').src = "";
@@ -450,13 +497,7 @@ const selectedArea = document.getElementById('workingAreaSelect').value;
 acceptedContainer.innerHTML = "";
 
 if (!isDutyOn) {
-jobsContainer.innerHTML = `
-<div class="text-center py-10">
-<span class="text-5xl block mb-3">😴</span>
-<p class="font-bold text-slate-700 text-sm">तुम्ही सध्या Duty OFF वर आहात</p>
-<p class="text-xs text-slate-400 mt-1">नवीन कामे पाहण्यासाठी व स्वीकारण्यासाठी वरील "Duty OFF" बटण दाबा.</p>
-</div>
-`;
+jobsContainer.innerHTML = `<div class="text-center py-10"><span class="text-5xl block mb-3">😴</span><p class="font-bold text-slate-700 text-sm">तुम्ही सध्या Duty OFF वर आहात</p></div>`;
 jobCountBadge.innerText = "0 New Jobs";
 return;
 }
@@ -475,7 +516,6 @@ let activeTaskFound = false;
 keys.forEach(key => {
 const item = allOrdersData[key];
 const imgUrl = item.photoUrl || item.imageUrl || item.photo || item.image || null;
-
 const isAreaMatch = (item.area === selectedArea || !item.area);
 const isServiceMatch = (item.service && item.service.toLowerCase() === currentWorkerService.toLowerCase());
 
@@ -483,56 +523,22 @@ if (item.status === 'Pending' && isAreaMatch && isServiceMatch) {
 pendingCount++;
 const jobCard = document.createElement('div');
 jobCard.className = "bg-slate-50 border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition shadow-sm space-y-3";
-
-const photoHtml = imgUrl ? `
-<div class="my-2">
-<p class="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-between">
-<span><i class="fa-solid fa-image text-blue-500"></i> कामाचा फोटो:</span>
-<span class="text-[10px] text-blue-600 font-semibold">(झूम करण्यासाठी फोटोवर क्लिक करा)</span>
-</p>
-<div class="relative cursor-pointer group rounded-xl overflow-hidden border border-slate-200" onclick="openImagePreview('${imgUrl}')">
-<img src="${imgUrl}" alt="Customer Upload" class="w-full h-44 object-cover group-hover:scale-105 transition duration-300">
-<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
-<span class="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full font-bold backdrop-blur-sm flex items-center gap-1.5 opacity-90 group-hover:opacity-100 shadow">
-<i class="fa-solid fa-expand text-[10px]"></i> Full Photo
-</span>
-</div>
-</div>
-</div>
-` : `
-<div class="my-2 p-2 bg-slate-100 rounded-xl border border-dashed border-slate-300 text-center">
-<p class="text-[11px] text-slate-400 font-medium"><i class="fa-solid fa-image-slash mr-1"></i> ग्राहकाने फोटो अपलोड केलेला नाही</p>
-</div>
-`;
+const photoHtml = imgUrl ? `<div class="my-2"><div class="relative cursor-pointer group rounded-xl overflow-hidden border border-slate-200" onclick="openImagePreview('${imgUrl}')"><img src="${imgUrl}" class="w-full h-44 object-cover"></div></div>` : '';
 
 jobCard.innerHTML = `
 <div class="flex justify-between items-start">
-<div>
-<span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full">⚡ ${item.service}</span>
-<h4 class="font-bold text-slate-800 text-sm mt-2"><i class="fa-solid fa-user text-blue-600"></i> ${item.customerName}</h4>
+<div><span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-full">⚡ ${item.service}</span><h4 class="font-bold text-slate-800 text-sm mt-2"><i class="fa-solid fa-user text-blue-600"></i> ${item.customerName}</h4></div>
+<span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">${item.budget || '₹500'}</span>
 </div>
-<span class="text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-${item.budget || '₹500'}
-</span>
-</div>
-
 <div class="text-xs text-slate-600 space-y-1 bg-white p-3 rounded-xl border border-slate-100">
-<p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address} (${item.area || selectedArea})</p>
-<p><i class="fa-solid fa-clock text-blue-500 mr-1.5"></i><strong>वेळ:</strong> ${item.date || ''} | ${item.time || ''}</p>
+<p><i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i><strong>पत्ता:</strong> ${item.address}</p>
 <p><i class="fa-solid fa-phone text-emerald-500 mr-1.5"></i><strong>संपर्क:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold">${item.customerMobile}</a></p>
 </div>
-
 ${photoHtml}
-
 <div class="grid grid-cols-2 gap-2">
-<button onclick="acceptOrder('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-🤝 Accept Order
-</button>
-<a href="https://maps.google.com/?q=${encodeURIComponent(item.address + ' ' + (item.area || selectedArea))}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-📍 Open Google Map
-</a>
-</div>
-`;
+<button onclick="acceptOrder('${key}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">🤝 Accept Order</button>
+<a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">📍 Map</a>
+</div>`;
 jobsContainer.appendChild(jobCard);
 }
 
@@ -540,90 +546,46 @@ if ((item.status === 'Accepted' || item.status === 'On The Way') && !activeTaskF
 activeTaskFound = true;
 const activeCard = document.createElement('div');
 activeCard.className = "bg-white p-5 rounded-2xl border border-emerald-200 shadow-md space-y-4";
-
-const activePhotoHtml = imgUrl ? `
-<div class="my-2">
-<p class="text-[11px] font-bold text-slate-500 mb-1 flex items-center justify-between">
-<span><i class="fa-solid fa-image text-blue-500"></i> कामाचा फोटो:</span>
-<span class="text-[10px] text-blue-600 font-semibold">(झूम करण्यासाठी क्लिक करा)</span>
-</p>
-<div class="relative cursor-pointer group rounded-xl overflow-hidden border border-slate-200" onclick="openImagePreview('${imgUrl}')">
-<img src="${imgUrl}" alt="Task Photo" class="w-full h-40 object-cover group-hover:scale-105 transition duration-300">
-<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
-<span class="bg-black/60 text-white text-xs px-3 py-1.5 rounded-full font-bold backdrop-blur-sm flex items-center gap-1 shadow">
-<i class="fa-solid fa-expand text-[10px]"></i> Full View
-</span>
-</div>
-</div>
-</div>
-` : '';
-
 activeCard.innerHTML = `
 <div class="flex justify-between items-center border-b pb-3 border-slate-100">
 <span class="font-bold text-slate-800 text-xs">🛠️ Active Task In-Progress</span>
-<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-${item.status}
-</span>
+<span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">${item.status}</span>
 </div>
-
 <div class="bg-blue-50/70 p-3.5 rounded-xl border border-blue-100 text-xs space-y-1.5 text-slate-700">
 <p><strong>ग्राहक:</strong> ${item.customerName}</p>
 <p><strong>सेवा:</strong> ${item.service}</p>
 <p><strong>मोबाइल:</strong> <a href="tel:${item.customerMobile}" class="text-blue-600 font-bold underline">${item.customerMobile}</a></p>
 <p><strong>पत्ता:</strong> ${item.address}</p>
 </div>
-
-${activePhotoHtml}
-
 <div class="grid grid-cols-2 gap-2">
-<a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-📍 Map
-</a>
-<button onclick="openChatModal('${key}', '${item.customerName}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-💬 Chat
-</button>
+<a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">📍 Map</a>
+<button onclick="openChatModal('${key}', '${item.customerName}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">💬 Chat</button>
 </div>
-
 <div class="grid grid-cols-2 gap-2 pt-1">
-<button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
-🚗 On The Way
-</button>
-<button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
-✓ Completed
-</button>
-</div>
-`;
+<button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">🚗 On The Way</button>
+<button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-705 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">✓ Completed</button>
+</div>`;
 acceptedContainer.appendChild(activeCard);
 }
 });
-
 jobCountBadge.innerText = `${pendingCount} New Jobs`;
-if (pendingCount === 0) {
-jobsContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-10">${selectedArea} एरियामध्ये ${currentWorkerService} साठी सध्या एकही नवीन काम उपलब्ध नाही...</p>`;
-}
-if (!activeTaskFound) {
-acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>';
-}
 }
 
 function acceptOrder(orderId) {
     database.ref("orders/" + orderId).update({
-        status: "Accepted",
-        workerMobile: "7875160724",
-        workerUid: currentWorkerUid
-    }).then(() => {
-        alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
-    }).catch((err) => {
-        alert("त्रुटी: " + err.message);
-    });
+        status: "Accepted", workerMobile: "7875160724", workerUid: currentWorkerUid
+    }).then(() => alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!"));
 }
 
 function updateStatus(orderId, newStatus) {
-database.ref("orders/" + orderId).update({
-status: newStatus
-}).then(() => {
-alert("स्टेटस अपडेट केले: " + newStatus);
-});
+    database.ref("orders/" + orderId).update({ status: newStatus }).then(() => {
+        alert("स्टेटस अपडेट केले: " + newStatus);
+        if (newStatus === 'On The Way') {
+            startLiveLocationTracking(orderId); // ऑन द वे क्लिक केल्यावर जीपीएस ट्रॅकिंग सुरू होईल
+        } else if (newStatus === 'Completed') {
+            stopLiveLocationTracking(); // काम संपल्यावर ट्रॅकिंग थांबेल
+        }
+    });
 }
 </script>
 </body>

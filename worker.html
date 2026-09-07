@@ -234,7 +234,6 @@ document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padSta
 currentWorkerService = data.service || "Electrician";
 document.getElementById('workerService').innerText = currentWorkerService;
 
-// जर डेटाबेसमध्ये वॉलेट बॅलन्स असेल तर तो दाखवा
 if(data.wallet !== undefined) {
     document.getElementById('walletAmount').innerText = data.wallet;
 }
@@ -278,19 +277,24 @@ renderJobs();
 }
 }
 
-// Razorpay Integration Function
+// Razorpay Integration with Updated Test Key & Error Handlers
 function payWithRazorpay() {
-    let amountToAdd = 100; // आवडीनुसार अमाऊंट बदलू शकता किंवा इनपुटमधून घेऊ शकता
+    let amountToAdd = 100;
 
     var options = {
-        "key": "Rzp_test_TZDJh19KuTYiSD", // तुमची टेस्ट की
-        "amount": amountToAdd * 100, // पैशांचे पैशांत रूपांतर (100 रु = 10000 पैसे)
+        "key": "Rzp_test_TZDW1396xp9QzE", // नवीन टेस्ट की अपडेट केली आहे
+        "amount": amountToAdd * 100, 
         "currency": "INR",
         "name": "Gharmitra Online",
         "description": "Worker Wallet Recharge",
         "handler": function (response){
             alert("पेमेंट यशस्वी! पेमेंट आयडी: " + response.razorpay_payment_id);
             addMoneyToFirebaseWallet(amountToAdd);
+        },
+        "modal": {
+            "ondismiss": function(){
+                console.log("Payment modal closed by user");
+            }
         },
         "prefill": {
             "name": document.getElementById('workerUsername').innerText,
@@ -303,6 +307,11 @@ function payWithRazorpay() {
     };
     
     var rzp1 = new Razorpay(options);
+    
+    rzp1.on('payment.failed', function (response){
+        alert("Payment Failed: " + response.error.description);
+    });
+
     rzp1.open();
 }
 

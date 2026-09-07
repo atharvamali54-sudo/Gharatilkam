@@ -245,9 +245,9 @@ document.getElementById('workerService').innerText = currentWorkerService;
 renderJobs();
 });
 } else {
-currentWorkerUid = "guest_worker";
-document.getElementById('workerUsername').innerText = "Atharva Mali";
-document.getElementById('workerID').innerText = "GK-000002";
+currentWorkerUid = null;
+document.getElementById('workerUsername').innerText = "Guest Worker";
+document.getElementById('workerID').innerText = "GK-000000";
 currentWorkerService = "Electrician";
 document.getElementById('workerService').innerText = currentWorkerService;
 renderJobs();
@@ -259,8 +259,10 @@ function closeServiceModal() { document.getElementById('serviceModal').classList
 
 function updateWorkerService() {
 const newService = document.getElementById('newServiceSelect').value;
-if (currentWorkerUid && currentWorkerUid !== "guest_worker") {
-database.ref('workers/' + currentWorkerUid).update({
+const user = auth.currentUser;
+
+if (user) {
+database.ref('workers/' + user.uid).update({
 service: newService
 }).then(() => {
 alert("तुमची सर्विस यशस्वीरीत्या बदलण्यात आली आहे!");
@@ -269,20 +271,15 @@ closeServiceModal();
 alert("त्रुटी: " + err.message);
 });
 } else {
-currentWorkerService = newService;
-document.getElementById('workerService').innerText = newService;
-alert("Service updated locally (Guest Mode)");
-closeServiceModal();
-renderJobs();
+alert("कृपया Firebase वर लॉग इन करा, त्यानंतरच सर्विस अपडेट होईल!");
 }
 }
 
-// Razorpay Integration with Newly Generated Test Key Updated
 function payWithRazorpay() {
     let amountToAdd = 100;
 
     var options = {
-        "key": "rzp_test_TZF48VPVnZ9JH2", // नवीन टेस्ट की अपडेट केली आहे
+        "key": "rzp_test_TZF48VPVnZ9JH2",
         "amount": amountToAdd * 100, 
         "currency": "INR",
         "name": "Gharmitra Online",
@@ -327,9 +324,7 @@ function addMoneyToFirebaseWallet(amount) {
             }
         });
     } else {
-        let currentWallet = parseInt(document.getElementById('walletAmount').innerText) || 50;
-        document.getElementById('walletAmount').innerText = currentWallet + amount;
-        alert("वॉलेट अपडेट झाले (Guest Mode)");
+        alert("कृपया वॉलेट रिचार्ज करण्यासाठी आधी लॉग इन करा!");
     }
 }
 
@@ -509,7 +504,7 @@ ${activePhotoHtml}
 </a>
 
 <div class="grid grid-cols-2 gap-2 pt-1">
-<button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
+<button onclick="updateStatus('${key}', 'On TheWay')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
 🚗 On The Way
 </button>
 <button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">

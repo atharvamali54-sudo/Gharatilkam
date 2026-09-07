@@ -173,7 +173,15 @@
                             <p><strong>Service:</strong> <span id="statusService">Not Booked Yet</span></p>
                             <p><strong>Budget:</strong> ₹<span id="statusBudget" class="text-emerald-600 font-bold">-</span></p>
                             <p><strong>Assigned Worker ID/Mobile:</strong> <span id="statusWorker" class="text-blue-600 font-medium">Finding Worker...</span></p>
+                            <p><strong>Worker Rating:</strong> ⭐ <span id="statusWorkerRating" class="text-amber-600 font-bold">Loading...</span></p>
                             <p><strong>Address:</strong> <span id="statusAddress">-</span></p>
+                        </div>
+
+                        <!-- Map Tracking Container (Shown when On The Way) -->
+                        <div id="mapTrackingContainer" class="hidden pt-1">
+                            <a id="trackMapBtn" href="#" target="_blank" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-map-location-dot"></i> Track Worker Live Location on Map
+                            </a>
                         </div>
 
                         <div id="stepsTrackerContainer" class="space-y-4 pt-2">
@@ -197,7 +205,7 @@
                                 <div id="step3Dot" class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
                                 <div>
                                     <h5 class="text-xs font-bold text-slate-400">Worker On The Way</h5>
-                                    <p class="text-[11px] text-slate-400">Worker's location is still unknown.</p>
+                                    <p class="text-[11px] text-slate-400">Worker's location is ready to track.</p>
                                 </div>
                             </div>
 
@@ -238,6 +246,29 @@
         </div>
     </div>
 
+    <!-- Rating Popup Modal -->
+    <div id="ratingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+            <div class="text-4xl">⭐</div>
+            <h3 class="font-bold text-slate-800 text-lg">Rate Your Worker</h3>
+            <p class="text-xs text-slate-500">Kam yashasvirita purana zale aahe. कृपया कामगाराला रेटिंग द्या.</p>
+            
+            <div id="starContainer" class="flex justify-center gap-2 text-2xl text-amber-400 cursor-pointer">
+                <i class="fa-solid fa-star" data-rating="1" onclick="setRating(1)"></i>
+                <i class="fa-solid fa-star" data-rating="2" onclick="setRating(2)"></i>
+                <i class="fa-solid fa-star" data-rating="3" onclick="setRating(3)"></i>
+                <i class="fa-solid fa-star" data-rating="4" onclick="setRating(4)"></i>
+                <i class="fa-solid fa-star" data-rating="5" onclick="setRating(5)"></i>
+            </div>
+            
+            <textarea id="reviewComment" rows="2" placeholder="Write a short review (optional)..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-medium p-3 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+
+            <button onclick="submitWorkerRating()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition text-xs">
+                Submit Rating & Finish
+            </button>
+        </div>
+    </div>
+
     <div id="myOrdersModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -270,8 +301,56 @@
     <script>
         let currentOrderId = null;
         let activeListener = null;
+        let selectedRating = 5;
 
         document.getElementById('bookingDate').valueAsDate = new Date();
+
+        // Rating Star Selection Logic
+        function setRating(rating) {
+            selectedRating = rating;
+            const stars = document.querySelectorAll('#starContainer i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('text-slate-300');
+                    star.classList.add('text-amber-400', 'fa-solid');
+                } else {
+                    star.classList.remove('text-amber-400', 'fa-solid');
+                    star.classList.add('text-slate-300', 'fa-solid');
+                }
+            });
+        }
+
+        // Submit Rating to Firebase
+        function submitWorkerRating() {
+            if (!currentOrderId) return;
+
+            database.ref("orders/" + currentOrderId).once("value", (snapshot) => {
+                const orderData = snapshot.val();
+                if (!orderData || !orderData.workerId) {
+                    closeRatingModal();
+                    return;
+                }
+
+                const workerId = orderData.workerId;
+                const reviewText = document.getElementById('reviewComment').value;
+
+                const ratingRef = database.ref("workers/" + workerId + "/ratings").push();
+                ratingRef.set({
+                    rating: selectedRating,
+                    review: reviewText,
+                    customerName: orderData.customerName,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                }).then(() => {
+                    alert("रेटिंग यशस्वीरीत्या सबमिट झाले! धन्यवाद.");
+                    closeRatingModal();
+                });
+            });
+        }
+
+        function closeRatingModal() {
+            document.getElementById('ratingModal').classList.remove('flex');
+            document.getElementById('ratingModal').classList.add('hidden');
+        }
 
         async function handleFormSubmit(e) {
             e.preventDefault();
@@ -367,6 +446,9 @@
                 const completedMsgBox = document.getElementById('completedOrCancelledMsg');
                 const cancelContainer = document.getElementById('cancelContainer');
                 const workerMobileEl = document.getElementById('statusWorker');
+                const ratingDisplay = document.getElementById('statusWorkerRating');
+                const mapContainer = document.getElementById('mapTrackingContainer');
+                const trackMapBtn = document.getElementById('trackMapBtn');
 
                 let workerInfo = "Verified Worker Assigned";
                 if (data.workerMobile) {
@@ -375,10 +457,43 @@
                     workerInfo = data.workerId;
                 }
 
+                // Fetch Worker Rating dynamically
+                if (data.workerId) {
+                    database.ref("workers/" + data.workerId).once("value", (workerSnap) => {
+                        const workerData = workerSnap.val();
+                        if (workerData && workerData.ratings) {
+                            let total = 0, count = 0;
+                            Object.values(workerData.ratings).forEach(r => {
+                                total += Number(r.rating);
+                                count++;
+                            });
+                            let avg = (total / count).toFixed(1);
+                            ratingDisplay.innerText = `${avg} (${count} reviews)`;
+                        } else {
+                            ratingDisplay.innerText = "New Worker (No ratings yet)";
+                        }
+                    });
+                } else {
+                    ratingDisplay.innerText = "Not assigned yet";
+                }
+
+                // Live Map Tracking Link generation for "On The Way"
+                if (data.status === 'On The Way') {
+                    mapContainer.classList.remove('hidden');
+                    if (data.workerLat && data.workerLng) {
+                        trackMapBtn.href = `https://www.google.com/maps?q=${data.workerLat},${data.workerLng}`;
+                    } else {
+                        trackMapBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.area + ', Pune')}`;
+                    }
+                } else {
+                    mapContainer.classList.add('hidden');
+                }
+
                 if (data.status === 'Completed' || data.status === 'Cancelled') {
                     stepsContainer.classList.add('hidden');
                     cancelContainer.classList.add('hidden');
                     completedMsgBox.classList.remove('hidden');
+                    mapContainer.classList.add('hidden');
 
                     if (data.status === 'Completed') {
                         badgeEl.className = "bg-emerald-100 text-emerald-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
@@ -386,6 +501,13 @@
                         workerMobileEl.innerText = workerInfo;
                         document.getElementById('finishedIcon').innerText = "🎉";
                         document.getElementById('finishedTitle').innerText = "Order Completed Successfully";
+
+                        // Trigger Rating Popup if not rated yet
+                        if (!data.isRated) {
+                            document.getElementById('ratingModal').classList.remove('hidden');
+                            document.getElementById('ratingModal').classList.add('flex');
+                            database.ref("orders/" + orderId).update({ isRated: true });
+                        }
                     } else {
                         badgeEl.className = "bg-red-100 text-red-700 text-[11px] font-bold px-3 py-1 rounded-full flex items-center gap-1";
                         badgeTextEl.innerText = "Order Cancelled";

@@ -247,6 +247,7 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 let isDutyOn = false;
 let allOrdersData = null;
 let currentWorkerUid = null;
+let currentWorkerService = "Electrician"; // डीफॉल्ट सर्विस
 
 auth.onAuthStateChanged((user) => {
 if (user) {
@@ -259,17 +260,22 @@ const data = snapshot.val();
 if (data) {
 const workerNum = data.workerIndex || 1;
 document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
-document.getElementById('workerService').innerText = data.service || "Electrician";
+currentWorkerService = data.service || "Electrician";
+document.getElementById('workerService').innerText = currentWorkerService;
 } else {
 document.getElementById('workerID').innerText = 'GK-000001';
-document.getElementById('workerService').innerText = "General Repair";
+currentWorkerService = "Electrician";
+document.getElementById('workerService').innerText = currentWorkerService;
 }
+renderJobs();
 });
 } else {
 currentWorkerUid = "guest_worker";
 document.getElementById('workerUsername').innerText = "Atharva Mali";
 document.getElementById('workerID').innerText = "GK-000002";
-document.getElementById('workerService').innerText = "Plumbing Work";
+currentWorkerService = "Plumbing Work";
+document.getElementById('workerService').innerText = currentWorkerService;
+renderJobs();
 }
 });
 
@@ -288,9 +294,11 @@ closeServiceModal();
 alert("त्रुटी: " + err.message);
 });
 } else {
+currentWorkerService = newService;
 document.getElementById('workerService').innerText = newService;
 alert("Service updated locally (Guest Mode)");
 closeServiceModal();
+renderJobs();
 }
 }
 
@@ -373,7 +381,11 @@ keys.forEach(key => {
 const item = allOrdersData[key];
 const imgUrl = item.photoUrl || item.imageUrl || item.photo || item.image || null;
 
-if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {
+// फिक्स: एरिया आणि फक्त वर्करच्या सर्विसशी जुळणाऱ्या ऑर्डरच दिसतील (उदा. फक्त Electrician)
+const isAreaMatch = (item.area === selectedArea || !item.area);
+const isServiceMatch = (item.service && item.service.toLowerCase() === currentWorkerService.toLowerCase());
+
+if (item.status === 'Pending' && isAreaMatch && isServiceMatch) {
 pendingCount++;
 const jobCard = document.createElement('div');
 jobCard.className = "bg-slate-50 border border-slate-200 p-4 rounded-2xl hover:border-blue-400 transition shadow-sm space-y-3";
@@ -488,7 +500,7 @@ acceptedContainer.appendChild(activeCard);
 
 jobCountBadge.innerText = `${pendingCount} New Jobs`;
 if (pendingCount === 0) {
-jobsContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-10">${selectedArea} एरियामध्ये सध्या एकही नवीन काम उपलब्ध नाही...</p>`;
+jobsContainer.innerHTML = `<p class="text-slate-400 text-xs text-center py-10">${selectedArea} एरियामध्ये ${currentWorkerService} साठी सध्या एकही नवीन काम उपलब्ध नाही...</p>`;
 }
 if (!activeTaskFound) {
 acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8">तुम्ही अद्याप कोणतेही काम स्वीकारलेले नाही.</p>';

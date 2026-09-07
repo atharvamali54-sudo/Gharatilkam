@@ -81,7 +81,10 @@ Worker Dashboard
 <p class="text-xs font-medium text-blue-200 tracking-wide flex items-center gap-2 flex-wrap">
 <span>ID: <strong id="workerID" class="text-white">GK-000001</strong></span>
 <span>|</span>
-<span>Service: <strong id="workerService" class="text-white">Loading...</strong></span>
+<span class="flex items-center gap-1.5">
+Service: <strong id="workerService" class="text-white">Loading...</strong>
+<button onclick="openServiceModal()" class="bg-white/20 hover:bg-white/30 text-white text-[10px] px-2 py-0.5 rounded-md transition underline">Change</button>
+</span>
 </p>
 </div>
 
@@ -178,6 +181,27 @@ Worker Dashboard
 
 </div>
 
+<!-- Service Change Modal -->
+<div id="serviceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative">
+<button onclick="closeServiceModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
+<h3 class="font-bold text-slate-800 text-base mb-3"><i class="fa-solid fa-tools text-blue-600"></i> तुमची सर्विस बदला</h3>
+<p class="text-xs text-slate-500 mb-4">तुम्हाला हवी असलेली नवीन सर्विस निवडा:</p>
+<select id="newServiceSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm mb-4">
+    <option value="Electrician">Electrician (इलेक्ट्रिक काम)</option>
+    <option value="Plumber">Plumber (प्लंबिंग काम)</option>
+    <option value="Carpenter">Carpenter (सुतारकाम)</option>
+    <option value="Painter">Painter (रंगकाम)</option>
+    <option value="Cleaning">Cleaning (घर स्वच्छता)</option>
+    <option value="AC Repair">AC Repair (एसी रिपेयर)</option>
+</select>
+<button onclick="updateWorkerService()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
+    Service अपडेट करा
+</button>
+</div>
+</div>
+
+<!-- Payment Modal -->
 <div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 relative">
 <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
@@ -222,13 +246,15 @@ Worker Dashboard
 <script>
 let isDutyOn = false;
 let allOrdersData = null;
+let currentWorkerUid = null;
 
 auth.onAuthStateChanged((user) => {
 if (user) {
+currentWorkerUid = user.uid;
 const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
 document.getElementById('workerUsername').innerText = emailPrefix;
 
-database.ref('workers/' + user.uid).once('value', (snapshot) => {
+database.ref('workers/' + user.uid).on('value', (snapshot) => {
 const data = snapshot.val();
 if (data) {
 const workerNum = data.workerIndex || 1;
@@ -240,11 +266,33 @@ document.getElementById('workerService').innerText = "General Repair";
 }
 });
 } else {
+currentWorkerUid = "guest_worker";
 document.getElementById('workerUsername').innerText = "Atharva Mali";
 document.getElementById('workerID').innerText = "GK-000002";
 document.getElementById('workerService').innerText = "Plumbing Work";
 }
 });
+
+function openServiceModal() { document.getElementById('serviceModal').classList.remove('hidden'); }
+function closeServiceModal() { document.getElementById('serviceModal').classList.add('hidden'); }
+
+function updateWorkerService() {
+const newService = document.getElementById('newServiceSelect').value;
+if (currentWorkerUid && currentWorkerUid !== "guest_worker") {
+database.ref('workers/' + currentWorkerUid).update({
+service: newService
+}).then(() => {
+alert("तुमची सर्विस यशस्वीरीत्या बदलण्यात आली आहे!");
+closeServiceModal();
+}).catch((err) => {
+alert("त्रुटी: " + err.message);
+});
+} else {
+document.getElementById('workerService').innerText = newService;
+alert("Service updated locally (Guest Mode)");
+closeServiceModal();
+}
+}
 
 function openPaymentModal() { document.getElementById('paymentModal').classList.remove('hidden'); }
 function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
@@ -323,8 +371,6 @@ let activeTaskFound = false;
 
 keys.forEach(key => {
 const item = allOrdersData[key];
-
-// सर्व संभाव्य फोटो कीजचा सपोर्ट समाविष्ट केला आहे
 const imgUrl = item.photoUrl || item.imageUrl || item.photo || item.image || null;
 
 if (item.status === 'Pending' && (item.area === selectedArea || !item.area)) {

@@ -7,9 +7,13 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <style>
 .card-3d {
@@ -91,7 +95,7 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 <div class="inner-3d-box p-4 rounded-2xl text-center min-w-[145px] w-full sm:w-auto text-slate-800">
 <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">WALLET BALANCE</span>
 <span class="text-2xl font-black text-emerald-600 block my-1">₹<span id="walletAmount">50</span></span>
-<button onclick="openPaymentModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-1">
+<button onclick="payWithRazorpay()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs py-2 px-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-1">
 <i class="fa-solid fa-plus text-[10px]"></i> Add Money
 </button>
 </div>
@@ -201,40 +205,7 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 </div>
 </div>
 
-<!-- Payment Modal -->
-<div id="paymentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-<div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100 relative">
-<button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
-
-<div class="flex items-center justify-center gap-2 mb-3">
-<div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">AM</div>
-<div class="text-left">
-<h4 class="font-bold text-slate-800 text-base leading-tight">Atharva Mali</h4>
-<p class="text-[11px] text-slate-500">Scan or click below to pay</p>
-</div>
-</div>
-
-<div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 inline-block mb-3">
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=maliatulmali07@okicici%26pn=Atharva%20Mali" alt="UPI QR Code" class="w-44 h-44 rounded-xl mx-auto shadow-sm">
-</div>
-
-<p class="text-xs text-slate-600 font-medium mb-1">Scan to pay with any UPI app</p>
-<div class="bg-blue-50 border border-blue-100 p-2 rounded-xl mb-4 flex items-center justify-between text-xs">
-<span class="text-slate-600 font-semibold truncate">UPI ID: <strong class="text-blue-700">maliatulmali07@okicici</strong></span>
-<button onclick="copyUpi()" class="text-blue-600 font-bold hover:underline text-[11px]">Copy</button>
-</div>
-
-<div class="grid grid-cols-2 gap-2">
-<a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs py-2.5 rounded-xl border border-slate-200 transition">
-🔵 Google Pay / PhonePe
-</a>
-<a href="upi://pay?pa=maliatulmali07@okicici&pn=Atharva%20Mali&cu=INR" class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 rounded-xl shadow-sm transition">
-⚡ Any UPI App
-</a>
-</div>
-</div>
-</div>
-
+<!-- Image Preview Modal -->
 <div id="imagePreviewModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeImagePreview()">
   <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
     <button onclick="closeImagePreview()" class="absolute -top-12 right-0 text-white hover:text-slate-300 text-2xl font-bold bg-white/20 hover:bg-white/40 w-10 h-10 rounded-full flex items-center justify-center transition">✕</button>
@@ -247,7 +218,7 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 let isDutyOn = false;
 let allOrdersData = null;
 let currentWorkerUid = null;
-let currentWorkerService = "Electrician"; // डीफॉल्ट सर्विस
+let currentWorkerService = "Electrician";
 
 auth.onAuthStateChanged((user) => {
 if (user) {
@@ -262,6 +233,11 @@ const workerNum = data.workerIndex || 1;
 document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
 currentWorkerService = data.service || "Electrician";
 document.getElementById('workerService').innerText = currentWorkerService;
+
+// जर डेटाबेसमध्ये वॉलेट बॅलन्स असेल तर तो दाखवा
+if(data.wallet !== undefined) {
+    document.getElementById('walletAmount').innerText = data.wallet;
+}
 } else {
 document.getElementById('workerID').innerText = 'GK-000001';
 currentWorkerService = "Electrician";
@@ -273,7 +249,7 @@ renderJobs();
 currentWorkerUid = "guest_worker";
 document.getElementById('workerUsername').innerText = "Atharva Mali";
 document.getElementById('workerID').innerText = "GK-000002";
-currentWorkerService = "Plumbing Work";
+currentWorkerService = "Electrician";
 document.getElementById('workerService').innerText = currentWorkerService;
 renderJobs();
 }
@@ -302,11 +278,50 @@ renderJobs();
 }
 }
 
-function openPaymentModal() { document.getElementById('paymentModal').classList.remove('hidden'); }
-function closePaymentModal() { document.getElementById('paymentModal').classList.add('hidden'); }
-function copyUpi() {
-navigator.clipboard.writeText("maliatulmali07@okicici");
-alert("UPI ID कॉपी केला आहे!");
+// Razorpay Integration Function
+function payWithRazorpay() {
+    let amountToAdd = 100; // आवडीनुसार अमाऊंट बदलू शकता किंवा इनपुटमधून घेऊ शकता
+
+    var options = {
+        "key": "Rzp_test_TZDJh19KuTYiSD", // तुमची टेस्ट की
+        "amount": amountToAdd * 100, // पैशांचे पैशांत रूपांतर (100 रु = 10000 पैसे)
+        "currency": "INR",
+        "name": "Gharmitra Online",
+        "description": "Worker Wallet Recharge",
+        "handler": function (response){
+            alert("पेमेंट यशस्वी! पेमेंट आयडी: " + response.razorpay_payment_id);
+            addMoneyToFirebaseWallet(amountToAdd);
+        },
+        "prefill": {
+            "name": document.getElementById('workerUsername').innerText,
+            "email": auth.currentUser ? auth.currentUser.email : "worker@gharmitra.online",
+            "contact": "7875160724"
+        },
+        "theme": {
+            "color": "#2563eb"
+        }
+    };
+    
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+}
+
+function addMoneyToFirebaseWallet(amount) {
+    const user = auth.currentUser;
+    if (user) {
+        const walletRef = database.ref('workers/' + user.uid + '/wallet');
+        walletRef.transaction(currentBalance => {
+            return (currentBalance || 50) + amount;
+        }, (error, committed, snapshot) => {
+            if (!error && committed) {
+                alert("वॉलेटमध्ये यशस्वीरित्या पैसे जमा झाले!");
+            }
+        });
+    } else {
+        let currentWallet = parseInt(document.getElementById('walletAmount').innerText) || 50;
+        document.getElementById('walletAmount').innerText = currentWallet + amount;
+        alert("वॉलेट अपडेट झाले (Guest Mode)");
+    }
 }
 
 function openImagePreview(url) {
@@ -381,7 +396,6 @@ keys.forEach(key => {
 const item = allOrdersData[key];
 const imgUrl = item.photoUrl || item.imageUrl || item.photo || item.image || null;
 
-// फिक्स: एरिया आणि फक्त वर्करच्या सर्विसशी जुळणाऱ्या ऑर्डरच दिसतील (उदा. फक्त Electrician)
 const isAreaMatch = (item.area === selectedArea || !item.area);
 const isServiceMatch = (item.service && item.service.toLowerCase() === currentWorkerService.toLowerCase());
 
@@ -508,11 +522,9 @@ acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8
 }
 
 function acceptOrder(orderId) {
-    const workerMobileNumber = "7875160724";
-
     database.ref("orders/" + orderId).update({
         status: "Accepted",
-        workerMobile: workerMobileNumber
+        workerMobile: "7875160724"
     }).then(() => {
         alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
     }).catch((err) => {

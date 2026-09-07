@@ -90,6 +90,13 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 <button onclick="openServiceModal()" class="bg-white/20 hover:bg-white/30 text-white text-[10px] px-2 py-0.5 rounded-md transition underline">Change</button>
 </span>
 </p>
+<!-- Rating Display Box inside Card -->
+<div class="flex items-center gap-2 pt-1">
+<span class="bg-amber-400 text-slate-900 text-xs font-black px-2 py-0.5 rounded-md flex items-center gap-1">
+<i class="fa-solid fa-star text-[10px]"></i> <span id="workerAvgRating">5.0</span>
+</span>
+<span class="text-xs text-blue-100 font-medium">(<span id="workerTotalReviews">0</span> Reviews)</span>
+</div>
 </div>
 
 <div class="inner-3d-box p-4 rounded-2xl text-center min-w-[145px] w-full sm:w-auto text-slate-800">
@@ -205,6 +212,25 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 </div>
 </div>
 
+<!-- Chat Modal -->
+<div id="chatModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+<div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-100 flex flex-col h-[450px]">
+<div class="flex justify-between items-center border-b pb-3 mb-3">
+<h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+<i class="fa-solid fa-comments text-blue-600"></i> Customer Chat (<span id="chatCustomerName">Client</span>)
+</h3>
+<button onclick="closeChatModal()" class="text-slate-400 hover:text-slate-700 font-bold text-base">✕</button>
+</div>
+<div id="chatMessagesContainer" class="flex-1 overflow-y-auto space-y-2 p-2 bg-slate-50 rounded-xl border border-slate-200 text-xs">
+<p class="text-center text-slate-400 py-4">मेसेज लोड होत आहेत...</p>
+</div>
+<div class="mt-3 flex gap-2">
+<input type="text" id="chatInputMsg" placeholder="मेसेज लिहा..." class="flex-1 bg-slate-100 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
+<button onclick="sendChatMessage()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs shadow">पाठवा</button>
+</div>
+</div>
+</div>
+
 <!-- Image Preview Modal -->
 <div id="imagePreviewModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4" onclick="closeImagePreview()">
   <div class="relative max-w-4xl w-full max-h-[90vh] flex flex-col items-center justify-center" onclick="event.stopPropagation()">
@@ -219,6 +245,7 @@ let isDutyOn = false;
 let allOrdersData = null;
 let currentWorkerUid = null;
 let currentWorkerService = "Electrician";
+let activeChatOrderId = null;
 
 auth.onAuthStateChanged((user) => {
 if (user) {
@@ -236,6 +263,12 @@ document.getElementById('workerService').innerText = currentWorkerService;
 
 if(data.wallet !== undefined) {
     document.getElementById('walletAmount').innerText = data.wallet;
+}
+if(data.rating !== undefined) {
+    document.getElementById('workerAvgRating').innerText = Number(data.rating).toFixed(1);
+}
+if(data.totalReviews !== undefined) {
+    document.getElementById('workerTotalReviews').innerText = data.totalReviews;
 }
 } else {
 document.getElementById('workerID').innerText = 'GK-000001';
@@ -326,6 +359,49 @@ function addMoneyToFirebaseWallet(amount) {
     } else {
         alert("कृपया वॉलेट रिचार्ज करण्यासाठी आधी लॉग इन करा!");
     }
+}
+
+function openChatModal(orderId, customerName) {
+    activeChatOrderId = orderId;
+    document.getElementById('chatCustomerName').innerText = customerName;
+    document.getElementById('chatModal').classList.remove('hidden');
+    
+    database.ref('orders/' + orderId + '/chats').on('value', (snapshot) => {
+        const chatBox = document.getElementById('chatMessagesContainer');
+        chatBox.innerHTML = "";
+        const msgs = snapshot.val();
+        if(msgs) {
+            Object.values(msgs).forEach(msg => {
+                const isMe = msg.sender === 'worker';
+                chatBox.innerHTML += `<div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[75%] p-2 rounded-xl ${isMe ? 'bg-blue-600 text-white' : 'bg-white border text-slate-800'}">
+                        <p>${msg.text}</p>
+                    </div>
+                </div>`;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } else {
+            chatBox.innerHTML = '<p class="text-center text-slate-400 py-4">अद्याप कोणताही मेसेज नाही.</p>';
+        }
+    });
+}
+
+function closeChatModal() {
+    document.getElementById('chatModal').classList.add('hidden');
+    activeChatOrderId = null;
+}
+
+function sendChatMessage() {
+    const txt = document.getElementById('chatInputMsg').value.trim();
+    if(!txt || !activeChatOrderId) return;
+    
+    database.ref('orders/' + activeChatOrderId + '/chats').push({
+        sender: 'worker',
+        text: txt,
+        timestamp: Date.now()
+    }).then(() => {
+        document.getElementById('chatInputMsg').value = "";
+    });
 }
 
 function openImagePreview(url) {
@@ -499,16 +575,21 @@ ${item.status}
 
 ${activePhotoHtml}
 
-<a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5 mb-2">
-📍 Navigate via Google Map
+<div class="grid grid-cols-2 gap-2">
+<a href="https://maps.google.com/?q=${encodeURIComponent(item.address)}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+📍 Map
 </a>
+<button onclick="openChatModal('${key}', '${item.customerName}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+💬 Chat
+</button>
+</div>
 
 <div class="grid grid-cols-2 gap-2 pt-1">
-<button onclick="updateStatus('${key}', 'On TheWay')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
+<button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
 🚗 On The Way
 </button>
 <button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">
-✓ Work Completed
+✓ Completed
 </button>
 </div>
 `;
@@ -528,7 +609,8 @@ acceptedContainer.innerHTML = '<p class="text-slate-400 text-xs text-center py-8
 function acceptOrder(orderId) {
     database.ref("orders/" + orderId).update({
         status: "Accepted",
-        workerMobile: "7875160724"
+        workerMobile: "7875160724",
+        workerUid: currentWorkerUid
     }).then(() => {
         alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!");
     }).catch((err) => {

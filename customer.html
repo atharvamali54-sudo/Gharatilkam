@@ -172,15 +172,15 @@
                         <div class="text-xs space-y-1.5 text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                             <p><strong>Service:</strong> <span id="statusService">Not Booked Yet</span></p>
                             <p><strong>Budget:</strong> ₹<span id="statusBudget" class="text-emerald-600 font-bold">-</span></p>
-                            <p><strong>Assigned Worker ID/Mobile:</strong> <span id="statusWorker" class="text-blue-600 font-medium">Finding Worker...</span></p>
+                            <p><strong>Assigned Worker:</strong> <span id="statusWorker" class="text-blue-600 font-medium">Finding Worker...</span></p>
                             <p><strong>Worker Rating:</strong> ⭐ <span id="statusWorkerRating" class="text-amber-600 font-bold">Loading...</span></p>
                             <p><strong>Address:</strong> <span id="statusAddress">-</span></p>
                         </div>
 
-                        <!-- Map Tracking Container (Shown when On The Way) -->
+                        <!-- Live Moving Tracking Map Container (Swiggy Style) -->
                         <div id="mapTrackingContainer" class="hidden pt-1">
                             <a id="trackMapBtn" href="#" target="_blank" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
-                                <i class="fa-solid fa-map-location-dot"></i> Track Worker Live Location on Map
+                                <i class="fa-solid fa-map-location-dot animate-pulse text-emerald-400"></i> Track Worker Live on Map (Moving)
                             </a>
                         </div>
 
@@ -205,7 +205,7 @@
                                 <div id="step3Dot" class="w-6 h-6 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
                                 <div>
                                     <h5 class="text-xs font-bold text-slate-400">Worker On The Way</h5>
-                                    <p class="text-[11px] text-slate-400">Worker's location is ready to track.</p>
+                                    <p class="text-[11px] text-slate-400">Live moving location tracking is ready.</p>
                                 </div>
                             </div>
 
@@ -221,7 +221,7 @@
                         <div id="completedOrCancelledMsg" class="hidden text-center py-6 space-y-2">
                             <div id="finishedIcon" class="text-3xl">🎉</div>
                             <h4 id="finishedTitle" class="font-bold text-slate-800 text-sm">Order Completed</h4>
-                            <p class="text-xs text-slate-500">ही ऑर्डर पूर्ण किंवा रद्द झाली आहे, त्यामुळे हिचे लाईव्ह ट्रॅकिंग उपलब्ध नाही.</p>
+                            <p class="text-xs text-slate-500">ही ऑर्डर पूर्ण किंवा रद्द झाली आहे, त्यामुळे लाईव्ह ट्रॅकिंग बंद आहे.</p>
                         </div>
 
                         <div id="cancelContainer" class="pt-3 border-t border-slate-100 hidden">
@@ -269,6 +269,7 @@
         </div>
     </div>
 
+    <!-- Past Orders Modal -->
     <div id="myOrdersModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -305,7 +306,6 @@
 
         document.getElementById('bookingDate').valueAsDate = new Date();
 
-        // Rating Star Selection Logic
         function setRating(rating) {
             selectedRating = rating;
             const stars = document.querySelectorAll('#starContainer i');
@@ -320,7 +320,6 @@
             });
         }
 
-        // Submit Rating to Firebase
         function submitWorkerRating() {
             if (!currentOrderId) return;
 
@@ -372,23 +371,19 @@
 
             try {
                 if (photoInput.files && photoInput.files.length > 0) {
-                    try {
-                        const file = photoInput.files[0];
-                        const formData = new FormData();
-                        formData.append("image", file);
+                    const file = photoInput.files[0];
+                    const formData = new FormData();
+                    formData.append("image", file);
 
-                        const apiKey = "d541e208822d67e4ed1fc4244d04c0c3"; 
-                        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-                            method: "POST",
-                            body: formData
-                        });
+                    const apiKey = "d541e208822d67e4ed1fc4244d04c0c3"; 
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+                        method: "POST",
+                        body: formData
+                    });
 
-                        const result = await response.json();
-                        if (result.success) {
-                            photoUrl = result.data.url; 
-                        }
-                    } catch (uploadErr) {
-                        console.warn("Image upload failed:", uploadErr);
+                    const result = await response.json();
+                    if (result.success) {
+                        photoUrl = result.data.url; 
                     }
                 }
 
@@ -410,9 +405,7 @@
                 };
 
                 await newOrderRef.set(payload);
-
                 alert("तुमची अपॉइंटमेंट यशस्वीरीत्या बुक झाली आहे!");
-                
                 trackLiveStatus(currentOrderId);
 
             } catch (err) {
@@ -457,7 +450,6 @@
                     workerInfo = data.workerId;
                 }
 
-                // Fetch Worker Rating dynamically
                 if (data.workerId) {
                     database.ref("workers/" + data.workerId).once("value", (workerSnap) => {
                         const workerData = workerSnap.val();
@@ -477,11 +469,11 @@
                     ratingDisplay.innerText = "Not assigned yet";
                 }
 
-                // Live Map Tracking Link generation for "On The Way"
+                // Swiggy style Live Moving Location handling
                 if (data.status === 'On The Way') {
                     mapContainer.classList.remove('hidden');
                     if (data.workerLat && data.workerLng) {
-                        trackMapBtn.href = `https://www.google.com/maps?q=${data.workerLat},${data.workerLng}`;
+                        trackMapBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${data.workerLat},${data.workerLng}&travelmode=driving`;
                     } else {
                         trackMapBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.area + ', Pune')}`;
                     }
@@ -502,7 +494,6 @@
                         document.getElementById('finishedIcon').innerText = "🎉";
                         document.getElementById('finishedTitle').innerText = "Order Completed Successfully";
 
-                        // Trigger Rating Popup if not rated yet
                         if (!data.isRated) {
                             document.getElementById('ratingModal').classList.remove('hidden');
                             document.getElementById('ratingModal').classList.add('flex');

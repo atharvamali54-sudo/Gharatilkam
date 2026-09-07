@@ -200,18 +200,27 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 </div>
 </div>
 
-<!-- Service Change Modal -->
+<!-- Service Change Modal (Updated with all services) -->
 <div id="serviceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative">
 <button onclick="closeServiceModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
 <h3 class="font-bold text-slate-800 text-base mb-3"><i class="fa-solid fa-tools text-blue-600"></i> तुमची सर्विस बदला</h3>
 <select id="newServiceSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-800 font-semibold py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm mb-4">
+    <option value="Plumbing">Plumbing (प्लंबिंग काम)</option>
     <option value="Electrician">Electrician (इलेक्ट्रिक काम)</option>
-    <option value="Plumber">Plumber (प्लंबिंग काम)</option>
     <option value="Carpenter">Carpenter (सुतारकाम)</option>
-    <option value="Painter">Painter (रंगकाम)</option>
+    <option value="Painting">Painting (रंगकाम)</option>
     <option value="Cleaning">Cleaning (घर स्वच्छता)</option>
     <option value="AC Repair">AC Repair (एसी रिपेयर)</option>
+    <option value="Appliance Repair">Appliance Repair (उपकरण दुरुस्ती)</option>
+    <option value="Masonry">Masonry (बांधकाम/गिलावा)</option>
+    <option value="Locksmith">Locksmith (कुलूप दुरुस्ती)</option>
+    <option value="Pest Control">Pest Control (कीटक नियंत्रण)</option>
+    <option value="Gardening">Gardening (बागकाम)</option>
+    <option value="Glass & Aluminium">Glass & Aluminium (काच व ॲल्युमिनियम)</option>
+    <option value="TV & DTH">TV & DTH (टीव्ही आणि डीटीएच)</option>
+    <option value="Moving & Shifting">Moving & Shifting (सामान स्थलांतर)</option>
+    <option value="Bathroom Services">Bathroom Services (बाथरूम सेवा)</option>
 </select>
 <button onclick="updateWorkerService()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
     Service अपडेट करा
@@ -291,7 +300,7 @@ function loadWorkerEarnings(workerUid) {
         const orders = snapshot.val();
         let todaySum = 0;
         let todayCount = 0;
-        let weeklyData = [0, 0, 0, 0, 0, 0, 0]; // सोम ते रविवारी कमाई
+        let weeklyData = [0, 0, 0, 0, 0, 0, 0]; 
         
         const todayStr = new Date().toLocaleDateString();
 
@@ -303,8 +312,7 @@ function loadWorkerEarnings(workerUid) {
                         todaySum += amount;
                         todayCount++;
                     }
-                    // सोपी युनिव्हर्सल पद्धत: आठवड्यातील डमी किंवा रिअल डेटा मॅपिंग
-                    let dayIndex = new Date(order.timestamp || Date.now()).getDay(); // 0 (Sun) to 6 (Sat)
+                    let dayIndex = new Date(order.timestamp || Date.now()).getDay(); 
                     weeklyData[dayIndex] += amount;
                 }
             });
@@ -351,7 +359,6 @@ function startLiveLocationTracking(orderId) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             
-            // Firebase मध्ये वर्करचे लाईव्ह जीपीएस लोकेशन सेव्ह करणे
             database.ref('orders/' + orderId + '/workerLocation').set({
                 lat: lat,
                 lng: lng,
@@ -365,7 +372,7 @@ function startLiveLocationTracking(orderId) {
             timeout: 5000
         });
     } else {
-        alert("तुमच्याブラウザमध्ये जीपीएस लोकेशन सपोर्ट उपलब्ध नाही.");
+        alert("तुमच्या ब्राउझरमध्ये जीपीएस लोकेशन सपोर्ट उपलब्ध नाही.");
     }
 }
 
@@ -542,7 +549,7 @@ ${photoHtml}
 jobsContainer.appendChild(jobCard);
 }
 
-if ((item.status === 'Accepted' || item.status === 'On The Way') && !activeTaskFound) {
+if ((item.status === 'Accepted' || item.status === 'On The Way') && !activeTaskFound && item.workerUid === currentWorkerUid) {
 activeTaskFound = true;
 const activeCard = document.createElement('div');
 activeCard.className = "bg-white p-5 rounded-2xl border border-emerald-200 shadow-md space-y-4";
@@ -563,7 +570,7 @@ activeCard.innerHTML = `
 </div>
 <div class="grid grid-cols-2 gap-2 pt-1">
 <button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">🚗 On The Way</button>
-<button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-705 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">✓ Completed</button>
+<button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">✓ Completed</button>
 </div>`;
 acceptedContainer.appendChild(activeCard);
 }
@@ -572,8 +579,12 @@ jobCountBadge.innerText = `${pendingCount} New Jobs`;
 }
 
 function acceptOrder(orderId) {
+    if (!currentWorkerUid) {
+        alert("कृपया आधी लॉग इन करा!");
+        return;
+    }
     database.ref("orders/" + orderId).update({
-        status: "Accepted", workerMobile: "7875160724", workerUid: currentWorkerUid
+        status: "Accepted", workerUid: currentWorkerUid
     }).then(() => alert("तुम्ही हे काम यशस्वीरीत्या स्वीकारले आहे!"));
 }
 
@@ -581,9 +592,9 @@ function updateStatus(orderId, newStatus) {
     database.ref("orders/" + orderId).update({ status: newStatus }).then(() => {
         alert("स्टेटस अपडेट केले: " + newStatus);
         if (newStatus === 'On The Way') {
-            startLiveLocationTracking(orderId); // ऑन द वे क्लिक केल्यावर जीपीएस ट्रॅकिंग सुरू होईल
+            startLiveLocationTracking(orderId); 
         } else if (newStatus === 'Completed') {
-            stopLiveLocationTracking(); // काम संपल्यावर ट्रॅकिंग थांबेल
+            stopLiveLocationTracking(); 
         }
     });
 }

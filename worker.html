@@ -78,7 +78,7 @@ Worker Dashboard
 <i class="fa-solid fa-user-gear text-xs text-blue-300"></i> Worker: <span id="workerUsername" class="text-white font-bold underline decoration-blue-300 underline-offset-2">Loading...</span>
 </p>
 <p class="text-xs font-medium text-blue-200 tracking-wide flex items-center gap-2 flex-wrap">
-<span>ID: <strong id="workerID" class="text-white">GK-000001</strong></span>
+<span>ID: <strong id="workerID" class="text-white">GK-000000</strong></span>
 <span>|</span>
 <span class="flex items-center gap-1.5">
 Service: <strong id="workerService" class="text-white">Loading...</strong>
@@ -266,57 +266,66 @@ let locationWatchId = null;
 let earningsChartInstance = null;
 
 auth.onAuthStateChanged((user) => {
-if (user) {
-currentWorkerUid = user.uid;
-const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
-document.getElementById('workerUsername').innerText = emailPrefix;
+    if (user) {
+        currentWorkerUid = user.uid;
+        const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
+        document.getElementById('workerUsername').innerText = emailPrefix;
 
-// चेक करा की वर्करचा डेटाबेसमध्ये रेकॉर्ड आहे का, नसेल तर ऑटोमॅटिक सिरिअल नंबर (workerIndex) तयार करा
-const workerRef = database.ref('workers/' + user.uid);
-workerRef.once('value').then((snapshot) => {
-    if (!snapshot.exists()) {
-        // नवीन वर्करसाठी सिरिअल काउंटर मोजणे
-        database.ref('system/totalWorkersCount').transaction((currentCount) => {
-            return (currentCount || 0) + 1;
-        }, (error, committed, snapshotVal) => {
-            if (committed) {
-                const assignedIndex = snapshotVal.val();
-                workerRef.set({
-                    workerIndex: assignedIndex,
-                    service: "Electrician",
-                    wallet: 50,
-                    rating: 5.0,
-                    totalReviews: 0,
-                    email: user.email || ""
+        const workerRef = database.ref('workers/' + user.uid);
+
+        workerRef.once('value').then((snapshot) => {
+            if (snapshot.exists()) {
+                updateWorkerUI(snapshot.val());
+            } else {
+                const counterRef = database.ref('system/totalWorkersCount');
+                counterRef.transaction((currentCount) => {
+                    return (currentCount || 0) + 1;
+                }, (error, committed, snapshotVal) => {
+                    if (committed) {
+                        const newIndex = snapshotVal.val();
+                        const newWorkerData = {
+                            workerIndex: newIndex,
+                            service: "Electrician",
+                            wallet: 50,
+                            rating: 5.0,
+                            totalReviews: 0,
+                            email: user.email || ""
+                        };
+                        workerRef.set(newWorkerData).then(() => {
+                            updateWorkerUI(newWorkerData);
+                        });
+                    }
                 });
             }
         });
+
+        workerRef.on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                updateWorkerUI(snapshot.val());
+            }
+        });
+
+        loadWorkerEarnings(user.uid);
+    } else {
+        currentWorkerUid = null;
+        document.getElementById('workerUsername').innerText = "Guest Worker";
+        document.getElementById('workerID').innerText = "GK-000000";
+        renderJobs();
     }
 });
 
-// रिअल टाईम वर्कर डेटा मॉनिटर करणे
-workerRef.on('value', (snapshot) => {
-const data = snapshot.val();
-if (data) {
-const workerNum = data.workerIndex || 1;
-document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
-currentWorkerService = data.service || "Electrician";
-document.getElementById('workerService').innerText = currentWorkerService;
+function updateWorkerUI(data) {
+    const workerNum = data.workerIndex || 1;
+    document.getElementById('workerID').innerText = 'GK-' + String(workerNum).padStart(6, '0');
+    currentWorkerService = data.service || "Electrician";
+    document.getElementById('workerService').innerText = currentWorkerService;
 
-if(data.wallet !== undefined) document.getElementById('walletAmount').innerText = data.wallet;
-if(data.rating !== undefined) document.getElementById('workerAvgRating').innerText = Number(data.rating).toFixed(1);
-if(data.totalReviews !== undefined) document.getElementById('workerTotalReviews').innerText = data.totalReviews;
+    if(data.wallet !== undefined) document.getElementById('walletAmount').innerText = data.wallet;
+    if(data.rating !== undefined) document.getElementById('workerAvgRating').innerText = Number(data.rating).toFixed(1);
+    if(data.totalReviews !== undefined) document.getElementById('workerTotalReviews').innerText = data.totalReviews;
+    
+    renderJobs();
 }
-renderJobs();
-});
-loadWorkerEarnings(user.uid);
-} else {
-currentWorkerUid = null;
-document.getElementById('workerUsername').innerText = "Guest Worker";
-document.getElementById('workerID').innerText = "GK-000000";
-renderJobs();
-}
-});
 
 // कमाई आणि साप्ताहिक अहवाल लोड करणे व ग्राफ दाखवणे
 function loadWorkerEarnings(workerUid) {

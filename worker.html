@@ -273,7 +273,10 @@ auth.onAuthStateChanged((user) => {
 
         const workerRef = database.ref('workers/' + user.uid);
 
+        let dataLoaded = false;
+
         workerRef.once('value').then((snapshot) => {
+            dataLoaded = true;
             if (snapshot.exists()) {
                 updateWorkerUI(snapshot.val());
             } else {
@@ -281,23 +284,27 @@ auth.onAuthStateChanged((user) => {
                 counterRef.transaction((currentCount) => {
                     return (currentCount || 0) + 1;
                 }, (error, committed, snapshotVal) => {
-                    if (committed) {
-                        const newIndex = snapshotVal.val();
-                        const newWorkerData = {
-                            workerIndex: newIndex,
-                            service: "Electrician",
-                            wallet: 50,
-                            rating: 5.0,
-                            totalReviews: 0,
-                            email: user.email || ""
-                        };
-                        workerRef.set(newWorkerData).then(() => {
-                            updateWorkerUI(newWorkerData);
-                        });
-                    }
+                    const newIndex = committed ? snapshotVal.val() : Math.floor(Math.random() * 1000) + 1;
+                    const newWorkerData = {
+                        workerIndex: newIndex,
+                        service: "Electrician",
+                        wallet: 50,
+                        rating: 5.0,
+                        totalReviews: 0,
+                        email: user.email || ""
+                    };
+                    workerRef.set(newWorkerData).then(() => {
+                        updateWorkerUI(newWorkerData);
+                    });
                 });
             }
         });
+
+        setTimeout(() => {
+            if (!dataLoaded) {
+                updateWorkerUI({ workerIndex: 1, service: "Electrician", wallet: 50, rating: 5.0, totalReviews: 0 });
+            }
+        }, 3000);
 
         workerRef.on('value', (snapshot) => {
             if (snapshot.exists()) {
@@ -327,7 +334,6 @@ function updateWorkerUI(data) {
     renderJobs();
 }
 
-// कमाई आणि साप्ताहिक अहवाल लोड करणे व ग्राफ दाखवणे
 function loadWorkerEarnings(workerUid) {
     database.ref('orders').orderByChild('workerUid').equalTo(workerUid).on('value', (snapshot) => {
         const orders = snapshot.val();
@@ -385,7 +391,6 @@ function renderEarningsChart(dataVals) {
     });
 }
 
-// लाईव्ह लोकेशन ट्रॅकिंग फंक्शन
 function startLiveLocationTracking(orderId) {
     if ("geolocation" in navigator) {
         locationWatchId = navigator.geolocation.watchPosition((position) => {
@@ -420,14 +425,14 @@ function openServiceModal() { document.getElementById('serviceModal').classList.
 function closeServiceModal() { document.getElementById('serviceModal').classList.add('hidden'); }
 
 function updateWorkerService() {
-const newService = document.getElementById('newServiceSelect').value;
-const user = auth.currentUser;
-if (user) {
-database.ref('workers/' + user.uid).update({ service: newService }).then(() => {
-alert("तुमची सर्विस यशस्वीरीत्या बदलण्यात आली आहे!");
-closeServiceModal();
-});
-}
+    const newService = document.getElementById('newServiceSelect').value;
+    const user = auth.currentUser;
+    if (user) {
+        database.ref('workers/' + user.uid).update({ service: newService }).then(() => {
+            alert("तुमची सर्विस यशस्वीरीत्या बदलण्यात आली आहे!");
+            closeServiceModal();
+        });
+    }
 }
 
 function payWithRazorpay() {
@@ -603,7 +608,7 @@ activeCard.innerHTML = `
 </div>
 <div class="grid grid-cols-2 gap-2 pt-1">
 <button onclick="updateStatus('${key}', 'On The Way')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">🚗 On The Way</button>
-<button onclick="updateStatus('${key}', 'Completed')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">✓ Completed</button>
+<button onclick="updateStatus('${key}', 'Completed')" class="dev bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] transition shadow-sm">✓ Completed</button>
 </div>`;
 acceptedContainer.appendChild(activeCard);
 }

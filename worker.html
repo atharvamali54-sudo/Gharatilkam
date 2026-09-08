@@ -200,7 +200,7 @@ Service: <strong id="workerService" class="text-white">Loading...</strong>
 </div>
 </div>
 
-<!-- Service Change Modal (Updated with all services) -->
+<!-- Service Change Modal -->
 <div id="serviceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
 <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 relative">
 <button onclick="closeServiceModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-lg font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
@@ -271,7 +271,31 @@ currentWorkerUid = user.uid;
 const emailPrefix = user.email ? user.email.split('@')[0] : "Worker";
 document.getElementById('workerUsername').innerText = emailPrefix;
 
-database.ref('workers/' + user.uid).on('value', (snapshot) => {
+// चेक करा की वर्करचा डेटाबेसमध्ये रेकॉर्ड आहे का, नसेल तर ऑटोमॅटिक सिरिअल नंबर (workerIndex) तयार करा
+const workerRef = database.ref('workers/' + user.uid);
+workerRef.once('value').then((snapshot) => {
+    if (!snapshot.exists()) {
+        // नवीन वर्करसाठी सिरिअल काउंटर मोजणे
+        database.ref('system/totalWorkersCount').transaction((currentCount) => {
+            return (currentCount || 0) + 1;
+        }, (error, committed, snapshotVal) => {
+            if (committed) {
+                const assignedIndex = snapshotVal.val();
+                workerRef.set({
+                    workerIndex: assignedIndex,
+                    service: "Electrician",
+                    wallet: 50,
+                    rating: 5.0,
+                    totalReviews: 0,
+                    email: user.email || ""
+                });
+            }
+        });
+    }
+});
+
+// रिअल टाईम वर्कर डेटा मॉनिटर करणे
+workerRef.on('value', (snapshot) => {
 const data = snapshot.val();
 if (data) {
 const workerNum = data.workerIndex || 1;
